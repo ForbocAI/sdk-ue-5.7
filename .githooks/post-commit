@@ -1,0 +1,10 @@
+#!/bin/sh
+# Syncs the demo repo's submodule pin to this SDK's latest commit.
+# Configure with: git config forboc.demoPath /path/to/demo-ue-5.7
+DEMO=$(git config forboc.demoPath)
+[ -z "$DEMO" ] && exit 0
+[ -d "$DEMO" ] || { echo "[forboc] demo path not found: $DEMO"; exit 0; }
+git -C "$DEMO" submodule update --remote Plugins/ForbocAI_SDK && \
+git -C "$DEMO" add Plugins/ForbocAI_SDK && \
+git -C "$DEMO" diff --cached --quiet || \
+git -C "$DEMO" commit -m "chore: update SDK submodule to latest"

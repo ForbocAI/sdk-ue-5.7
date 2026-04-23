@@ -41,6 +41,24 @@ The **ForbocAI SDK for Unreal Engine 5.7** drives hyper-realistic NPC behavior t
 
 ---
 
+## Development Setup
+
+`Dév_Sétup // Hóoks`
+
+After cloning, run the setup script to activate git hooks:
+
+```bash
+# Basic — just enables hooks
+./scripts/setup-hooks.sh
+
+# With demo repo — auto-syncs demo-ue-5.7 submodule after every commit/pull
+./scripts/setup-hooks.sh /path/to/demo-ue-5.7
+```
+
+The hooks are in `.githooks/` and tracked by git. The demo path is stored in your local git config (`forboc.demoPath`) and is never committed.
+
+---
+
 ## Installation
 
 `Instáll_Séquence // Fab_Dównload`
