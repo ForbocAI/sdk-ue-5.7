@@ -10,8 +10,17 @@
 #include "Serialization/JsonSerializer.h"
 #include "Serialization/JsonWriter.h"
 
-#if PLATFORM_MAC || PLATFORM_UNIX
+#if PLATFORM_WINDOWS
+#include "Windows/AllowWindowsPlatformTypes.h"
+#include <winsock2.h>
+#include "Windows/HideWindowsPlatformTypes.h"
+#elif PLATFORM_MAC || PLATFORM_UNIX
+#include <arpa/inet.h>
+#include <fcntl.h>
+#include <netinet/in.h>
+#include <sys/socket.h>
 #include <sys/stat.h>
+#include <unistd.h>
 #endif
 
 /**
@@ -122,6 +131,63 @@ inline void ResetToDefaults() {
   DatabasePathStorage() = TEXT("");
   VectorDimensionStorage() = DEFAULT_VECTOR_DIMENSION;
   MaxRecallResultsStorage() = DEFAULT_MAX_RECALL_RESULTS;
+}
+
+/**
+ * Extracts the port number from a localhost URL (e.g. "http://localhost:8080" → 8080).
+ */
+inline int32 ExtractLocalhostPort(const FString &Url) {
+  const int32 LastColon =
+      Url.Find(TEXT(":"), ESearchCase::IgnoreCase, ESearchDir::FromEnd);
+  if (LastColon == INDEX_NONE) return 8080;
+  const int32 Port = FCString::Atoi(*Url.Mid(LastColon + 1));
+  return (Port > 0 && Port < 65536) ? Port : 8080;
+}
+
+/**
+ * Returns true if localhost:Port accepts a TCP connection within 200 ms.
+ */
+inline bool IsLocalHostReachable(int32 Port) {
+#if PLATFORM_WINDOWS
+  WSADATA WsaData;
+  if (WSAStartup(MAKEWORD(2, 2), &WsaData) != 0) return false;
+  SOCKET Sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+  if (Sock == INVALID_SOCKET) { WSACleanup(); return false; }
+  u_long NonBlocking = 1;
+  ioctlsocket(Sock, FIONBIO, &NonBlocking);
+  sockaddr_in Addr = {};
+  Addr.sin_family = AF_INET;
+  Addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+  Addr.sin_port = htons(static_cast<u_short>(Port));
+  connect(Sock, reinterpret_cast<sockaddr *>(&Addr), sizeof(Addr));
+  fd_set WriteSet;
+  FD_ZERO(&WriteSet);
+  FD_SET(Sock, &WriteSet);
+  timeval Timeout = {0, 200000};
+  const bool bUp = select(0, nullptr, &WriteSet, nullptr, &Timeout) > 0;
+  closesocket(Sock);
+  WSACleanup();
+  return bUp;
+#elif PLATFORM_MAC || PLATFORM_UNIX
+  const int Sock = socket(AF_INET, SOCK_STREAM, 0);
+  if (Sock < 0) return false;
+  fcntl(Sock, F_SETFL, O_NONBLOCK);
+  sockaddr_in Addr = {};
+  Addr.sin_family = AF_INET;
+  Addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+  Addr.sin_port = htons(static_cast<uint16_t>(Port));
+  connect(Sock, reinterpret_cast<sockaddr *>(&Addr), sizeof(Addr));
+  fd_set WriteSet;
+  FD_ZERO(&WriteSet);
+  FD_SET(Sock, &WriteSet);
+  timeval Timeout = {0, 200000};
+  const bool bUp =
+      select(Sock + 1, nullptr, &WriteSet, nullptr, &Timeout) > 0;
+  close(Sock);
+  return bUp;
+#else
+  return false;
+#endif
 }
 
 /**
@@ -519,6 +585,11 @@ inline void InitializeConfig() {
   InitializedStorage()
       ? void()
       : (ResetToDefaults(), LoadFromConfigFile(), LoadFromEnvironment(),
+         ((ApiUrlStorage().Contains(TEXT("localhost")) ||
+           ApiUrlStorage().Contains(TEXT("127.0.0.1"))) &&
+                  !IsLocalHostReachable(ExtractLocalhostPort(ApiUrlStorage()))
+              ? (void)(ApiUrlStorage() = PRODUCTION_API_URL)
+              : void()),
          (void)(InitializedStorage() = true));
 }
 
