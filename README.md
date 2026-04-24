@@ -48,14 +48,16 @@ The **ForbocAI SDK for Unreal Engine 5.7** drives hyper-realistic NPC behavior t
 After cloning, run the setup script to activate git hooks:
 
 ```bash
-# Basic — just enables hooks
 ./scripts/setup-hooks.sh
-
-# With demo repo — auto-syncs demo-ue-5.7 submodule after every commit/pull
-./scripts/setup-hooks.sh /path/to/demo-ue-5.7
 ```
 
-The hooks are in `.githooks/` and tracked by git. The demo path is stored in your local git config (`forboc.demoPath`) and is never committed.
+The hooks are in `.githooks/` and tracked by git.
+
+**Demo repo sync** (`demo-ue-5.7`) is handled automatically by GitHub Actions — the submodule pin updates on every push to `main` with no local setup required. The optional `forboc.demoPath` config is for local hook-based sync if you prefer it:
+
+```bash
+git config forboc.demoPath /path/to/demo-ue-5.7
+```
 
 ---
 
@@ -92,7 +94,8 @@ Get the plugin directly from **Fab** (formerly Unreal Engine Marketplace).
 // 1. Create an agent via factory function (public domain values stay data-first)
 FAgentConfig Config;
 Config.Persona = TEXT("Cyber-Merchant");
-// Config.ApiUrl is optional; SDKConfig defaults to http://localhost:8080.
+// Config.ApiUrl is optional; SDKConfig defaults to http://localhost:8080,
+// and automatically falls back to https://api.forboc.ai if localhost is unreachable.
 
 const FAgent Merchant = AgentFactory::Create(Config);
 
@@ -146,6 +149,8 @@ The SDK includes a built-in Commandlet for verification and administration.
 
 ### Windows
 
+> **Prerequisites:** [VS Build Tools 2022](https://aka.ms/vs/17/release/vs_buildtools.exe) with the **C++ Build Tools** workload and **Windows 11 SDK** must be installed before building the plugin.
+
 ```powershell
 & "C:\Program Files\Epic Games\UE_5.7\Engine\Binaries\Win64\UnrealEditor-Cmd.exe" `
   "C:\Path\To\Your.uproject" `
@@ -178,7 +183,7 @@ The SDK includes a built-in Commandlet for verification and administration.
 **Example `doctor` output:**
 ```
 ForbocAI CLI (UE5) - Command: doctor
-API Status: online (v1.0.0)
+API Status: online (v2.0.0)
 ```
 
 ---
