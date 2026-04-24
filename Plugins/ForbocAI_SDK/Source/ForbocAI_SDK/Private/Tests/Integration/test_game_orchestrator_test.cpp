@@ -51,7 +51,7 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
 bool FTestGameRunGameSuccessTest::RunTest(const FString &Parameters) {
   (void)Parameters;
 
-  const FGameRunResult Result =
+  const auto Result =
       RunGame(EPlayMode::Autoplay, MakeExecutor());
 
   TestTrue("Run completes when all commands succeed", Result.bComplete);
@@ -79,7 +79,7 @@ bool FTestGameRunGameTranscriptErrorFailsTest::RunTest(
   AddExpectedError(TEXT("stub failure"),
                    EAutomationExpectedErrorFlags::Contains, 1);
 
-  const FGameRunResult Result =
+  const auto Result =
       RunGame(EPlayMode::Autoplay,
               MakeExecutor(TEXT("forbocai npc state doomguard")));
 
@@ -106,7 +106,7 @@ bool FTestGameRunGameFailedCommandLeavesCoverageGapTest::RunTest(
   AddExpectedError(TEXT("stub failure"),
                    EAutomationExpectedErrorFlags::Contains, 1);
 
-  const FGameRunResult Result =
+  const auto Result =
       RunGame(EPlayMode::Autoplay, MakeExecutor(TEXT("forbocai status")));
 
   TestFalse("Run fails when a unique coverage command errors", Result.bComplete);

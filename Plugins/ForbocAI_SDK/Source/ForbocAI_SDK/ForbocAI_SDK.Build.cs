@@ -126,6 +126,8 @@ public class ForbocAI_SDK : ModuleRules
 			 * User Story: As a maintainer, I need this note so the surrounding code intent stays clear during maintenance and debugging.
 			 */
 			bEnableExceptions = true;
+			CppCompileWarningSettings.UndefinedIdentifierWarningLevel = WarningLevel.Off;
+			CppCompileWarningSettings.ShadowVariableWarningLevel = WarningLevel.Off;
 		}
 
 		PublicDefinitions.Add("WITH_FORBOC_NATIVE=" + (bHasNativeLlama ? "1" : "0"));

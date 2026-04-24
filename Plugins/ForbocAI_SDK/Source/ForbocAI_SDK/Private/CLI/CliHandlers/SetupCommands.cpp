@@ -652,6 +652,7 @@ Result SetupThirdPartyDeps(rtk::EnhancedStore<FStoreState> &Store,
             ++DownloadCount;
             return true;
           } catch (const std::exception &E) {
+            (void)E;
             UE_LOG(LogTemp, Warning, TEXT("  [FAIL] %s: %s"),
                    *FPaths::GetCleanFilename(Dest),
                    UTF8_TO_TCHAR(E.what()));
