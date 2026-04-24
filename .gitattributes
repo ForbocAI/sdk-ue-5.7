@@ -1,0 +1,37 @@
+# Auto-normalize line endings
+* text=auto
+
+# Force CRLF for C++ source (Windows UE convention)
+*.h text eol=crlf
+*.hpp text eol=crlf
+*.cpp text eol=crlf
+*.c text eol=crlf
+*.cs text eol=crlf
+
+# Force LF for scripts and markdown
+*.sh text eol=lf
+*.py text eol=lf
+*.md text eol=lf
+*.json text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+
+# Binary files
+*.uasset binary
+*.umap binary
+*.uplugin text
+*.dll binary
+*.exe binary
+*.so binary
+*.dylib binary
+*.png binary
+*.jpg binary
+*.bmp binary
+*.tga binary
+*.wav binary
+*.mp3 binary
+*.ogg binary
+*.fbx binary
+*.obj binary
+*.gguf binary
+*.bin binary
