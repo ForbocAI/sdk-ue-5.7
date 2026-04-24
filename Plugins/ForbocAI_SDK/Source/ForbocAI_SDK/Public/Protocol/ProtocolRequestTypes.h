@@ -60,7 +60,33 @@ struct FNPCProcessTape {
   UPROPERTY(BlueprintReadOnly, Category = "Protocol")
   bool bVectorQueried;
 
-  FNPCProcessTape() : bHasActor(false), bVectorQueried(false) {}
+  /** Decision step result — goal selected by the local decision handler. */
+  UPROPERTY(BlueprintReadOnly, Category = "Protocol")
+  FString DecisionIntentGoal;
+
+  /** Decision step result — action type selected by the local decision handler. */
+  UPROPERTY(BlueprintReadOnly, Category = "Protocol")
+  FString DecisionIntentActionType;
+
+  /** Whether the decision step has been completed in this tape. */
+  UPROPERTY(BlueprintReadOnly, Category = "Protocol")
+  bool bDecisionCompleted;
+
+  /** Reasoning step result — the chain-of-thought text from local SLM. */
+  UPROPERTY(BlueprintReadOnly, Category = "Protocol")
+  FString ReasoningText;
+
+  /** Reasoning step result — the final response text from local SLM. */
+  UPROPERTY(BlueprintReadOnly, Category = "Protocol")
+  FString ResponseText;
+
+  /** Whether the reasoning step has been completed in this tape. */
+  UPROPERTY(BlueprintReadOnly, Category = "Protocol")
+  bool bReasoningCompleted;
+
+  FNPCProcessTape()
+      : bHasActor(false), bVectorQueried(false), bDecisionCompleted(false),
+        bReasoningCompleted(false) {}
 };
 
 USTRUCT(BlueprintType)

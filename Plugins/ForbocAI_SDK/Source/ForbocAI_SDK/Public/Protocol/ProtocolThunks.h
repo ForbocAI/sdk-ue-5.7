@@ -174,6 +174,89 @@ HandleQueryVector(const FNPCProcessResponse &Response,
 }
 
 /**
+ * Handles the Decision protocol instruction by returning a decision intent.
+ * User Story: As protocol instruction dispatch, I need the Decision step
+ * handled so the multi-round loop can advance past the decision phase
+ * without stalling. The API issues DecisionInstruction after QueryVector;
+ * the SDK must return a DecisionResult with goal and actionType so the
+ * tape includes decisionIntent on subsequent /process calls.
+ *
+ * Note: This is currently a stub returning a placeholder intent. The stub
+ * prevents the loop from stalling. It will be replaced with real local
+ * decision logic once the decision policy is finalized.
+ */
+inline func::AsyncResult<FAgentResponse>
+HandleDecision(const FNPCProcessResponse &Response,
+               const FString &NpcId, const FString &Input,
+               const FString &RunId, int32 Turn,
+               const FProtocolRuntime &Runtime,
+               std::function<AnyAction(const AnyAction &)> Dispatch,
+               std::function<FStoreState()> GetState) {
+  FNPCProcessTape NextTape = Response.Tape;
+  NextTape.DecisionIntentGoal = TEXT("respond");
+  NextTape.DecisionIntentActionType = TEXT("dialogue");
+  NextTape.bDecisionCompleted = true;
+
+  return RunProtocolTurn(
+      NpcId, Input, RunId, NextTape,
+      TEXT("{\"type\":\"Decision\",\"decisionOutput\":"
+           "{\"goal\":\"respond\",\"actionType\":\"dialogue\"}}"),
+      true, Turn + 1, Runtime, Dispatch, GetState);
+}
+
+/**
+ * Handles the Reasoning protocol instruction by invoking the local SLM
+ * cortex and returning a ReasoningResult with reasoningText and responseText.
+ * User Story: As protocol instruction dispatch, I need the Reasoning step
+ * handled so the multi-round loop can advance from Decision to Finalize.
+ * The API issues ReasoningInstruction after DecisionInstruction; the SDK
+ * must invoke local inference and return both reasoning and response text
+ * so the tape includes reasoningOutput on subsequent /process calls.
+ */
+inline func::AsyncResult<FAgentResponse>
+HandleReasoning(const FNPCProcessResponse &Response,
+                const FNPCInstruction &Instruction,
+                const FString &NpcId, const FString &Input,
+                const FString &RunId, int32 Turn,
+                const FProtocolRuntime &Runtime,
+                std::function<AnyAction(const AnyAction &)> Dispatch,
+                std::function<FStoreState()> GetState) {
+  return !Runtime.HasCortex()
+             ? (Dispatch(DirectiveSlice::Actions::DirectiveRunFailed(
+                    RunId,
+                    TEXT("API requested reasoning, but no local cortex is "
+                         "configured"))),
+                RejectAsync<FAgentResponse>(
+                    TEXT("API requested reasoning, but no local cortex is "
+                         "configured")))
+             : (Dispatch(DirectiveSlice::Actions::ContextComposed(
+                    RunId, Instruction.Prompt, Instruction.Constraints)),
+                func::AsyncChain::then<FCortexResponse, FAgentResponse>(
+                    Runtime.CompleteInference(
+                        Instruction.Prompt,
+                        Instruction.Constraints)(Dispatch, GetState),
+                    [NpcId, Input, RunId, Response, Turn, Dispatch, GetState,
+                     Runtime](const FCortexResponse &Generated) {
+                      FNPCProcessTape NextTape = Response.Tape;
+                      NextTape.ReasoningText = Generated.Text;
+                      NextTape.ResponseText = Generated.Text;
+                      NextTape.bReasoningCompleted = true;
+
+                      FString ResultJson = FString::Printf(
+                          TEXT("{\"type\":\"Reasoning\","
+                               "\"reasoningOutput\":"
+                               "{\"reasoningText\":\"%s\","
+                               "\"responseText\":\"%s\"}}"),
+                          *Generated.Text.ReplaceCharWithEscapedChar(),
+                          *Generated.Text.ReplaceCharWithEscapedChar());
+
+                      return RunProtocolTurn(
+                          NpcId, Input, RunId, NextTape, ResultJson, true,
+                          Turn + 1, Runtime, Dispatch, GetState);
+                    }));
+}
+
+/**
  * Handles the ExecuteInference protocol instruction by dispatching context
  * composition and chaining local cortex completion into the next turn.
  * User Story: As protocol instruction dispatch, I need inference execution
@@ -302,6 +385,15 @@ RunProtocolTurn(const FString &NpcId, const FString &Input,
                             ? HandleQueryVector(Response, Instruction, NpcId,
                                                 Input, RunId, Turn, Runtime,
                                                 Dispatch, GetState)
+                        : Instruction.Type ==
+                                  ENPCInstructionType::Decision
+                            ? HandleDecision(Response, NpcId, Input, RunId,
+                                             Turn, Runtime, Dispatch, GetState)
+                        : Instruction.Type ==
+                                  ENPCInstructionType::Reasoning
+                            ? HandleReasoning(Response, Instruction, NpcId,
+                                              Input, RunId, Turn, Runtime,
+                                              Dispatch, GetState)
                         : Instruction.Type ==
                                   ENPCInstructionType::ExecuteInference
                             ? HandleExecuteInference(

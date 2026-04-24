@@ -121,6 +121,8 @@ UENUM(BlueprintType)
 enum class ENPCInstructionType : uint8 {
   IdentifyActor,
   QueryVector,
+  Decision,
+  Reasoning,
   ExecuteInference,
   Finalize
 };
