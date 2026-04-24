@@ -183,7 +183,7 @@ The SDK includes a built-in Commandlet for verification and administration.
 **Example `doctor` output:**
 ```
 ForbocAI CLI (UE5) - Command: doctor
-API Status: online (v2.0.0)
+API Status: online (v0.4.0)
 ```
 
 ---
