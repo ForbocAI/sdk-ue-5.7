@@ -10,7 +10,7 @@
  * User Story: As an SDK integrator, I need this type or module note so I can understand the role of the surrounding API surface quickly.
  */
 UENUM(BlueprintType)
-enum class ECortexEngine : uint8 { Mock, Remote, NodeLlamaCpp, WebLlm };
+enum class ECortexEngine : uint8 { Stub, Remote, NodeLlamaCpp, WebLlm };
 
 /**
  * Cortex Init Request
@@ -126,7 +126,7 @@ struct FCortexStatus {
   FString Error;
 
   FCortexStatus()
-      : bReady(false), Engine(ECortexEngine::Mock), DownloadProgress(0.0f) {}
+      : bReady(false), Engine(ECortexEngine::Stub), DownloadProgress(0.0f) {}
 };
 
 /**

@@ -270,7 +270,7 @@ initNodeVectorThunk(const FString &EmbeddingModelPath = TEXT("")) {
 #else
           static_cast<void>(EmbeddingModelPath);
           /**
-           * G3: Mock mode — embedder is "ready" immediately
+           * G3: Stub mode — embedder is "ready" immediately
            * User Story: As a maintainer, I need this implementation note so I can understand which milestone behavior the surrounding code is preserving.
            */
           Dispatch(CortexSlice::Actions::SetEmbedderReady(true));

@@ -17,6 +17,7 @@ set -euo pipefail
 #   5. No direct HTTP calls in command handler files
 #   6. No `if` statements in non-test code (ternary only)
 #   7. No `switch` statements (visitor/variant dispatch only)
+#   8. No mocking — the word "mock" must not appear in demo tests or new code
 #
 # Usage:
 #   bash scripts/check-ue-fp-conformance.sh
@@ -306,6 +307,61 @@ if [ -n "$SWITCH_REAL" ]; then
   echo "$SWITCH_REAL" | head -10
 else
   pass "No switch statements in first-party code"
+fi
+
+echo ""
+
+# ── 8. No mocking ─────────────────────────────────────────────
+# Mocking is strictly prohibited. Tests exercise real code paths
+# or skip gracefully when infrastructure is unavailable.
+# Legacy rtk_test_mocks.h is quarantined under Private/Tests/Core/.
+
+echo "── Rule 8: No mocking (strict policy) ──"
+
+# Check demo test files (if demo source exists alongside SDK)
+DEMO_SRC="$ROOT/../../Source/DemoProject"
+MOCK_VIOLATIONS=""
+
+# Check SDK Public/ and Private/ (excluding quarantined legacy tests)
+SDK_MOCK="$(rg -ni '\bmock\b' \
+  "$SRC/Public" \
+  --glob '!**/ThirdParty/**' \
+  --type-add 'cpp:*.{h,hpp,cpp}' --type cpp \
+  2>/dev/null || true)"
+
+[ -n "$SDK_MOCK" ] && MOCK_VIOLATIONS="$MOCK_VIOLATIONS
+$SDK_MOCK"
+
+# Check demo tests if present
+if [ -d "$DEMO_SRC/Tests" ]; then
+  DEMO_MOCK="$(rg -ni '\bmock\b' \
+    "$DEMO_SRC/Tests" \
+    --type-add 'cpp:*.{h,hpp,cpp}' --type cpp \
+    2>/dev/null || true)"
+  [ -n "$DEMO_MOCK" ] && MOCK_VIOLATIONS="$MOCK_VIOLATIONS
+$DEMO_MOCK"
+fi
+
+# Check demo non-test source if present
+if [ -d "$DEMO_SRC" ]; then
+  DEMO_SRC_MOCK="$(rg -ni '\bmock\b' \
+    "$DEMO_SRC" \
+    --glob '!**/Tests/**' \
+    --type-add 'cpp:*.{h,hpp,cpp}' --type cpp \
+    2>/dev/null || true)"
+  [ -n "$DEMO_SRC_MOCK" ] && MOCK_VIOLATIONS="$MOCK_VIOLATIONS
+$DEMO_SRC_MOCK"
+fi
+
+MOCK_VIOLATIONS="$(echo "$MOCK_VIOLATIONS" | sed '/^$/d')"
+
+if [ -n "$MOCK_VIOLATIONS" ]; then
+  fail "Mock references found (mocking is strictly prohibited):"
+  echo "$MOCK_VIOLATIONS" | head -20
+  MOCK_COUNT="$(echo "$MOCK_VIOLATIONS" | wc -l | tr -d ' ')"
+  [ "$MOCK_COUNT" -gt 20 ] && echo "  ... and $((MOCK_COUNT - 20)) more"
+else
+  pass "No mock references in demo or SDK public code"
 fi
 
 echo ""
