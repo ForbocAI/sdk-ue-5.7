@@ -211,7 +211,7 @@ inline FTestGameState TestGameReducer(const FTestGameState &State,
 
 inline FTestGameState CreateInitialTestGameState() {
   FTestGameState Initial;
-  Initial.Scenario.Steps = GetDefaultScenarioSteps();
+  Initial.Scenario.Steps = {};
   return Initial;
 }
 

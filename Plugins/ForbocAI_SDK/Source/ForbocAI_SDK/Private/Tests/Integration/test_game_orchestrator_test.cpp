@@ -7,7 +7,7 @@ namespace {
 
 int32 CountScenarioCommands() {
   int32 Count = 0;
-  const TArray<FScenarioStep> Steps = GetDefaultScenarioSteps();
+  const TArray<FScenarioStep> Steps = Contract::GetContractScenarioSteps();
   for (const FScenarioStep &Step : Steps) {
     Count += Step.Commands.Num();
   }

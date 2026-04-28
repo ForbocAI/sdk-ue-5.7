@@ -1104,7 +1104,6 @@ struct FScenarioSliceState {
  * User Story: As scenario slice bootstrapping, I need the canonical step list
  * so store initialization can seed the default scenario sequence.
  */
-TArray<FScenarioStep> GetDefaultScenarioSteps();
 
 /**
  * Builds the read-only scenario slice for the test game.
@@ -1113,7 +1112,7 @@ TArray<FScenarioStep> GetDefaultScenarioSteps();
  */
 inline rtk::Slice<FScenarioSliceState> CreateScenarioSlice() {
   FScenarioSliceState Initial;
-  Initial.Steps = GetDefaultScenarioSteps();
+  Initial.Steps = {};
   return rtk::buildSlice(
       rtk::sliceBuilder<FScenarioSliceState>(TEXT("testgame/scenario"),
                                              Initial));

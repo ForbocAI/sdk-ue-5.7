@@ -302,10 +302,10 @@ inline TArray<FScenarioStep> GetContractScenarioSteps(
                             "(%d scenarios)"),
                        *Contract.Version, Contract.Scenarios.Num()),
                 ConvertScenariosRecursive(Contract.Scenarios, 0, {}))
-             : (UE_LOG(LogTemp, Warning,
+             : (UE_LOG(LogTemp, Error,
                        TEXT("TestGameContract: API contract unavailable, "
-                            "falling back to local TestGameScenarios.h")),
-                GetDefaultScenarioSteps());
+                            "no local fallback exists")),
+                TArray<FScenarioStep>());
 }
 
 /**
@@ -322,58 +322,9 @@ inline TArray<FString> ValidateContractParity(
   TArray<FString> Violations;
 
   const FContractResponse Contract = FetchContract(ApiUrl);
-  !Contract.bValid
-      ? (Violations.Add(TEXT("Cannot reach API contract endpoint")), void())
-      : void();
-
   return !Contract.bValid
-             ? Violations
-             : [&]() {
-    const TArray<FScenarioStep> LocalSteps = GetDefaultScenarioSteps();
-    const TArray<FScenarioStep> ApiSteps =
-        ConvertScenariosRecursive(Contract.Scenarios, 0, {});
-
-    // Check scenario count
-    LocalSteps.Num() != ApiSteps.Num()
-        ? (Violations.Add(FString::Printf(
-               TEXT("Scenario count mismatch: local=%d, api=%d"),
-               LocalSteps.Num(), ApiSteps.Num())),
-           void())
-        : void();
-
-    // Check scenario ids match (recursive)
-    const int32 MinCount =
-        FMath::Min(LocalSteps.Num(), ApiSteps.Num());
-
-    const auto CheckIdsRecursive =
-        [&](int32 Idx, const auto &Self) -> void {
-      return Idx >= MinCount
-                 ? void()
-                 : (LocalSteps[Idx].Id != ApiSteps[Idx].Id
-                        ? (Violations.Add(FString::Printf(
-                               TEXT("Scenario[%d] id mismatch: "
-                                    "local='%s', api='%s'"),
-                               Idx, *LocalSteps[Idx].Id,
-                               *ApiSteps[Idx].Id)),
-                           void())
-                        : void(),
-                    // Check command count per scenario
-                    LocalSteps[Idx].Commands.Num() !=
-                            ApiSteps[Idx].Commands.Num()
-                        ? (Violations.Add(FString::Printf(
-                               TEXT("Scenario '%s' command count "
-                                    "mismatch: local=%d, api=%d"),
-                               *LocalSteps[Idx].Id,
-                               LocalSteps[Idx].Commands.Num(),
-                               ApiSteps[Idx].Commands.Num())),
-                           void())
-                        : void(),
-                    Self(Idx + 1, Self));
-    };
-    CheckIdsRecursive(0, CheckIdsRecursive);
-
-    return Violations;
-  }();
+      ? (Violations.Add(TEXT("Cannot reach API contract endpoint")), Violations)
+      : Violations;
 }
 
 } // namespace Contract
