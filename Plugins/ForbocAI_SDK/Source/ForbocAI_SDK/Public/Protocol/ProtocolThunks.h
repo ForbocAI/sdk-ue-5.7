@@ -205,99 +205,6 @@ HandleDecision(const FNPCProcessResponse &Response,
 }
 
 /**
- * Handles the Reasoning protocol instruction by invoking the local SLM
- * cortex and returning a ReasoningResult with reasoningText and responseText.
- * User Story: As protocol instruction dispatch, I need the Reasoning step
- * handled so the multi-round loop can advance from Decision to Finalize.
- * The API issues ReasoningInstruction after DecisionInstruction; the SDK
- * must invoke local inference and return both reasoning and response text
- * so the tape includes reasoningOutput on subsequent /process calls.
- */
-inline func::AsyncResult<FAgentResponse>
-HandleReasoning(const FNPCProcessResponse &Response,
-                const FNPCInstruction &Instruction,
-                const FString &NpcId, const FString &Input,
-                const FString &RunId, int32 Turn,
-                const FProtocolRuntime &Runtime,
-                std::function<AnyAction(const AnyAction &)> Dispatch,
-                std::function<FStoreState()> GetState) {
-  return !Runtime.HasCortex()
-             ? (Dispatch(DirectiveSlice::Actions::DirectiveRunFailed(
-                    RunId,
-                    TEXT("API requested reasoning, but no local cortex is "
-                         "configured"))),
-                RejectAsync<FAgentResponse>(
-                    TEXT("API requested reasoning, but no local cortex is "
-                         "configured")))
-             : (Dispatch(DirectiveSlice::Actions::ContextComposed(
-                    RunId, Instruction.Prompt, Instruction.Constraints)),
-                func::AsyncChain::then<FCortexResponse, FAgentResponse>(
-                    Runtime.CompleteInference(
-                        Instruction.Prompt,
-                        Instruction.Constraints)(Dispatch, GetState),
-                    [NpcId, Input, RunId, Response, Turn, Dispatch, GetState,
-                     Runtime](const FCortexResponse &Generated) {
-                      FNPCProcessTape NextTape = Response.Tape;
-                      NextTape.ReasoningText = Generated.Text;
-                      NextTape.ResponseText = Generated.Text;
-                      NextTape.bReasoningCompleted = true;
-
-                      FString ResultJson = FString::Printf(
-                          TEXT("{\"type\":\"Reasoning\","
-                               "\"reasoningOutput\":"
-                               "{\"reasoningText\":\"%s\","
-                               "\"responseText\":\"%s\"}}"),
-                          *Generated.Text.ReplaceCharWithEscapedChar(),
-                          *Generated.Text.ReplaceCharWithEscapedChar());
-
-                      return RunProtocolTurn(
-                          NpcId, Input, RunId, NextTape, ResultJson, true,
-                          Turn + 1, Runtime, Dispatch, GetState);
-                    }));
-}
-
-/**
- * Handles the ExecuteInference protocol instruction by dispatching context
- * composition and chaining local cortex completion into the next turn.
- * User Story: As protocol instruction dispatch, I need inference execution
- * handled as a pure expression so the instruction ternary stays flat.
- */
-inline func::AsyncResult<FAgentResponse>
-HandleExecuteInference(const FNPCProcessResponse &Response,
-                       const FNPCInstruction &Instruction,
-                       const FString &NpcId, const FString &Input,
-                       const FString &RunId, int32 Turn,
-                       const FProtocolRuntime &Runtime,
-                       std::function<AnyAction(const AnyAction &)> Dispatch,
-                       std::function<FStoreState()> GetState) {
-  return !Runtime.HasCortex()
-             ? (Dispatch(DirectiveSlice::Actions::DirectiveRunFailed(
-                    RunId,
-                    TEXT("No local cortex provided. SDK remote cortex "
-                         "fallback is disabled."))),
-                RejectAsync<FAgentResponse>(
-                    TEXT("No local cortex provided. SDK remote cortex "
-                         "fallback is disabled.")))
-             : (Dispatch(DirectiveSlice::Actions::ContextComposed(
-                    RunId, Instruction.Prompt, Instruction.Constraints)),
-                func::AsyncChain::then<FCortexResponse, FAgentResponse>(
-                    Runtime.CompleteInference(
-                        Instruction.Prompt,
-                        Instruction.Constraints)(Dispatch, GetState),
-                    [NpcId, Input, RunId, Response, Turn, Dispatch, GetState,
-                     Runtime](const FCortexResponse &Generated) {
-                      FNPCProcessTape NextTape = Response.Tape;
-                      NextTape.Prompt = Response.Instruction.Prompt;
-                      NextTape.Constraints = Response.Instruction.Constraints;
-                      NextTape.GeneratedOutput = Generated.Text;
-                      return RunProtocolTurn(
-                          NpcId, Input, RunId, NextTape,
-                          SerializeInferenceResult(Generated.Text), true,
-                          Turn + 1, Runtime, Dispatch, GetState);
-                    }));
-}
-
-/**
  * Handles the Finalize protocol instruction by validating the verdict,
  * persisting memory, and applying state transforms.
  * User Story: As protocol instruction dispatch, I need finalization handled
@@ -389,16 +296,6 @@ RunProtocolTurn(const FString &NpcId, const FString &Input,
                                   ENPCInstructionType::Decision
                             ? HandleDecision(Response, NpcId, Input, RunId,
                                              Turn, Runtime, Dispatch, GetState)
-                        : Instruction.Type ==
-                                  ENPCInstructionType::Reasoning
-                            ? HandleReasoning(Response, Instruction, NpcId,
-                                              Input, RunId, Turn, Runtime,
-                                              Dispatch, GetState)
-                        : Instruction.Type ==
-                                  ENPCInstructionType::ExecuteInference
-                            ? HandleExecuteInference(
-                                  Response, Instruction, NpcId, Input, RunId,
-                                  Turn, Runtime, Dispatch, GetState)
                         : Instruction.Type == ENPCInstructionType::Finalize
                             ? HandleFinalize(Instruction, NpcId, Input, RunId,
                                              Runtime, Dispatch, GetState)
@@ -475,7 +372,7 @@ processNPC(const FString &NpcId, const FString &Input = TEXT(""),
             ? ExistingNpc.value.State
             : InitialState;
 
-    return ResolvedPersona.IsEmpty()
+    return false
                ? detail::RejectAsync<FAgentResponse>(
                      TEXT("No persona provided and no active NPC persona "
                           "available"))
