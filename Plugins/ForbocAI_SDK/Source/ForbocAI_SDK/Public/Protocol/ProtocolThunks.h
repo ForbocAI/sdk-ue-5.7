@@ -1,5 +1,20 @@
 #pragma once
 
+// Handler classification — pinned by the canonical instruction sequence in
+// classified/docs/design/api/architecture.md § Canonical Instruction Sequence.
+// Drift between this table and the dispatcher is treated as a contract bug.
+//
+//   Local        — handler executes a host-side capability (recall, lookup, etc.)
+//   Pass-through — handler only acknowledges API-supplied tape state and recurses
+//
+// | Instruction        | Classification | Reason                                                          |
+// | ------------------ | -------------- | --------------------------------------------------------------- |
+// | IdentifyActor      | Local          | UE resolves actor info from the runtime registry                |
+// | QueryVector        | Local          | UE runs the configured memory engine recall                     |
+// | Decision           | Local          | UE applies the local decision policy (currently a placeholder)  |
+// | Reasoning          | Pass-through   | API hosts the SLM; UE only acks and continues (2026-04-27)      |
+// | Finalize           | Local          | UE persists memory, applies state delta, dispatches verdict     |
+
 #include "Core/ThunkDetail.h"
 #include "Cortex/CortexThunks.h"
 #include "DirectiveSlice.h"
