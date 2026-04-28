@@ -11,7 +11,7 @@
 // | ------------------ | -------------- | --------------------------------------------------------------- |
 // | IdentifyActor      | Local          | UE resolves actor info from the runtime registry                |
 // | QueryVector        | Local          | UE runs the configured memory engine recall                     |
-// | Decision           | Local          | UE applies the local decision policy (currently a placeholder)  |
+// | Decision           | Local          | UE applies the local decision policy (2026-04-28)               |
 // | Reasoning          | Pass-through   | API hosts the SLM; UE only acks and continues (2026-04-27)      |
 // | Finalize           | Local          | UE persists memory, applies state delta, dispatches verdict     |
 
@@ -196,9 +196,8 @@ HandleQueryVector(const FNPCProcessResponse &Response,
  * the SDK must return a DecisionResult with goal and actionType so the
  * tape includes decisionIntent on subsequent /process calls.
  *
- * Note: This is currently a stub returning a placeholder intent. The stub
- * prevents the loop from stalling. It will be replaced with real local
- * decision logic once the decision policy is finalized.
+ * Implementation (2026-04-28): Derives goal and actionType from observation
+ * and memories, mirroring the API Orchestrator.hs logic.
  */
 inline func::AsyncResult<FAgentResponse>
 HandleDecision(const FNPCProcessResponse &Response,
@@ -208,14 +207,35 @@ HandleDecision(const FNPCProcessResponse &Response,
                std::function<AnyAction(const AnyAction &)> Dispatch,
                std::function<FStoreState()> GetState) {
   FNPCProcessTape NextTape = Response.Tape;
-  NextTape.DecisionIntentGoal = TEXT("respond");
-  NextTape.DecisionIntentActionType = TEXT("dialogue");
+  
+  const FString ObsLower = Response.Tape.Observation.ToLower();
+  const TArray<FString> ActionVerbs = {TEXT("attack"), TEXT("move"), TEXT("take"), TEXT("give"), TEXT("use"), TEXT("open"), TEXT("close"), TEXT("pick")};
+  
+  bool bIsAction = false;
+  for (const FString& Verb : ActionVerbs) {
+    if (ObsLower.Contains(Verb)) {
+      bIsAction = true;
+      break;
+    }
+  }
+  
+  NextTape.DecisionIntentActionType = bIsAction ? TEXT("INTERACT") : TEXT("SPEAK");
+  
+  if (Response.Tape.Memories.Num() > 0) {
+    NextTape.DecisionIntentGoal = FString::Printf(TEXT("Respond to: %s (with %d recalled memories)"), *Response.Tape.Observation, Response.Tape.Memories.Num());
+  } else {
+    NextTape.DecisionIntentGoal = FString::Printf(TEXT("Respond to: %s"), *Response.Tape.Observation);
+  }
+  
   NextTape.bDecisionCompleted = true;
+
+  FString ResultJson = FString::Printf(
+      TEXT("{\"type\":\"Decision\",\"decisionIntent\":{\"goal\":\"%s\",\"actionType\":\"%s\"}}"),
+      *NextTape.DecisionIntentGoal, *NextTape.DecisionIntentActionType);
 
   return RunProtocolTurn(
       NpcId, Input, RunId, NextTape,
-      TEXT("{\"type\":\"Decision\",\"decisionOutput\":"
-           "{\"goal\":\"respond\",\"actionType\":\"dialogue\"}}"),
+      ResultJson,
       true, Turn + 1, Runtime, Dispatch, GetState);
 }
 
