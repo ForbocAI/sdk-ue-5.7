@@ -13,8 +13,10 @@ HandlerResult HandleNpc(rtk::EnhancedStore<FStoreState> &Store,
 
   return CommandKey == TEXT("npc_create")
              ? [&]() -> HandlerResult {
+                 // Vessel contract: pass empty when no persona is supplied so
+                 // the API renders all slots as <unset>.
                  FString Persona =
-                     Args.Num() > 0 ? Args[0] : TEXT("default");
+                     Args.Num() > 0 ? Args[0] : TEXT("");
                  FNPCInternalState Npc = Ops::CreateNpc(Store, Persona);
                  UE_LOG(LogTemp, Display, TEXT("Created NPC: %s"),
                         *Npc.Id);
