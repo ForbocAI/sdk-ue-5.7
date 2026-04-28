@@ -696,9 +696,24 @@ inline bool CheckRuntimeConnectivity(
 }
 
 /**
- * Resolves the best available runtime URL.
- * User Story: As runtime fallback selection, I need one URL resolver so the
- * test game can prefer local runtime and fall back to remote API cleanly.
+ * Reads the explicit runtime URL from FORBOC_RUNTIME_URL. Returns an empty
+ * string if the env var is unset.
+ * User Story: As the no-fallback runtime policy, I need consumers to set the
+ * runtime URL explicitly so production hosts never silently downgrade to
+ * localhost or an unintended remote.
+ */
+inline FString ResolveRuntimeUrlFromEnv() {
+  return FPlatformMisc::GetEnvironmentVariable(TEXT("FORBOC_RUNTIME_URL"));
+}
+
+/**
+ * Test-harness probe-based resolver. Verification-only.
+ * User Story: As the test-game harness, I need a resolver that probes
+ * localhost first and a published API second so verification runs locally
+ * during development and remotely in CI without per-developer config.
+ *
+ * Production code paths must NOT call this. Use ResolveRuntimeUrlFromEnv
+ * (or set FORBOC_RUNTIME_URL explicitly) so the no-fallback policy holds.
  */
 inline FString ResolveRuntimeUrl(const FRuntimeConnectivityProbe &Probe) {
   return Probe(TEXT("http://localhost:8080/status"))
@@ -708,9 +723,20 @@ inline FString ResolveRuntimeUrl(const FRuntimeConnectivityProbe &Probe) {
                     : FString());
 }
 
+/**
+ * Default test-harness resolver. Prefers FORBOC_RUNTIME_URL when set; falls
+ * back to the probe-based path only if no env var is configured.
+ * User Story: As a test runner, I need explicit env-var configuration to take
+ * precedence so CI can pin the runtime without relying on probe order.
+ */
 inline FString ResolveRuntimeUrl() {
-  return ResolveRuntimeUrl(
-      [](const FString &Url) { return CheckRuntimeConnectivity(Url); });
+  const FString FromEnv = ResolveRuntimeUrlFromEnv();
+  return !FromEnv.IsEmpty()
+             ? FromEnv
+             : ResolveRuntimeUrl(
+                   [](const FString &Url) {
+                     return CheckRuntimeConnectivity(Url);
+                   });
 }
 
 } // namespace TestGame
