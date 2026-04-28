@@ -224,10 +224,7 @@ TArray<FString> BuildCommandArgs(const FString &Command,
                   func::equals<FString>(TEXT("npc_create")),
                   [&Params](const FString &) {
                     TArray<FString> A;
-                    const FString Persona =
-                        ExtractParam(Params, TEXT("Persona="));
-                    A.Add(Persona.IsEmpty() ? TEXT("Default UE Persona")
-                                           : Persona);
+                    A.Add(ExtractParam(Params, TEXT("Persona=")));
                     return A;
                   }),
               func::when<FString, TArray<FString>>(

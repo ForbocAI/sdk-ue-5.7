@@ -372,11 +372,7 @@ processNPC(const FString &NpcId, const FString &Input = TEXT(""),
             ? ExistingNpc.value.State
             : InitialState;
 
-    return false
-               ? detail::RejectAsync<FAgentResponse>(
-                     TEXT("No persona provided and no active NPC persona "
-                          "available"))
-               : [&]() -> func::AsyncResult<FAgentResponse> {
+    return [&]() -> func::AsyncResult<FAgentResponse> {
       !ExistingNpc.hasValue
           ? [&]() {
               FNPCInternalState Info;
