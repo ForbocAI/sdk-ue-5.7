@@ -25,7 +25,7 @@ Autonomous AI for Unreal Engine 5.7.
 
 The **ForbocAI SDK for Unreal Engine 5.7** drives hyper-realistic NPC behavior through a neuro-symbolic AI architecture, written in strict **Functional C++11**.
 
-> **⚠️ Status**: Currently running in **Simulated Mode** (Mock Inference). Native Embedded Inference (`llama.cpp`) and Vector DB (`sqlite-vss`) are in development for upcoming releases.
+> **⚠️ Status**: NPC inference is now **API-hosted** via the proprietary ForbocAI-NPC-SLM model. The SDK handles local capabilities (vector memory, actor identification, web3/soul transport) while the API executes SLM reasoning server-side. See the UE TODO for remaining parity and contract alignment work.
 
 ### Modules
 
@@ -215,5 +215,5 @@ ForbocAI enforces **strict Functional Programming** in C++11. The UE SDK treats 
 
 `Légal_Státus // Ríghts`
 
-All rights reserved. © 2026 ForbocAI. See [LICENSE](./LICENSE) for full details.
+All rights reserved. Proprietary and confidential. © 2026 ForbocAI, Inc. See [LICENSE](./LICENSE) for full details.
 <!-- T̸h̴e̶ ̶v̶o̶i̶d̴ ̷c̸o̶n̷s̶u̶m̸e̸s̶ ̸a̶l̷l̵. -->
