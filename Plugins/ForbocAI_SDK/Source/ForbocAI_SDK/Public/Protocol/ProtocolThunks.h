@@ -205,6 +205,33 @@ HandleDecision(const FNPCProcessResponse &Response,
 }
 
 /**
+ * Handles the Reasoning protocol instruction.
+ * User Story: As protocol instruction dispatch, I need the Reasoning step
+ * acknowledged so the multi-round loop can advance past it without stalling.
+ *
+ * Architectural note (2026-04-28): SLM inference is now API-hosted. The API
+ * runs the model itself and populates Tape.ReasoningText / Tape.ResponseText
+ * before returning. The SDK's only remaining responsibility for a Reasoning
+ * step is to mark the tape completed and continue. Local cortex execution is
+ * deliberately not invoked here.
+ */
+inline func::AsyncResult<FAgentResponse>
+HandleReasoning(const FNPCProcessResponse &Response,
+                const FString &NpcId, const FString &Input,
+                const FString &RunId, int32 Turn,
+                const FProtocolRuntime &Runtime,
+                std::function<AnyAction(const AnyAction &)> Dispatch,
+                std::function<FStoreState()> GetState) {
+  FNPCProcessTape NextTape = Response.Tape;
+  NextTape.bReasoningCompleted = true;
+
+  return RunProtocolTurn(
+      NpcId, Input, RunId, NextTape,
+      TEXT("{\"type\":\"Reasoning\",\"reasoningOutput\":{\"acknowledged\":true}}"),
+      true, Turn + 1, Runtime, Dispatch, GetState);
+}
+
+/**
  * Handles the Finalize protocol instruction by validating the verdict,
  * persisting memory, and applying state transforms.
  * User Story: As protocol instruction dispatch, I need finalization handled
@@ -296,6 +323,10 @@ RunProtocolTurn(const FString &NpcId, const FString &Input,
                                   ENPCInstructionType::Decision
                             ? HandleDecision(Response, NpcId, Input, RunId,
                                              Turn, Runtime, Dispatch, GetState)
+                        : Instruction.Type ==
+                                  ENPCInstructionType::Reasoning
+                            ? HandleReasoning(Response, NpcId, Input, RunId,
+                                              Turn, Runtime, Dispatch, GetState)
                         : Instruction.Type == ENPCInstructionType::Finalize
                             ? HandleFinalize(Instruction, NpcId, Input, RunId,
                                              Runtime, Dispatch, GetState)
