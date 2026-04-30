@@ -211,15 +211,20 @@ HandleDecision(const FNPCProcessResponse &Response,
   const FString ObsLower = Response.Tape.Observation.ToLower();
   const TArray<FString> ActionVerbs = {TEXT("attack"), TEXT("move"), TEXT("take"), TEXT("give"), TEXT("use"), TEXT("open"), TEXT("close"), TEXT("pick")};
   
-  bool bIsAction = false;
-  for (const FString& Verb : ActionVerbs) {
-    if (ObsLower.Contains(Verb)) {
-      bIsAction = true;
-      break;
-    }
-  }
+  /**
+   * Recursive predicate to detect action verbs without imperative loops.
+   * User Story: As a maintainer, I need this note so the surrounding code intent
+   * stays clear during maintenance and debugging.
+   */
+  const std::function<bool(int32)> ContainsActionVerb = [&](int32 Index) -> bool {
+    return Index >= ActionVerbs.Num()
+               ? false
+               : (ObsLower.Contains(ActionVerbs[Index])
+                      ? true
+                      : ContainsActionVerb(Index + 1));
+  };
   
-  NextTape.DecisionIntentActionType = bIsAction ? TEXT("INTERACT") : TEXT("SPEAK");
+  NextTape.DecisionIntentActionType = ContainsActionVerb(0) ? TEXT("INTERACT") : TEXT("SPEAK");
   
   if (Response.Tape.Memories.Num() > 0) {
     NextTape.DecisionIntentGoal = FString::Printf(TEXT("Respond to: %s (with %d recalled memories)"), *Response.Tape.Observation, Response.Tape.Memories.Num());
