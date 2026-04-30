@@ -9,38 +9,17 @@ public class ForbocAI_SDK : ModuleRules
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "HTTP", "Json", "JsonUtilities" });
 
 		/**
-		 * --- NATIVE PARITY: llama.cpp & sqlite-vss ---
+		 * --- NATIVE PARITY: sqlite-vss (vector memory) ---
 		 * User Story: As a maintainer, I need this note so the surrounding code intent stays clear during maintenance and debugging.
+		 *
+		 * Architecture note (0.4.0+): NPC SLM inference is API-hosted via the
+		 * proprietary ForbocAI-NPC-SLM model. The SDK no longer ships or links
+		 * llama.cpp — ThirdParty/llama.cpp was removed. Local capabilities
+		 * retained by the SDK: vector memory (sqlite-vss), actor identification,
+		 * and web3/soul transport.
 		 */
 		string ThirdPartyPath = System.IO.Path.Combine(ModuleDirectory, "../../ThirdParty");
-		string LlamaIncludePath = System.IO.Path.Combine(ThirdPartyPath, "llama.cpp/include");
 		string SqliteIncludePath = System.IO.Path.Combine(ThirdPartyPath, "sqlite-vss/include");
-		string LlamaLibraryPath = null;
-		string LlamaHeaderPath = System.IO.Path.Combine(LlamaIncludePath, "llama.h");
-		string GgmlHeaderPath = System.IO.Path.Combine(LlamaIncludePath, "ggml.h");
-		string GgmlAllocHeaderPath = System.IO.Path.Combine(LlamaIncludePath, "ggml-alloc.h");
-		string GgmlBackendHeaderPath = System.IO.Path.Combine(LlamaIncludePath, "ggml-backend.h");
-		string GgmlCpuHeaderPath = System.IO.Path.Combine(LlamaIncludePath, "ggml-cpu.h");
-		string GgmlOptHeaderPath = System.IO.Path.Combine(LlamaIncludePath, "ggml-opt.h");
-
-		if (Target.Platform == UnrealTargetPlatform.Win64)
-		{
-			LlamaLibraryPath = System.IO.Path.Combine(ThirdPartyPath, "llama.cpp/lib/Win64/llama.lib");
-		}
-		else if (Target.Platform == UnrealTargetPlatform.Mac)
-		{
-			LlamaLibraryPath = System.IO.Path.Combine(ThirdPartyPath, "llama.cpp/lib/Mac/libllama.a");
-		}
-
-		bool bHasNativeLlama = System.IO.Directory.Exists(LlamaIncludePath)
-			&& System.IO.File.Exists(LlamaHeaderPath)
-			&& System.IO.File.Exists(GgmlHeaderPath)
-			&& System.IO.File.Exists(GgmlAllocHeaderPath)
-			&& System.IO.File.Exists(GgmlBackendHeaderPath)
-			&& System.IO.File.Exists(GgmlCpuHeaderPath)
-			&& System.IO.File.Exists(GgmlOptHeaderPath)
-			&& !string.IsNullOrEmpty(LlamaLibraryPath)
-			&& System.IO.File.Exists(LlamaLibraryPath);
 		bool bHasSqliteHeaders = System.IO.Directory.Exists(SqliteIncludePath);
 		bool bHasSqlite3Header = bHasSqliteHeaders
 			&& System.IO.File.Exists(System.IO.Path.Combine(SqliteIncludePath, "sqlite3.h"));
@@ -52,48 +31,6 @@ public class ForbocAI_SDK : ModuleRules
 		string SqliteAmalgamationPath = System.IO.Path.Combine(ThirdPartyPath, "sqlite-vss/src");
 		bool bHasSqliteAmalgamation = System.IO.Directory.Exists(SqliteAmalgamationPath)
 			&& System.IO.File.Exists(System.IO.Path.Combine(SqliteAmalgamationPath, "sqlite3.c"));
-
-		if (bHasNativeLlama)
-		{
-			PublicIncludePaths.Add(LlamaIncludePath);
-			PublicAdditionalLibraries.Add(LlamaLibraryPath);
-
-			/**
-			 * Link ggml dependency libraries (llama.cpp depends on these)
-			 * User Story: As a maintainer, I need this note so the surrounding code intent stays clear during maintenance and debugging.
-			 */
-			string LlamaLibDir = System.IO.Path.GetDirectoryName(LlamaLibraryPath);
-			string[] GgmlLibs = { "libggml.a", "libggml-base.a", "libggml-cpu.a" };
-			foreach (string GgmlLib in GgmlLibs)
-			{
-				string GgmlLibPath = System.IO.Path.Combine(LlamaLibDir, GgmlLib);
-				if (System.IO.File.Exists(GgmlLibPath))
-				{
-					PublicAdditionalLibraries.Add(GgmlLibPath);
-				}
-			}
-
-			/**
-			 * Metal backend (macOS GPU acceleration)
-			 * User Story: As a maintainer, I need this note so the surrounding code intent stays clear during maintenance and debugging.
-			 */
-			if (Target.Platform == UnrealTargetPlatform.Mac)
-			{
-				string MetalLib = System.IO.Path.Combine(LlamaLibDir, "libggml-metal.a");
-				if (System.IO.File.Exists(MetalLib))
-				{
-					PublicAdditionalLibraries.Add(MetalLib);
-					PublicFrameworks.AddRange(new string[] { "Metal", "MetalKit", "Foundation" });
-				}
-
-				string BlasLib = System.IO.Path.Combine(LlamaLibDir, "libggml-blas.a");
-				if (System.IO.File.Exists(BlasLib))
-				{
-					PublicAdditionalLibraries.Add(BlasLib);
-					PublicFrameworks.Add("Accelerate");
-				}
-			}
-		}
 
 		if (bHasSqliteHeaders)
 		{
@@ -130,7 +67,11 @@ public class ForbocAI_SDK : ModuleRules
 			CppCompileWarningSettings.ShadowVariableWarningLevel = WarningLevel.Off;
 		}
 
-		PublicDefinitions.Add("WITH_FORBOC_NATIVE=" + (bHasNativeLlama ? "1" : "0"));
+		/**
+		 * WITH_FORBOC_NATIVE is always 0 now that SLM inference is API-hosted.
+		 * Retained for compile-time guards in source that still reference it.
+		 */
+		PublicDefinitions.Add("WITH_FORBOC_NATIVE=0");
 		/**
 		 * sqlite-vec auto-enabled when sqlite3.h header and amalgamation source are present
 		 * User Story: As a maintainer, I need this note so the surrounding code intent stays clear during maintenance and debugging.
