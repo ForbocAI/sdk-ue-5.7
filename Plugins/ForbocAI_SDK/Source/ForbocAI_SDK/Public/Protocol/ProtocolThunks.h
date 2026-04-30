@@ -229,13 +229,9 @@ HandleDecision(const FNPCProcessResponse &Response,
   
   NextTape.bDecisionCompleted = true;
 
-  FString ResultJson = FString::Printf(
-      TEXT("{\"type\":\"Decision\",\"decisionIntent\":{\"goal\":\"%s\",\"actionType\":\"%s\"}}"),
-      *NextTape.DecisionIntentGoal, *NextTape.DecisionIntentActionType);
-
   return RunProtocolTurn(
       NpcId, Input, RunId, NextTape,
-      ResultJson,
+      SerializeDecisionResult(NextTape.DecisionIntentGoal, NextTape.DecisionIntentActionType),
       true, Turn + 1, Runtime, Dispatch, GetState);
 }
 
@@ -262,7 +258,7 @@ HandleReasoning(const FNPCProcessResponse &Response,
 
   return RunProtocolTurn(
       NpcId, Input, RunId, NextTape,
-      TEXT("{\"type\":\"Reasoning\",\"reasoningOutput\":{\"acknowledged\":true}}"),
+      SerializeReasoningResult(NextTape.ReasoningText, NextTape.ResponseText),
       true, Turn + 1, Runtime, Dispatch, GetState);
 }
 

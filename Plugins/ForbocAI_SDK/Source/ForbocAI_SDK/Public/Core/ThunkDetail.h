@@ -130,6 +130,38 @@ inline FString SerializeIdentifyActorResult(const FNPCActorInfo &Actor) {
 }
 
 /**
+ * Serializes a decision intent into a decision result payload.
+ * User Story: As protocol execution, I need decision intent wrapped in a
+ * stable JSON envelope so later instructions can consume it consistently.
+ */
+inline FString SerializeDecisionResult(const FString &Goal, const FString &ActionType) {
+  const TSharedPtr<FJsonObject> IntentObject = MakeShared<FJsonObject>();
+  IntentObject->SetStringField(TEXT("goal"), Goal);
+  IntentObject->SetStringField(TEXT("actionType"), ActionType);
+
+  const TSharedPtr<FJsonObject> Root = MakeShared<FJsonObject>();
+  Root->SetStringField(TEXT("type"), TEXT("Decision"));
+  Root->SetObjectField(TEXT("decisionIntent"), IntentObject);
+  return JsonObjectToString(Root);
+}
+
+/**
+ * Serializes reasoning output into a reasoning result payload.
+ * User Story: As protocol execution, I need reasoning output wrapped in a
+ * stable JSON envelope so later instructions can consume it consistently.
+ */
+inline FString SerializeReasoningResult(const FString &ReasoningText, const FString &ResponseText) {
+  const TSharedPtr<FJsonObject> ReasoningObject = MakeShared<FJsonObject>();
+  ReasoningObject->SetStringField(TEXT("reasoningText"), ReasoningText);
+  ReasoningObject->SetStringField(TEXT("responseText"), ResponseText);
+
+  const TSharedPtr<FJsonObject> Root = MakeShared<FJsonObject>();
+  Root->SetStringField(TEXT("type"), TEXT("Reasoning"));
+  Root->SetObjectField(TEXT("reasoningOutput"), ReasoningObject);
+  return JsonObjectToString(Root);
+}
+
+/**
  * Serializes generated output into an execute-inference result payload.
  * User Story: As protocol execution, I need inference output wrapped in a
  * stable JSON envelope so later instructions can consume it consistently.
