@@ -26,7 +26,7 @@ struct FHandlerTestParams {
   FString NpcId;
   FString Input;
   FString Persona;
-  int32 HandlerType; // 0 for Decision, 1 for Reasoning
+  int32 HandlerType; // 0 for IdentifyActor, 1 for Decision, 2 for Reasoning
 };
 
 DEFINE_LATENT_AUTOMATION_COMMAND_THREE_PARAMETER(
@@ -47,7 +47,6 @@ bool FHandlerWaitComplete::Update() {
 
     FString RunId = FString::Printf(TEXT("%s:run"), *Params.NpcId);
     FNPCProcessTape Tape = TypeFactory::ProcessTape(Params.Input, TEXT("{}"), FAgentState(), Params.Persona);
-    Tape.bVectorQueried = true;
     
     // Create a fake response to pass to the handler
     FNPCProcessResponse FakeResponse;
@@ -56,19 +55,25 @@ bool FHandlerWaitComplete::Update() {
     func::AsyncResult<FAgentResponse> ResultPromise = func::RejectAsync<FAgentResponse>("Init");
 
     if (Params.HandlerType == 0) {
+      // IdentifyActor
+      FakeResponse.Instruction.Type = ENPCInstructionType::IdentifyActor;
+      ResultPromise = detail::HandleIdentifyActor(FakeResponse, Params.NpcId, Params.Input, RunId, 0, LocalProtocolRuntime(), State->Store->dispatch, State->Store->getState);
+    } else if (Params.HandlerType == 1) {
       // Decision
       FakeResponse.Instruction.Type = ENPCInstructionType::Decision;
+      FakeResponse.Tape.bVectorQueried = true;
       ResultPromise = detail::HandleDecision(FakeResponse, Params.NpcId, Params.Input, RunId, 1, LocalProtocolRuntime(), State->Store->dispatch, State->Store->getState);
-    } else if (Params.HandlerType == 1) {
+    } else if (Params.HandlerType == 2) {
       // Reasoning
       FakeResponse.Instruction.Type = ENPCInstructionType::Reasoning;
+      FakeResponse.Tape.bVectorQueried = true;
       FakeResponse.Tape.bDecisionCompleted = true;
-      FakeResponse.Tape.DecisionIntentGoal = TEXT("Respond to input");
-      FakeResponse.Tape.DecisionIntentActionType = TEXT("SPEAK");
-      FakeResponse.Tape.ReasoningText = TEXT("Server side reasoning");
-      FakeResponse.Tape.ResponseText = TEXT("Server side response");
+      FakeResponse.Tape.DecisionIntent.Goal = TEXT("Respond to input");
+      FakeResponse.Tape.DecisionIntent.ActionType = TEXT("SPEAK");
+      FakeResponse.Tape.ReasoningOutput.ReasoningText = TEXT("Server side reasoning");
+      FakeResponse.Tape.ReasoningOutput.ResponseText = TEXT("Server side response");
       FakeResponse.Tape.GeneratedOutput = TEXT("Server side response");
-      ResultPromise = detail::HandleReasoning(FakeResponse, Params.NpcId, Params.Input, RunId, 1, LocalProtocolRuntime(), State->Store->dispatch, State->Store->getState);
+      ResultPromise = detail::HandleReasoning(FakeResponse, Params.NpcId, Params.Input, RunId, 2, LocalProtocolRuntime(), State->Store->dispatch, State->Store->getState);
     }
 
     ResultPromise
@@ -98,6 +103,36 @@ bool FHandlerWaitComplete::Update() {
 }
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+    FHandleIdentifyActorIntegrationTest,
+    "ForbocAI.Integration.Protocol.HandleIdentifyActorLive",
+    EAutomationTestFlags_ApplicationContextMask |
+        EAutomationTestFlags::EngineFilter)
+bool FHandleIdentifyActorIntegrationTest::RunTest(const FString &Parameters) {
+  SDKConfig::SetApiConfig(SDKConfig::GetApiUrl(),
+                          FPlatformMisc::GetEnvironmentVariable(
+                              TEXT("FORBOCAI_API_KEY")));
+
+  auto State = MakeShared<FHandlerTestState>();
+  ADD_LATENT_AUTOMATION_COMMAND(FHandlerWaitComplete(
+      State, FHandlerTestParams{TEXT("npc_id_1"), TEXT("Hello"), TEXT("Tester"), 0},
+      0));
+
+  ADD_LATENT_AUTOMATION_COMMAND(FDelayedFunctionLatentCommand(
+      [this, State]() {
+        TestTrue("handler completed", State->bCompleted);
+        if (!State->bCompleted)
+          return;
+        TestTrue("handler succeeded", State->bSuccess);
+        if (!State->bSuccess) {
+          AddError(FString::Printf(TEXT("API error: %s"), *State->Error));
+        }
+      },
+      0.01f));
+
+  return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     FHandleDecisionIntegrationTest,
     "ForbocAI.Integration.Protocol.HandleDecisionLive",
     EAutomationTestFlags_ApplicationContextMask |
@@ -109,7 +144,7 @@ bool FHandleDecisionIntegrationTest::RunTest(const FString &Parameters) {
 
   auto State = MakeShared<FHandlerTestState>();
   ADD_LATENT_AUTOMATION_COMMAND(FHandlerWaitComplete(
-      State, FHandlerTestParams{TEXT("npc_decision_1"), TEXT("Hello"), TEXT("Tester"), 0},
+      State, FHandlerTestParams{TEXT("npc_decision_1"), TEXT("Hello"), TEXT("Tester"), 1},
       0));
 
   ADD_LATENT_AUTOMATION_COMMAND(FDelayedFunctionLatentCommand(
@@ -139,7 +174,7 @@ bool FHandleReasoningIntegrationTest::RunTest(const FString &Parameters) {
 
   auto State = MakeShared<FHandlerTestState>();
   ADD_LATENT_AUTOMATION_COMMAND(FHandlerWaitComplete(
-      State, FHandlerTestParams{TEXT("npc_reasoning_1"), TEXT("Hello"), TEXT("Tester"), 1},
+      State, FHandlerTestParams{TEXT("npc_reasoning_1"), TEXT("Hello"), TEXT("Tester"), 2},
       0));
 
   ADD_LATENT_AUTOMATION_COMMAND(FDelayedFunctionLatentCommand(
