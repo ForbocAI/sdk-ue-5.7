@@ -79,6 +79,12 @@ Get the plugin directly from **Fab** (formerly Unreal Engine Marketplace).
 2.  Copy the `ForbocAI_SDK` folder to your project's `Plugins/` directory.
 3.  Regenerate project files and build.
 
+## Release Versioning
+
+`Plugins/ForbocAI_SDK/ForbocAI_SDK.uplugin` is the UE release source of truth. `VersionName` follows the TypeScript SDK semver for releases that expose the same protocol surface, and should change whenever the protocol-facing SDK behavior changes. The integer `Version` remains the Unreal/Fab monotonically increasing package version.
+
+`build_plugin.sh` reads `VersionName` and packages to `dist_ForbocAI_SDK_v<VersionName>` by default. Set `OUTPUT_DIR=/path/to/package` when a release job needs a different destination.
+
 ---
 
 ## Quick Start
