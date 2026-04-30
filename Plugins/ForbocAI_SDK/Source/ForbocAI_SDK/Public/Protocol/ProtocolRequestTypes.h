@@ -21,6 +21,33 @@ struct FNPCActorInfo {
 };
 
 USTRUCT(BlueprintType)
+struct FDecisionIntent {
+  GENERATED_BODY()
+
+  UPROPERTY(BlueprintReadOnly, Category = "Protocol")
+  FString Goal;
+
+  UPROPERTY(BlueprintReadOnly, Category = "Protocol")
+  FString ActionType;
+
+  UPROPERTY(BlueprintReadOnly, Category = "Protocol")
+  FString Target;
+
+  FDecisionIntent() : ActionType(TEXT("SPEAK")) {}
+};
+
+USTRUCT(BlueprintType)
+struct FReasoningOutput {
+  GENERATED_BODY()
+
+  UPROPERTY(BlueprintReadOnly, Category = "Protocol")
+  FString ReasoningText;
+
+  UPROPERTY(BlueprintReadOnly, Category = "Protocol")
+  FString ResponseText;
+};
+
+USTRUCT(BlueprintType)
 struct FNPCProcessTape {
   GENERATED_BODY()
 
@@ -60,25 +87,17 @@ struct FNPCProcessTape {
   UPROPERTY(BlueprintReadOnly, Category = "Protocol")
   bool bVectorQueried;
 
-  /** Decision step result — goal selected by the local decision handler. */
+  /** Decision step result — intent selected by the local decision handler. */
   UPROPERTY(BlueprintReadOnly, Category = "Protocol")
-  FString DecisionIntentGoal;
-
-  /** Decision step result — action type selected by the local decision handler. */
-  UPROPERTY(BlueprintReadOnly, Category = "Protocol")
-  FString DecisionIntentActionType;
+  FDecisionIntent DecisionIntent;
 
   /** Whether the decision step has been completed in this tape. */
   UPROPERTY(BlueprintReadOnly, Category = "Protocol")
   bool bDecisionCompleted;
 
-  /** Reasoning step result — the chain-of-thought text from local SLM. */
+  /** Reasoning step result — output from the SLM. */
   UPROPERTY(BlueprintReadOnly, Category = "Protocol")
-  FString ReasoningText;
-
-  /** Reasoning step result — the final response text from local SLM. */
-  UPROPERTY(BlueprintReadOnly, Category = "Protocol")
-  FString ResponseText;
+  FReasoningOutput ReasoningOutput;
 
   /** Whether the reasoning step has been completed in this tape. */
   UPROPERTY(BlueprintReadOnly, Category = "Protocol")
@@ -97,7 +116,7 @@ struct FNPCProcessRequest {
   FNPCProcessTape Tape;
 
   UPROPERTY(BlueprintReadOnly, Category = "Protocol")
-  FString LastResultJson;
+  FString LastResult;
 
   UPROPERTY(BlueprintReadOnly, Category = "Protocol")
   bool bHasLastResult;

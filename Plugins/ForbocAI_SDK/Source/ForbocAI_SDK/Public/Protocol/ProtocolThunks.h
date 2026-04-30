@@ -111,7 +111,7 @@ PersistMemoryInstructions(const TArray<FMemoryStoreInstruction> &Instructions,
 func::AsyncResult<FAgentResponse>
 RunProtocolTurn(const FString &NpcId, const FString &Input,
                 const FString &RunId, const FNPCProcessTape &Tape,
-                const FString &LastResultJson, bool bHasLastResult,
+                const FString &LastResult, bool bHasLastResult,
                 int32 Turn, const FProtocolRuntime &Runtime,
                 std::function<AnyAction(const AnyAction &)> Dispatch,
                 std::function<FStoreState()> GetState);
@@ -224,19 +224,19 @@ HandleDecision(const FNPCProcessResponse &Response,
                       : ContainsActionVerb(Index + 1));
   };
   
-  NextTape.DecisionIntentActionType = ContainsActionVerb(0) ? TEXT("INTERACT") : TEXT("SPEAK");
+  NextTape.DecisionIntent.ActionType = ContainsActionVerb(0) ? TEXT("INTERACT") : TEXT("SPEAK");
   
   if (Response.Tape.Memories.Num() > 0) {
-    NextTape.DecisionIntentGoal = FString::Printf(TEXT("Respond to: %s (with %d recalled memories)"), *Response.Tape.Observation, Response.Tape.Memories.Num());
+    NextTape.DecisionIntent.Goal = FString::Printf(TEXT("Respond to: %s (with %d recalled memories)"), *Response.Tape.Observation, Response.Tape.Memories.Num());
   } else {
-    NextTape.DecisionIntentGoal = FString::Printf(TEXT("Respond to: %s"), *Response.Tape.Observation);
+    NextTape.DecisionIntent.Goal = FString::Printf(TEXT("Respond to: %s"), *Response.Tape.Observation);
   }
   
   NextTape.bDecisionCompleted = true;
 
   return RunProtocolTurn(
       NpcId, Input, RunId, NextTape,
-      SerializeDecisionResult(NextTape.DecisionIntentGoal, NextTape.DecisionIntentActionType),
+      SerializeDecisionResult(NextTape.DecisionIntent.Goal, NextTape.DecisionIntent.ActionType),
       true, Turn + 1, Runtime, Dispatch, GetState);
 }
 
@@ -263,7 +263,7 @@ HandleReasoning(const FNPCProcessResponse &Response,
 
   return RunProtocolTurn(
       NpcId, Input, RunId, NextTape,
-      SerializeReasoningResult(NextTape.ReasoningText, NextTape.ResponseText),
+      SerializeReasoningResult(NextTape.ReasoningOutput.ReasoningText, NextTape.ReasoningOutput.ResponseText),
       true, Turn + 1, Runtime, Dispatch, GetState);
 }
 
@@ -322,7 +322,7 @@ HandleFinalize(const FNPCInstruction &Instruction,
 inline func::AsyncResult<FAgentResponse>
 RunProtocolTurn(const FString &NpcId, const FString &Input,
                 const FString &RunId, const FNPCProcessTape &Tape,
-                const FString &LastResultJson, bool bHasLastResult,
+                const FString &LastResult, bool bHasLastResult,
                 int32 Turn, const FProtocolRuntime &Runtime,
                 std::function<AnyAction(const AnyAction &)> Dispatch,
                 std::function<FStoreState()> GetState) {
@@ -334,7 +334,7 @@ RunProtocolTurn(const FString &NpcId, const FString &Input,
              : [&]() -> func::AsyncResult<FAgentResponse> {
     FNPCProcessRequest Request;
     Request.Tape = Tape;
-    Request.LastResultJson = LastResultJson;
+    Request.LastResult = LastResult;
     Request.bHasLastResult = bHasLastResult;
 
     return func::AsyncChain::then<FNPCProcessResponse, FAgentResponse>(
