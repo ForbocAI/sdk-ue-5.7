@@ -1,7 +1,11 @@
 import os
 
-FP_HPP = "/Users/seandinwiddie/GitHub/Forboc.AI/sdk-ue-5.7.3/Plugins/ForbocAI_SDK/Source/ForbocAI_SDK/Public/Core/functional_core.hpp"
-RTK_HPP = "/Users/seandinwiddie/GitHub/Forboc.AI/sdk-ue-5.7.3/Plugins/ForbocAI_SDK/Source/ForbocAI_SDK/Public/Core/rtk.hpp"
+import os
+
+# Resolve paths relative to this script
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+FP_HPP = os.path.abspath(os.path.join(SCRIPT_DIR, "../Source/ForbocAI_SDK/Public/Core/functional_core.hpp"))
+RTK_HPP = os.path.abspath(os.path.join(SCRIPT_DIR, "../Source/ForbocAI_SDK/Public/Core/rtk.hpp"))
 
 with open(FP_HPP, "r") as f:
     fp_text = f.read()

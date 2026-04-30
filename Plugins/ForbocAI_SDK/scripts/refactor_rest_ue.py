@@ -1,7 +1,11 @@
 import os
 import re
 
-SOURCE_ROOT = "/Users/seandinwiddie/GitHub/Forboc.AI/sdk-ue-5.7.3/Plugins/ForbocAI_SDK/Source/ForbocAI_SDK"
+import os
+
+# Resolve path relative to this script
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+SOURCE_ROOT = os.path.abspath(os.path.join(SCRIPT_DIR, "../Source/ForbocAI_SDK"))
 
 def process_file(filepath):
     with open(filepath, 'r') as f:
