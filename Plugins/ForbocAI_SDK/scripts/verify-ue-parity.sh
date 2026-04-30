@@ -10,6 +10,7 @@
 #   2. FP conformance (check-ue-fp-conformance.sh)
 #   3. Thin-wrapper guardrails (check-thin-wrapper-guardrails.sh)
 #   4. Product boundary audit (check-product-boundary.sh)
+#   5. API contract parity (check-api-contract-parity.py)
 #
 # Exit codes:
 #   0 = all checks passed
@@ -46,7 +47,10 @@ run_check() {
   echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 
   if [ -f "$script" ]; then
-    if bash "$script" 2>&1; then
+    if case "$script" in
+      *.py) python3 "$script" 2>&1 ;;
+      *) bash "$script" 2>&1 ;;
+    esac; then
       echo -e "${GREEN}✓ $name — PASSED${NC}"
     else
       echo -e "${RED}✗ $name — FAILED${NC}"
@@ -80,6 +84,10 @@ run_check "Thin-Wrapper Guardrails (command surface rules)" \
 run_check "Product Boundary (game-agnostic audit)" \
   "$SCRIPT_DIR/check-product-boundary.sh"
 
+# ── Phase 5: API Contract Parity ──
+run_check "Canonical Contract Parity (API test-game contract)" \
+  "$SCRIPT_DIR/check-api-contract-parity.py"
+
 # ── Summary ──
 echo ""
 echo "╔═══════════════════════════════════════════════════════════════╗"
@@ -107,8 +115,8 @@ echo "  [$([ $FAILURES -eq 0 ] && echo 'x' || echo ' ')] UE conformance (structu
 echo "  [$([ $FAILURES -eq 0 ] && echo 'x' || echo ' ')] FP conformance (immutability)"
 echo "  [$([ $FAILURES -eq 0 ] && echo 'x' || echo ' ')] Thin-wrapper guardrails"
 echo "  [$([ $FAILURES -eq 0 ] && echo 'x' || echo ' ')] Product boundary audit"
+echo "  [$([ $FAILURES -eq 0 ] && echo 'x' || echo ' ')] Canonical-contract parity"
 echo "  [ ] Focused RunGame automation (requires editor build)"
-echo "  [ ] Canonical-contract parity (requires API connectivity)"
 echo "  [ ] Runtime-readiness verification (requires API connectivity)"
 echo ""
 

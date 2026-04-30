@@ -47,6 +47,8 @@ struct FContractScenario {
 
 struct FContractResponse {
   FString Version;
+  FString SlotContractVersion;
+  TArray<FString> RequiredCommandGroups;
   FContractAliasRules AliasRules;
   TArray<FContractScenario> Scenarios;
   bool bValid;
@@ -61,22 +63,22 @@ namespace detail {
 inline ECommandGroup ParseCommandGroup(const FString &GroupStr) {
   // Ternary chain — FP-compliant alternative to switch
   return GroupStr == TEXT("status")         ? ECommandGroup::Status
-       : GroupStr == TEXT("npc-lifecycle")  ? ECommandGroup::NpcLifecycle
-       : GroupStr == TEXT("npc-process-chat") ? ECommandGroup::NpcProcessChat
-       : GroupStr == TEXT("memory-list")    ? ECommandGroup::MemoryList
-       : GroupStr == TEXT("memory-recall")  ? ECommandGroup::MemoryRecall
-       : GroupStr == TEXT("memory-store")   ? ECommandGroup::MemoryStore
-       : GroupStr == TEXT("memory-clear")   ? ECommandGroup::MemoryClear
-       : GroupStr == TEXT("memory-export")  ? ECommandGroup::MemoryExport
-       : GroupStr == TEXT("bridge-rules")   ? ECommandGroup::BridgeRules
-       : GroupStr == TEXT("bridge-validate") ? ECommandGroup::BridgeValidate
-       : GroupStr == TEXT("bridge-preset")  ? ECommandGroup::BridgePreset
-       : GroupStr == TEXT("soul-export")    ? ECommandGroup::SoulExport
-       : GroupStr == TEXT("soul-import")    ? ECommandGroup::SoulImport
-       : GroupStr == TEXT("soul-list")      ? ECommandGroup::SoulList
-       : GroupStr == TEXT("soul-chat")      ? ECommandGroup::SoulChat
-       : GroupStr == TEXT("ghost-lifecycle") ? ECommandGroup::GhostLifecycle
-       : GroupStr == TEXT("cortex-init")    ? ECommandGroup::CortexInit
+       : GroupStr == TEXT("npc_lifecycle")  ? ECommandGroup::NpcLifecycle
+       : GroupStr == TEXT("npc_process_chat") ? ECommandGroup::NpcProcessChat
+       : GroupStr == TEXT("memory_list")    ? ECommandGroup::MemoryList
+       : GroupStr == TEXT("memory_recall")  ? ECommandGroup::MemoryRecall
+       : GroupStr == TEXT("memory_store")   ? ECommandGroup::MemoryStore
+       : GroupStr == TEXT("memory_clear")   ? ECommandGroup::MemoryClear
+       : GroupStr == TEXT("memory_export")  ? ECommandGroup::MemoryExport
+       : GroupStr == TEXT("bridge_rules")   ? ECommandGroup::BridgeRules
+       : GroupStr == TEXT("bridge_validate") ? ECommandGroup::BridgeValidate
+       : GroupStr == TEXT("bridge_preset")  ? ECommandGroup::BridgePreset
+       : GroupStr == TEXT("soul_export")    ? ECommandGroup::SoulExport
+       : GroupStr == TEXT("soul_import")    ? ECommandGroup::SoulImport
+       : GroupStr == TEXT("soul_list")      ? ECommandGroup::SoulList
+       : GroupStr == TEXT("soul_chat")      ? ECommandGroup::SoulChat
+       : GroupStr == TEXT("ghost_lifecycle") ? ECommandGroup::GhostLifecycle
+       : GroupStr == TEXT("cortex_init")    ? ECommandGroup::CortexInit
        : ECommandGroup::Status; // fallback
 }
 
@@ -92,14 +94,21 @@ inline EEventType ParseEventType(const FString &TypeStr) {
  * Parse expected routes array from JSON array.
  * Recursive — FP-compliant.
  */
+inline TArray<FString> ParseStringsRecursive(
+    const TArray<TSharedPtr<FJsonValue>> &JsonStrings,
+    int32 Idx,
+    TArray<FString> Acc) {
+  return Idx >= JsonStrings.Num()
+             ? Acc
+             : (Acc.Add(JsonStrings[Idx]->AsString()),
+                ParseStringsRecursive(JsonStrings, Idx + 1, Acc));
+}
+
 inline TArray<FString> ParseRoutesRecursive(
     const TArray<TSharedPtr<FJsonValue>> &JsonRoutes,
     int32 Idx,
     TArray<FString> Acc) {
-  return Idx >= JsonRoutes.Num()
-             ? Acc
-             : (Acc.Add(JsonRoutes[Idx]->AsString()),
-                ParseRoutesRecursive(JsonRoutes, Idx + 1, Acc));
+  return ParseStringsRecursive(JsonRoutes, Idx, Acc);
 }
 
 /**
@@ -233,6 +242,16 @@ inline FContractResponse ParseContractJson(const FString &JsonBody) {
              : [&]() {
     Response.bValid = true;
     Response.Version = Root->GetStringField(TEXT("version"));
+    Response.SlotContractVersion =
+        Root->GetStringField(TEXT("slotContractVersion"));
+
+    const TArray<TSharedPtr<FJsonValue>> *RequiredGroupsArray;
+    Root->TryGetArrayField(TEXT("requiredCommandGroups"),
+                           RequiredGroupsArray)
+        ? (Response.RequiredCommandGroups =
+               detail::ParseStringsRecursive(*RequiredGroupsArray, 0, {}),
+           void())
+        : void();
 
     // Parse alias rules
     const TSharedPtr<FJsonObject> *AliasObj;
