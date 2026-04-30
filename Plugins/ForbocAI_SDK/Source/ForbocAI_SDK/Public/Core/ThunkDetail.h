@@ -134,10 +134,13 @@ inline FString SerializeIdentifyActorResult(const FNPCActorInfo &Actor) {
  * User Story: As protocol execution, I need decision intent wrapped in a
  * stable JSON envelope so later instructions can consume it consistently.
  */
-inline FString SerializeDecisionResult(const FString &Goal, const FString &ActionType) {
+inline FString SerializeDecisionResult(const FString &Goal, const FString &ActionType, const FString &Target = TEXT("")) {
   const TSharedPtr<FJsonObject> IntentObject = MakeShared<FJsonObject>();
   IntentObject->SetStringField(TEXT("goal"), Goal);
   IntentObject->SetStringField(TEXT("actionType"), ActionType);
+  if (!Target.IsEmpty()) {
+    IntentObject->SetStringField(TEXT("target"), Target);
+  }
 
   const TSharedPtr<FJsonObject> Root = MakeShared<FJsonObject>();
   Root->SetStringField(TEXT("type"), TEXT("Decision"));

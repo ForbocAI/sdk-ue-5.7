@@ -33,7 +33,7 @@ struct FDecisionIntent {
   UPROPERTY(BlueprintReadOnly, Category = "Protocol")
   FString Target;
 
-  FDecisionIntent() : ActionType(TEXT("SPEAK")) {}
+  FDecisionIntent() : Goal(TEXT("")), ActionType(TEXT("SPEAK")), Target(TEXT("")) {}
 };
 
 USTRUCT(BlueprintType)
@@ -45,6 +45,8 @@ struct FReasoningOutput {
 
   UPROPERTY(BlueprintReadOnly, Category = "Protocol")
   FString ResponseText;
+
+  FReasoningOutput() : ReasoningText(TEXT("")), ResponseText(TEXT("")) {}
 };
 
 USTRUCT(BlueprintType)

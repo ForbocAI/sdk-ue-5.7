@@ -226,6 +226,23 @@ HandleDecision(const FNPCProcessResponse &Response,
   
   NextTape.DecisionIntent.ActionType = ContainsActionVerb(0) ? TEXT("INTERACT") : TEXT("SPEAK");
   
+  // Hardening: try to extract a target if it's an INTERACT action
+  if (NextTape.DecisionIntent.ActionType == TEXT("INTERACT")) {
+      const TArray<FString> Tokens = {TEXT("to"), TEXT("at"), TEXT("on"), TEXT("with")};
+      const auto ExtractTarget = [&](const FString& Obs) -> FString {
+          for (const FString& Token : Tokens) {
+              int32 Pos = Obs.Find(TEXT(" ") + Token + TEXT(" "));
+              if (Pos != INDEX_NONE) {
+                  return Obs.RightChop(Pos + Token.Len() + 2).TrimStartAndEnd();
+              }
+          }
+          return TEXT("");
+      };
+      NextTape.DecisionIntent.Target = ExtractTarget(ObsLower);
+  } else {
+      NextTape.DecisionIntent.Target = TEXT("");
+  }
+  
   if (Response.Tape.Memories.Num() > 0) {
     NextTape.DecisionIntent.Goal = FString::Printf(TEXT("Respond to: %s (with %d recalled memories)"), *Response.Tape.Observation, Response.Tape.Memories.Num());
   } else {
@@ -236,7 +253,7 @@ HandleDecision(const FNPCProcessResponse &Response,
 
   return RunProtocolTurn(
       NpcId, Input, RunId, NextTape,
-      SerializeDecisionResult(NextTape.DecisionIntent.Goal, NextTape.DecisionIntent.ActionType),
+      SerializeDecisionResult(NextTape.DecisionIntent.Goal, NextTape.DecisionIntent.ActionType, NextTape.DecisionIntent.Target),
       true, Turn + 1, Runtime, Dispatch, GetState);
 }
 
