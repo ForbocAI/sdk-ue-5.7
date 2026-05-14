@@ -8,8 +8,16 @@ PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # UE engine root. Override with UE_ROOT=/path/to/UE_5.7 to point at
 # a non-default install. The default matches the macOS shared-install
 # convention; Windows/Linux developers should set UE_ROOT explicitly.
-UE_ROOT="${UE_ROOT:-/Users/Shared/Epic Games/UE_5.7}"
-UAT_PATH="$UE_ROOT/Engine/Build/BatchFiles/RunUAT.sh"
+if [[ "$OSTYPE" == "msys"* ]] || [[ "$OSTYPE" == "cygwin"* ]] || [[ "$OSTYPE" == "win32"* ]]; then
+    UE_ROOT="${UE_ROOT:-C:/Program Files/Epic Games/UE_5.7}"
+    UAT_PATH="$UE_ROOT/Engine/Build/BatchFiles/RunUAT.bat"
+elif grep -qi microsoft /proc/version 2>/dev/null; then
+    UE_ROOT="${UE_ROOT:-/mnt/c/Program Files/Epic Games/UE_5.7}"
+    UAT_PATH="$UE_ROOT/Engine/Build/BatchFiles/RunUAT.bat"
+else
+    UE_ROOT="${UE_ROOT:-/Users/Shared/Epic Games/UE_5.7}"
+    UAT_PATH="$UE_ROOT/Engine/Build/BatchFiles/RunUAT.sh"
+fi
 
 PLUGIN_PATH="$PROJECT_ROOT/Plugins/ForbocAI_SDK/ForbocAI_SDK.uplugin"
 
