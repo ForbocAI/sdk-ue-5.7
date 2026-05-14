@@ -136,6 +136,10 @@ fi
 run_check "Handler Classification Drift (UE/TS parity and contract adherence)" \
   "$SCRIPT_DIR/check-handler-classification.py"
 
+# ── Phase 7: Test Quality Audit ──
+run_check "Test Quality Audit (no simulated tests or no-op assertions)" \
+  "$SCRIPT_DIR/check-test-quality.sh"
+
 # ── Summary ──
 echo ""
 echo "╔═══════════════════════════════════════════════════════════════╗"
@@ -165,8 +169,13 @@ echo "  [$([ $FAILURES -eq 0 ] && echo 'x' || echo ' ')] Thin-wrapper guardrails
 echo "  [$([ $FAILURES -eq 0 ] && echo 'x' || echo ' ')] Product boundary audit"
 echo "  [$([ $FAILURES -eq 0 ] && echo 'x' || echo ' ')] Canonical-contract parity"
 echo "  [$([ $FAILURES -eq 0 ] && echo 'x' || echo ' ')] Handler classification drift"
+echo "  [$([ $FAILURES -eq 0 ] && echo 'x' || echo ' ')] Test quality (real coverage)"
 echo "  [ ] Focused RunGame automation (requires editor build)"
 echo "  [ ] Runtime-readiness verification (requires API connectivity)"
+echo ""
+
+exit $FAILURES
+ess verification (requires API connectivity)"
 echo ""
 
 exit $FAILURES
