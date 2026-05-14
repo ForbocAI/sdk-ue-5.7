@@ -118,6 +118,10 @@ else
     "$SCRIPT_DIR/check-api-contract-parity.py"
 fi
 
+# ── Phase 6: Handler Classification Parity ──
+run_check "Handler Classification Drift (UE/TS parity and contract adherence)" \
+  "$SCRIPT_DIR/check-handler-classification.py"
+
 # ── Summary ──
 echo ""
 echo "╔═══════════════════════════════════════════════════════════════╗"
@@ -146,6 +150,7 @@ echo "  [$([ $FAILURES -eq 0 ] && echo 'x' || echo ' ')] FP conformance (immutab
 echo "  [$([ $FAILURES -eq 0 ] && echo 'x' || echo ' ')] Thin-wrapper guardrails"
 echo "  [$([ $FAILURES -eq 0 ] && echo 'x' || echo ' ')] Product boundary audit"
 echo "  [$([ $FAILURES -eq 0 ] && echo 'x' || echo ' ')] Canonical-contract parity"
+echo "  [$([ $FAILURES -eq 0 ] && echo 'x' || echo ' ')] Handler classification drift"
 echo "  [ ] Focused RunGame automation (requires editor build)"
 echo "  [ ] Runtime-readiness verification (requires API connectivity)"
 echo ""
