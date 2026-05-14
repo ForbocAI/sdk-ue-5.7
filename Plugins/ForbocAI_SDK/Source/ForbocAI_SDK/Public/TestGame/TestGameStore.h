@@ -7,7 +7,6 @@
 
 #include "CoreMinimal.h"
 #include "Core/rtk.hpp"
-#include "TestGame/TestGameScenarios.h"
 #include "TestGame/TestGameSlices.h"
 
 namespace TestGame {

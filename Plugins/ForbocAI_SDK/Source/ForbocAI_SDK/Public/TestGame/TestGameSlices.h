@@ -1124,8 +1124,7 @@ inline rtk::Slice<FScenarioSliceState> CreateScenarioSlice() {
  * run result can explain which CLI areas were not exercised.
  */
 inline TArray<ECommandGroup>
-SelectMissingGroups(const TMap<ECommandGroup, bool> &Covered) {
-  const TArray<ECommandGroup> &Groups = RequiredGroups();
+SelectMissingGroups(const TMap<ECommandGroup, bool> &Covered, const TArray<ECommandGroup> &Groups) {
   struct CollectMissing {
     static void apply(
         const TMap<ECommandGroup, bool> &C,

@@ -7,6 +7,8 @@
 
 #include "CoreMinimal.h"
 #include "TestGame/TestGameLib.h"
+#include "TestGame/TestGameCommandSurface.h"
+#include "TestGame/TestGameContract.h"
 #include "TestGame/TestGameListeners.h"
 #include "Core/functional_core.hpp"
 
@@ -256,13 +258,19 @@ inline void LogCommandResult(const FCommandSpec &Cmd,
  */
 inline void ProcessCommand(const FScenarioStep &Step, const FCommandSpec &Cmd,
                            FCommandExecutionContext &CommandContext,
+                           CommandSurface::FAliasState &Aliases,
                            const FCommandExecutor &Executor,
                            rtk::EnhancedStore<FTestGameState> &Store) {
   const FString ScenarioId = Step.Id;
   const FCommandSpec StableCmd = Cmd;
-  FCommandResult CmdResult =
-      Executor ? Executor(CommandContext, StableCmd)
-               : RunCommand(CommandContext, StableCmd);
+  FCommandResult CmdResult;
+  if (Executor) {
+    CmdResult = Executor(CommandContext, StableCmd);
+  } else {
+    CommandSurface::FCommandOutput Output = CommandSurface::Execute(StableCmd.Command, Aliases);
+    CmdResult.Status = Output.Status;
+    CmdResult.Output = Output.Output;
+  }
 
   /**
    * Update coverage
@@ -304,14 +312,13 @@ namespace detail {
 inline void ProcessCommands(const FScenarioStep &Step,
                             const TArray<FCommandSpec> &Commands, int32 Index,
                             FCommandExecutionContext &CommandContext,
+                            CommandSurface::FAliasState &Aliases,
                             const FCommandExecutor &Executor,
                             rtk::EnhancedStore<FTestGameState> &Store) {
   return Index >= Commands.Num()
              ? (void)0
-             : (ProcessCommand(Step, Commands[Index], CommandContext, Executor,
-                               Store),
-                ProcessCommands(Step, Commands, Index + 1, CommandContext,
-                                Executor, Store));
+             : (ProcessCommand(Step, Commands[Index], CommandContext, Aliases, Executor, Store),
+                ProcessCommands(Step, Commands, Index + 1, CommandContext, Aliases, Executor, Store));
 }
 
 /**
@@ -320,6 +327,7 @@ inline void ProcessCommands(const FScenarioStep &Step,
  */
 inline void ProcessSteps(const TArray<FScenarioStep> &Steps, int32 Index,
                          FCommandExecutionContext &CommandContext,
+                         CommandSurface::FAliasState &Aliases,
                          const FCommandExecutor &Executor,
                          rtk::EnhancedStore<FTestGameState> &Store) {
   if (Index >= Steps.Num()) {
@@ -330,9 +338,8 @@ inline void ProcessSteps(const TArray<FScenarioStep> &Steps, int32 Index,
          *Steps[Index].Id);
   UE_LOG(LogTemp, Display, TEXT("%s"), *Steps[Index].Description);
   ApplyScenarioInitialState(Steps[Index], Store);
-  ProcessCommands(Steps[Index], Steps[Index].Commands, 0, CommandContext,
-                  Executor, Store);
-  ProcessSteps(Steps, Index + 1, CommandContext, Executor, Store);
+  ProcessCommands(Steps[Index], Steps[Index].Commands, 0, CommandContext, Aliases, Executor, Store);
+  ProcessSteps(Steps, Index + 1, CommandContext, Aliases, Executor, Store);
 }
 
 /**
@@ -410,15 +417,36 @@ inline FGameRunResult RunGame(
          Mode == EPlayMode::Autoplay ? TEXT("autoplay") : TEXT("manual"));
   UE_LOG(LogTemp, Display, TEXT("%s"), *RenderLegend());
 
-  const TArray<FScenarioStep> Steps = Store.getState().Scenario.Steps;
-  detail::ProcessSteps(Steps, 0, CommandContext, Executor, Store);
+  const FString ApiUrl = ResolveRuntimeUrl();
+  const Contract::FContractResponse ContractResp = Contract::FetchContract(ApiUrl);
+  if (!ContractResp.bValid) {
+    UE_LOG(LogTemp, Error, TEXT("TestGameContract: API contract unavailable. Aborting RunGame."));
+    FGameRunResult Result;
+    Result.bComplete = false;
+    Result.Summary = TEXT("API contract unavailable");
+    return Result;
+  }
+
+  CommandSurface::FAliasState Aliases = CommandSurface::CreateAliasState(ContractResp);
+  const TArray<FScenarioStep> Steps = Contract::ConvertScenariosRecursive(ContractResp.Scenarios, 0, {});
+  
+  detail::ProcessSteps(Steps, 0, CommandContext, Aliases, Executor, Store);
 
   /**
    * Build result
    * User Story: As a maintainer, I need this note so the surrounding code intent stays clear during maintenance and debugging.
    */
   const auto &State = Store.getState();
-  TArray<ECommandGroup> Missing = SelectMissingGroups(State.Harness.Covered);
+    TArray<ECommandGroup> RequiredGroups;
+  struct CollectGroups {
+    static void apply(const TArray<FString>& In, TArray<ECommandGroup>& Out, int32 Idx) {
+      if (Idx >= In.Num()) return;
+      Out.Add(Contract::detail::ParseCommandGroup(In[Idx]));
+      apply(In, Out, Idx + 1);
+    }
+  };
+  CollectGroups::apply(ContractResp.RequiredCommandGroups, RequiredGroups, 0);
+  TArray<ECommandGroup> Missing = SelectMissingGroups(State.Harness.Covered, RequiredGroups);
   const int32 ErrorCount =
       detail::CountTranscriptErrors(State.Transcript.Entries, 0);
   bool bComplete = Missing.Num() == 0 && ErrorCount == 0;
