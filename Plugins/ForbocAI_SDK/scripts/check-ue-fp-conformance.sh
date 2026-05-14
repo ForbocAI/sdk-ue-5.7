@@ -28,6 +28,28 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SRC="$ROOT/Source/ForbocAI_SDK"
 STATUS=0
+DEMO_ROOT=""
+
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    --demo-root)
+      DEMO_ROOT="$2"
+      shift 2
+      ;;
+    *)
+      shift
+      ;;
+  esac
+done
+
+if [ -n "$DEMO_ROOT" ]; then
+  DEMO_SRC="$DEMO_ROOT/Source/DemoProject"
+else
+  DEMO_SRC="$ROOT/../../Source/DemoProject"
+fi
+
+SRC_DIRS=("$SRC/Public" "$SRC/Private")
+[ -d "$DEMO_SRC" ] && SRC_DIRS+=("$DEMO_SRC")
 WARN_COUNT=0
 FAIL_COUNT=0
 
@@ -323,7 +345,6 @@ echo ""
 echo "── Rule 8: No mocking (strict policy) ──"
 
 # Check demo test files (if demo source exists alongside SDK)
-DEMO_SRC="$ROOT/../../Source/DemoProject"
 MOCK_VIOLATIONS=""
 
 # Check SDK Public/ and Private/ (excluding quarantined legacy tests)

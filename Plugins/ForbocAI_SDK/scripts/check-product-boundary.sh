@@ -20,6 +20,28 @@ PLUGIN_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 SRC="$PLUGIN_ROOT/Source/ForbocAI_SDK"
 PUBLIC="$SRC/Public"
 
+DEMO_ROOT=""
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    --demo-root)
+      DEMO_ROOT="$2"
+      shift 2
+      ;;
+    *)
+      shift
+      ;;
+  esac
+done
+
+if [ -n "$DEMO_ROOT" ]; then
+  DEMO_SRC="$DEMO_ROOT/Source/DemoProject"
+else
+  DEMO_SRC="$PLUGIN_ROOT/../../Source/DemoProject"
+fi
+
+SRC_DIRS=("$PUBLIC")
+[ -d "$DEMO_SRC" ] && SRC_DIRS+=("$DEMO_SRC")
+
 VIOLATIONS=0
 
 echo "=== Product Boundary Audit ==="
@@ -33,10 +55,10 @@ EXCLUDE_TESTS="--glob=!**/Tests/**"
 # ── Rule 1: No game-domain framing in generic headers ──
 echo "[Rule 1] No game-domain framing outside TestGame/..."
 GAME_TERMS="gameplay|game logic|game rules|game engine|combat system|RPG system|inventory system|quest system|leveling|skill tree|character class"
-HITS=$(rg -ci "$GAME_TERMS" "$PUBLIC" $EXCLUDE_DIRS $EXCLUDE_TESTS 2>/dev/null || true)
+HITS=$(rg -ci "$GAME_TERMS" "${SRC_DIRS[@]}" $EXCLUDE_DIRS $EXCLUDE_TESTS 2>/dev/null || true)
 if [ -n "$HITS" ]; then
   echo "  ✗ Game-domain framing found:"
-  rg -ni "$GAME_TERMS" "$PUBLIC" $EXCLUDE_DIRS $EXCLUDE_TESTS 2>/dev/null || true
+  rg -ni "$GAME_TERMS" "${SRC_DIRS[@]}" $EXCLUDE_DIRS $EXCLUDE_TESTS 2>/dev/null || true
   VIOLATIONS=$((VIOLATIONS + 1))
 else
   echo "  ✓ No game-domain framing in generic surfaces."
@@ -46,10 +68,10 @@ echo ""
 # ── Rule 2: No scenario-specific references in generic headers ──
 echo "[Rule 2] No scenario-specific references outside TestGame/..."
 SCENARIO_TERMS="doomguard|miller|stealth-door|social-miller|escape-realtime|persistence-recovery|Scout"
-HITS=$(rg -ci "$SCENARIO_TERMS" "$PUBLIC" $EXCLUDE_DIRS $EXCLUDE_TESTS 2>/dev/null || true)
+HITS=$(rg -ci "$SCENARIO_TERMS" "${SRC_DIRS[@]}" $EXCLUDE_DIRS $EXCLUDE_TESTS 2>/dev/null || true)
 if [ -n "$HITS" ]; then
   echo "  ✗ Scenario-specific references found:"
-  rg -ni "$SCENARIO_TERMS" "$PUBLIC" $EXCLUDE_DIRS $EXCLUDE_TESTS 2>/dev/null || true
+  rg -ni "$SCENARIO_TERMS" "${SRC_DIRS[@]}" $EXCLUDE_DIRS $EXCLUDE_TESTS 2>/dev/null || true
   VIOLATIONS=$((VIOLATIONS + 1))
 else
   echo "  ✓ No scenario-specific references in generic surfaces."
@@ -61,6 +83,7 @@ echo "[Rule 3] No TestGame type imports in generic headers..."
 TG_IMPORTS="TestGame/TestGame|FTestGameState|FScenarioStep|FCommandSpec|ECommandGroup|FTranscriptEntry|ETranscriptStatus"
 # Check CLI, Protocol, Core, Blueprint directories
 GENERIC_DIRS=("$PUBLIC/CLI" "$PUBLIC/Protocol" "$PUBLIC/Core")
+[ -d "$DEMO_SRC" ] && GENERIC_DIRS+=("$DEMO_SRC")
 for dir in "${GENERIC_DIRS[@]}"; do
   [ -d "$dir" ] || continue
   HITS=$(rg -ci "$TG_IMPORTS" "$dir" 2>/dev/null || true)
@@ -82,7 +105,7 @@ echo "  Checking for correct usage..."
 # Positive check: ensure key product terms exist somewhere in the generic surface
 PRODUCT_TERMS=("AgentOps" "BridgeOps" "MemoryOps" "SoulOps" "GhostOps")
 for term in "${PRODUCT_TERMS[@]}"; do
-  if ! rg -q "$term" "$PUBLIC" $EXCLUDE_DIRS 2>/dev/null; then
+  if ! rg -q "$term" "${SRC_DIRS[@]}" $EXCLUDE_DIRS 2>/dev/null; then
     echo "  ⚠ Warning: Product term '$term' not found in generic headers"
   fi
 done
@@ -91,10 +114,10 @@ echo ""
 # ── Rule 5: No ASCII grid rendering outside TestGame ──
 echo "[Rule 5] No rendering helpers outside TestGame/..."
 RENDER_TERMS="RenderGrid|RenderRow|CellAt|RenderLegend|ASCII grid"
-HITS=$(rg -ci "$RENDER_TERMS" "$PUBLIC" $EXCLUDE_DIRS $EXCLUDE_TESTS 2>/dev/null || true)
+HITS=$(rg -ci "$RENDER_TERMS" "${SRC_DIRS[@]}" $EXCLUDE_DIRS $EXCLUDE_TESTS 2>/dev/null || true)
 if [ -n "$HITS" ]; then
   echo "  ✗ Rendering helpers found outside TestGame:"
-  rg -ni "$RENDER_TERMS" "$PUBLIC" $EXCLUDE_DIRS $EXCLUDE_TESTS 2>/dev/null || true
+  rg -ni "$RENDER_TERMS" "${SRC_DIRS[@]}" $EXCLUDE_DIRS $EXCLUDE_TESTS 2>/dev/null || true
   VIOLATIONS=$((VIOLATIONS + 1))
 else
   echo "  ✓ No rendering helpers in generic surfaces."
@@ -104,13 +127,26 @@ echo ""
 # ── Rule 6: No transcript/harness types outside TestGame ──
 echo "[Rule 6] No transcript/harness types outside TestGame/..."
 HARNESS_TERMS="FTranscriptEntry|ETranscriptStatus|FHarnessState|FScenarioSliceState|EEventType"
-HITS=$(rg -ci "$HARNESS_TERMS" "$PUBLIC" $EXCLUDE_DIRS $EXCLUDE_TESTS 2>/dev/null || true)
+HITS=$(rg -ci "$HARNESS_TERMS" "${SRC_DIRS[@]}" $EXCLUDE_DIRS $EXCLUDE_TESTS 2>/dev/null || true)
 if [ -n "$HITS" ]; then
   echo "  ✗ Harness types found outside TestGame:"
-  rg -ni "$HARNESS_TERMS" "$PUBLIC" $EXCLUDE_DIRS $EXCLUDE_TESTS 2>/dev/null || true
+  rg -ni "$HARNESS_TERMS" "${SRC_DIRS[@]}" $EXCLUDE_DIRS $EXCLUDE_TESTS 2>/dev/null || true
   VIOLATIONS=$((VIOLATIONS + 1))
 else
   echo "  ✓ No harness types in generic surfaces."
+fi
+echo ""
+
+# ── Rule 7: No Simulated Coverage Claims ──
+echo "[Rule 7] No simulated coverage claims..."
+SIMULATED_TERMS="simulated coverage|simulated mode|mock coverage|simulated test"
+HITS=$(rg -ci "$SIMULATED_TERMS" "${SRC_DIRS[@]}" 2>/dev/null || true)
+if [ -n "$HITS" ]; then
+  echo "  ✗ Simulated coverage claims found:"
+  rg -ni "$SIMULATED_TERMS" "${SRC_DIRS[@]}" 2>/dev/null || true
+  VIOLATIONS=$((VIOLATIONS + 1))
+else
+  echo "  ✓ No simulated coverage claims."
 fi
 echo ""
 
