@@ -26,6 +26,13 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+QUICK_MODE=0
+for arg in "$@"; do
+  if [ "$arg" = "--quick" ]; then
+    QUICK_MODE=1
+  fi
+done
+
 FAILURES=0
 TOTAL=0
 
@@ -81,12 +88,24 @@ run_check "Thin-Wrapper Guardrails (command surface rules)" \
   "$SCRIPT_DIR/check-thin-wrapper-guardrails.sh"
 
 # ── Phase 4: Product Boundary ──
-run_check "Product Boundary (game-agnostic audit)" \
-  "$SCRIPT_DIR/check-product-boundary.sh"
+if [ "$QUICK_MODE" -eq 1 ]; then
+  echo -e "\n${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+  echo -e "${CYAN}[SKIPPED] Product Boundary (game-agnostic audit)${NC}"
+  echo -e "${YELLOW}Skipped in --quick mode${NC}"
+else
+  run_check "Product Boundary (game-agnostic audit)" \
+    "$SCRIPT_DIR/check-product-boundary.sh"
+fi
 
 # ── Phase 5: API Contract Parity ──
-run_check "Canonical Contract Parity (API test-game contract)" \
-  "$SCRIPT_DIR/check-api-contract-parity.py"
+if [ "$QUICK_MODE" -eq 1 ]; then
+  echo -e "\n${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+  echo -e "${CYAN}[SKIPPED] Canonical Contract Parity (API test-game contract)${NC}"
+  echo -e "${YELLOW}Skipped in --quick mode${NC}"
+else
+  run_check "Canonical Contract Parity (API test-game contract)" \
+    "$SCRIPT_DIR/check-api-contract-parity.py"
+fi
 
 # ── Summary ──
 echo ""

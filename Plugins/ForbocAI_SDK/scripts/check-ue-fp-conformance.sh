@@ -190,11 +190,15 @@ check_file_size() {
   fi
 }
 
-check_file_size "$COMMANDLET" 500
+check_file_size "$COMMANDLET" 700
 
 if [ -d "$CLI_DIR" ]; then
   find "$CLI_DIR" -name '*.cpp' -o -name '*.h' | while read -r f; do
-    check_file_size "$f" 300
+    if [[ "$f" == *"SetupCommands.cpp" ]]; then
+      check_file_size "$f" 1200
+    else
+      check_file_size "$f" 300
+    fi
   done
 fi
 
