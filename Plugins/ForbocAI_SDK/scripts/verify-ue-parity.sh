@@ -170,9 +170,17 @@ echo "  [$([ $FAILURES -eq 0 ] && echo 'x' || echo ' ')] Product boundary audit"
 echo "  [$([ $FAILURES -eq 0 ] && echo 'x' || echo ' ')] Canonical-contract parity"
 echo "  [$([ $FAILURES -eq 0 ] && echo 'x' || echo ' ')] Handler classification drift"
 echo "  [$([ $FAILURES -eq 0 ] && echo 'x' || echo ' ')] Test quality (real coverage)"
+echo "  [$([ $FAILURES -eq 0 ] && echo 'x' || echo ' ')] Protocol codec parity"
 echo "  [ ] Focused RunGame automation (requires editor build)"
 echo "  [ ] Runtime-readiness verification (requires API connectivity)"
 echo ""
+
+exit $FAILURES
+ess verification (requires API connectivity)"
+echo ""
+
+exit $FAILURES
+""
 
 exit $FAILURES
 ess verification (requires API connectivity)"

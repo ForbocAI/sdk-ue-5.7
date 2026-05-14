@@ -512,7 +512,7 @@ EncodeProcessTapeObject(const FNPCProcessTape &Tape) {
       Root->SetObjectField(TEXT("npcState"),
                            JsonInterop::StateToObject(Tape.NpcState)),
       !Tape.Persona.IsEmpty()
-          ? (Root->SetStringField(TEXT("persona"), Tape.Persona), void())
+          ? (Root->SetStringField(TEXT("structuredPersona"), Tape.Persona), void())
           : void(),
       Tape.bHasActor
           ? [&]() {
@@ -543,7 +543,27 @@ EncodeProcessTapeObject(const FNPCProcessTape &Tape) {
       !Tape.RulesetId.IsEmpty()
           ? (Root->SetStringField(TEXT("rulesetId"), Tape.RulesetId), void())
           : void(),
-      Root->SetBoolField(TEXT("vectorQueried"), Tape.bVectorQueried), Root);
+      Root->SetBoolField(TEXT("vectorQueried"), Tape.bVectorQueried),
+      Tape.bDecisionCompleted
+          ? [&]() {
+              const TSharedRef<FJsonObject> Intent = MakeShared<FJsonObject>();
+              Intent->SetStringField(TEXT("goal"), Tape.DecisionIntent.Goal);
+              Intent->SetStringField(TEXT("actionType"), Tape.DecisionIntent.ActionType);
+              if (!Tape.DecisionIntent.Target.IsEmpty()) {
+                Intent->SetStringField(TEXT("target"), Tape.DecisionIntent.Target);
+              }
+              Root->SetObjectField(TEXT("decisionIntent"), Intent);
+            }()
+          : void(),
+      Tape.bReasoningCompleted
+          ? [&]() {
+              const TSharedRef<FJsonObject> Reasoning = MakeShared<FJsonObject>();
+              Reasoning->SetStringField(TEXT("reasoningText"), Tape.ReasoningOutput.ReasoningText);
+              Reasoning->SetStringField(TEXT("responseText"), Tape.ReasoningOutput.ResponseText);
+              Root->SetObjectField(TEXT("reasoningOutput"), Reasoning);
+            }()
+          : void(),
+      Root);
 }
 
 /**
@@ -561,7 +581,7 @@ inline bool DecodeProcessTapeObject(const TSharedPtr<FJsonObject> &Object,
                 Tape.NpcState =
                     JsonInterop::StateFromField(Object, TEXT("npcState")),
                 Tape.Persona = JsonInterop::OptionalStringFromField(
-                    Object, TEXT("persona")),
+                    Object, TEXT("structuredPersona")),
                 Tape.bHasActor =
                     Object->HasTypedField<EJson::Object>(TEXT("actor")),
                 Tape.bHasActor
@@ -599,6 +619,23 @@ inline bool DecodeProcessTapeObject(const TSharedPtr<FJsonObject> &Object,
                     Object, TEXT("rulesetId")),
                 Tape.bVectorQueried = JsonInterop::detail::TryGetBoolAs(
                     Object, TEXT("vectorQueried"), false),
+                Tape.bDecisionCompleted = Object->HasTypedField<EJson::Object>(TEXT("decisionIntent")),
+                Tape.bDecisionCompleted
+                    ? [&]() {
+                        const TSharedPtr<FJsonObject> Intent = Object->GetObjectField(TEXT("decisionIntent"));
+                        Tape.DecisionIntent.Goal = Intent->GetStringField(TEXT("goal"));
+                        Tape.DecisionIntent.ActionType = Intent->GetStringField(TEXT("actionType"));
+                        Tape.DecisionIntent.Target = JsonInterop::OptionalStringFromField(Intent, TEXT("target"));
+                      }()
+                    : void(),
+                Tape.bReasoningCompleted = Object->HasTypedField<EJson::Object>(TEXT("reasoningOutput")),
+                Tape.bReasoningCompleted
+                    ? [&]() {
+                        const TSharedPtr<FJsonObject> Reasoning = Object->GetObjectField(TEXT("reasoningOutput"));
+                        Tape.ReasoningOutput.ReasoningText = Reasoning->GetStringField(TEXT("reasoningText"));
+                        Tape.ReasoningOutput.ResponseText = Reasoning->GetStringField(TEXT("responseText"));
+                      }()
+                    : void(),
                 true);
 }
 
