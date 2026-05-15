@@ -4,7 +4,7 @@
 #include "CoreMinimal.h"
 #include "Commandlets/Commandlet.h"
 #include "Core/functional_core.hpp"
-#include "TestGame/TestGameLib.h"
+#include "TestGame/TestGameCommandSurface.h"
 #include "RuntimeCommandlet.generated.h"
 
 namespace CLITypes {
@@ -83,7 +83,7 @@ public:
    */
   CommandExecution createCommandPipeline(
       const FString &Command, const TArray<FString> &Args,
-      const TestGame::FCommandExecutor &TestGameExecutor);
+      const TestGame::CommandSurface::FCommandExecutor &TestGameExecutor);
 
   /**
    * Builds the validation pipeline for incoming CLI commands.

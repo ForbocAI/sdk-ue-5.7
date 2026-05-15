@@ -33,13 +33,17 @@
 namespace TestGame {
 namespace CommandSurface {
 
-// ── Command result (mirrors TestGameLib FCommandResult for compat) ──
+// ── Command result and injectable executor for the command surface ──
 
 struct FCommandOutput {
   ETranscriptStatus Status;
   FString Output;
   FString RoutedThrough; // The CLIOps command key used
 };
+
+struct FAliasState;
+using FCommandExecutor =
+    TFunction<FCommandOutput(const FCommandSpec &, FAliasState &)>;
 
 // ── Alias state (NPC and Ghost id resolution) ──
 

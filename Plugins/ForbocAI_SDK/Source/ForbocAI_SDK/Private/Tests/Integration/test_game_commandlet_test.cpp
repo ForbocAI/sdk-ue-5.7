@@ -1,5 +1,6 @@
 #include "Misc/AutomationTest.h"
 #include "RuntimeCommandlet.h"
+#include "TestGame/TestGameCommandSurface.h"
 #include "TestGame/TestGameLib.h"
 
 // @covers:cli:test_game
@@ -8,14 +9,19 @@ using namespace TestGame;
 
 namespace {
 
-FCommandExecutor MakeCommandletExecutor(
+CommandSurface::FCommandExecutor MakeCommandletExecutor(
     const FString &FailCommand = FString()) {
-  return [FailCommand](FCommandExecutionContext &Context,
-                       const FCommandSpec &Command) -> FCommandResult {
-    (void)Context;
+  return [FailCommand](const FCommandSpec &Command,
+                       CommandSurface::FAliasState &Aliases)
+             -> CommandSurface::FCommandOutput {
+    (void)Aliases;
     return !FailCommand.IsEmpty() && Command.Command == FailCommand
-               ? FCommandResult{ETranscriptStatus::Error, TEXT("stub failure")}
-               : FCommandResult{ETranscriptStatus::Ok, TEXT("stub success")};
+               ? CommandSurface::FCommandOutput{
+                     ETranscriptStatus::Error, TEXT("stub failure"),
+                     TEXT("stub")}
+               : CommandSurface::FCommandOutput{ETranscriptStatus::Ok,
+                                                TEXT("stub success"),
+                                                TEXT("stub")};
   };
 }
 

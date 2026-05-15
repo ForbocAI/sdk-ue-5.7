@@ -527,13 +527,14 @@ UForbocAICommandlet::executeCommand(const FString &Command,
 UForbocAICommandlet::CommandExecution
 UForbocAICommandlet::createCommandPipeline(const FString &Command,
                                            const TArray<FString> &Args) {
-  return createCommandPipeline(Command, Args, TestGame::FCommandExecutor());
+  return createCommandPipeline(Command, Args,
+                               TestGame::CommandSurface::FCommandExecutor());
 }
 
 UForbocAICommandlet::CommandExecution
 UForbocAICommandlet::createCommandPipeline(
     const FString &Command, const TArray<FString> &Args,
-    const TestGame::FCommandExecutor &TestGameExecutor) {
+    const TestGame::CommandSurface::FCommandExecutor &TestGameExecutor) {
   return UForbocAICommandlet::CommandExecution::create(
       [this, Command, Args,
        TestGameExecutor](std::function<void()> Resolve,

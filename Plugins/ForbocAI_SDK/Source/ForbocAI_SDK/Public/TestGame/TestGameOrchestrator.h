@@ -194,7 +194,7 @@ inline FString ExtractNpcIdFromCommand(const FString &Command) {
  * User Story: As a maintainer, I need this note so the surrounding code intent stays clear during maintenance and debugging.
  */
 inline void ApplyVerdictIfValid(
-    const FCommandSpec &Cmd, const FCommandResult &CmdResult,
+    const FCommandSpec &Cmd, const CommandSurface::FCommandOutput &CmdResult,
     rtk::EnhancedStore<FTestGameState> &Store) {
   (Cmd.Group == ECommandGroup::NpcProcessChat)
       ? [&]() {
@@ -238,7 +238,7 @@ inline void ApplyVerdictIfValid(
  * User Story: As a maintainer, I need this note so the surrounding code intent stays clear during maintenance and debugging.
  */
 inline void LogCommandResult(const FCommandSpec &Cmd,
-                              const FCommandResult &CmdResult) {
+                              const CommandSurface::FCommandOutput &CmdResult) {
   FString StatusStr = CmdResult.Status == ETranscriptStatus::Ok
                           ? FString(TEXT("[ok]"))
                           : FString(TEXT("[error]"));
@@ -257,19 +257,16 @@ inline void LogCommandResult(const FCommandSpec &Cmd,
  * User Story: As a maintainer, I need this note so the surrounding code intent stays clear during maintenance and debugging.
  */
 inline void ProcessCommand(const FScenarioStep &Step, const FCommandSpec &Cmd,
-                           FCommandExecutionContext &CommandContext,
                            CommandSurface::FAliasState &Aliases,
-                           const FCommandExecutor &Executor,
+                           const CommandSurface::FCommandExecutor &Executor,
                            rtk::EnhancedStore<FTestGameState> &Store) {
   const FString ScenarioId = Step.Id;
   const FCommandSpec StableCmd = Cmd;
-  FCommandResult CmdResult;
+  CommandSurface::FCommandOutput CmdResult;
   if (Executor) {
-    CmdResult = Executor(CommandContext, StableCmd);
+    CmdResult = Executor(StableCmd, Aliases);
   } else {
-    CommandSurface::FCommandOutput Output = CommandSurface::Execute(StableCmd.Command, Aliases);
-    CmdResult.Status = Output.Status;
-    CmdResult.Output = Output.Output;
+    CmdResult = CommandSurface::Execute(StableCmd.Command, Aliases);
   }
 
   /**
@@ -311,14 +308,13 @@ inline void ProcessCommand(const FScenarioStep &Step, const FCommandSpec &Cmd,
 namespace detail {
 inline void ProcessCommands(const FScenarioStep &Step,
                             const TArray<FCommandSpec> &Commands, int32 Index,
-                            FCommandExecutionContext &CommandContext,
                             CommandSurface::FAliasState &Aliases,
-                            const FCommandExecutor &Executor,
+                            const CommandSurface::FCommandExecutor &Executor,
                             rtk::EnhancedStore<FTestGameState> &Store) {
   return Index >= Commands.Num()
-             ? (void)0
-             : (ProcessCommand(Step, Commands[Index], CommandContext, Aliases, Executor, Store),
-                ProcessCommands(Step, Commands, Index + 1, CommandContext, Aliases, Executor, Store));
+              ? (void)0
+              : (ProcessCommand(Step, Commands[Index], Aliases, Executor, Store),
+                ProcessCommands(Step, Commands, Index + 1, Aliases, Executor, Store));
 }
 
 /**
@@ -326,9 +322,8 @@ inline void ProcessCommands(const FScenarioStep &Step,
  * User Story: As a maintainer, I need this note so the surrounding code intent stays clear during maintenance and debugging.
  */
 inline void ProcessSteps(const TArray<FScenarioStep> &Steps, int32 Index,
-                         FCommandExecutionContext &CommandContext,
                          CommandSurface::FAliasState &Aliases,
-                         const FCommandExecutor &Executor,
+                         const CommandSurface::FCommandExecutor &Executor,
                          rtk::EnhancedStore<FTestGameState> &Store) {
   if (Index >= Steps.Num()) {
     return;
@@ -338,8 +333,8 @@ inline void ProcessSteps(const TArray<FScenarioStep> &Steps, int32 Index,
          *Steps[Index].Id);
   UE_LOG(LogTemp, Display, TEXT("%s"), *Steps[Index].Description);
   ApplyScenarioInitialState(Steps[Index], Store);
-  ProcessCommands(Steps[Index], Steps[Index].Commands, 0, CommandContext, Aliases, Executor, Store);
-  ProcessSteps(Steps, Index + 1, CommandContext, Aliases, Executor, Store);
+  ProcessCommands(Steps[Index], Steps[Index].Commands, 0, Aliases, Executor, Store);
+  ProcessSteps(Steps, Index + 1, Aliases, Executor, Store);
 }
 
 /**
@@ -391,10 +386,11 @@ inline int32 CountTranscriptErrors(const TArray<FTranscriptEntry> &Entries,
  * so a full scenario suite can run and report transcript plus coverage state.
  */
 inline FGameRunResult RunGame(
-    EPlayMode Mode, const FCommandExecutor &Executor = FCommandExecutor()) {
+    EPlayMode Mode,
+    const CommandSurface::FCommandExecutor &Executor =
+        CommandSurface::FCommandExecutor()) {
   SDKConfig::InitializeConfig();
   auto Store = createTestGameStoreWithListeners();
-  FCommandExecutionContext CommandContext;
   Store.dispatch(UIActions::SetMode(Mode));
 
   /**
@@ -439,7 +435,7 @@ inline FGameRunResult RunGame(
   CommandSurface::FAliasState Aliases = CommandSurface::CreateAliasState(ContractResp);
   const TArray<FScenarioStep> Steps = Contract::ConvertScenariosRecursive(ContractResp.Scenarios, 0, {});
   
-  detail::ProcessSteps(Steps, 0, CommandContext, Aliases, Executor, Store);
+  detail::ProcessSteps(Steps, 0, Aliases, Executor, Store);
 
   /**
    * Build result
