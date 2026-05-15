@@ -32,7 +32,8 @@ bool ContainsMissingGroup(const TArray<ECommandGroup> &Groups,
   return false;
 }
 
-FCommandExecutor MakeExecutor(const FString &FailCommand = FString()) {
+FCommandExecutor MakeOrchestratorExecutor(
+    const FString &FailCommand = FString()) {
   return [FailCommand](FCommandExecutionContext &Context,
                        const FCommandSpec &Command) -> FCommandResult {
     (void)Context;
@@ -52,7 +53,7 @@ bool FTestGameRunGameSuccessTest::RunTest(const FString &Parameters) {
   (void)Parameters;
 
   const auto Result =
-      RunGame(EPlayMode::Autoplay, MakeExecutor());
+      RunGame(EPlayMode::Autoplay, MakeOrchestratorExecutor());
 
   TestTrue("Run completes when all commands succeed", Result.bComplete);
   TestEqual("All scenario commands are recorded", Result.Transcript.Num(),
@@ -81,7 +82,7 @@ bool FTestGameRunGameTranscriptErrorFailsTest::RunTest(
 
   const auto Result =
       RunGame(EPlayMode::Autoplay,
-              MakeExecutor(TEXT("forbocai npc state doomguard")));
+              MakeOrchestratorExecutor(TEXT("forbocai npc state doomguard")));
 
   TestFalse("Run fails when any transcript entry is an error", Result.bComplete);
   TestEqual("Coverage can still be complete", Result.MissingGroups.Num(), 0);
@@ -107,7 +108,8 @@ bool FTestGameRunGameFailedCommandLeavesCoverageGapTest::RunTest(
                    EAutomationExpectedErrorFlags::Contains, 1);
 
   const auto Result =
-      RunGame(EPlayMode::Autoplay, MakeExecutor(TEXT("forbocai status")));
+      RunGame(EPlayMode::Autoplay,
+              MakeOrchestratorExecutor(TEXT("forbocai status")));
 
   TestFalse("Run fails when a unique coverage command errors", Result.bComplete);
   TestTrue("Status remains uncovered after a failed status command",

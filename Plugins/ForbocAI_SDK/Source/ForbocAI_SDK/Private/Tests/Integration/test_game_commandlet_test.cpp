@@ -8,7 +8,8 @@ using namespace TestGame;
 
 namespace {
 
-FCommandExecutor MakeExecutor(const FString &FailCommand = FString()) {
+FCommandExecutor MakeCommandletExecutor(
+    const FString &FailCommand = FString()) {
   return [FailCommand](FCommandExecutionContext &Context,
                        const FCommandSpec &Command) -> FCommandResult {
     (void)Context;
@@ -34,7 +35,8 @@ bool FTestGameCommandletPipelineSuccessTest::RunTest(
   TArray<FString> Args;
   Args.Add(TEXT("autoplay"));
 
-  Commandlet->createCommandPipeline(TEXT("test_game"), Args, MakeExecutor())
+  Commandlet->createCommandPipeline(TEXT("test_game"), Args,
+                                    MakeCommandletExecutor())
       .then([&bCompleted]() { bCompleted = true; })
       .catch_([&Error](std::string Message) {
         Error = UTF8_TO_TCHAR(Message.c_str());
@@ -68,7 +70,7 @@ bool FTestGameCommandletPipelineFailureTest::RunTest(
 
   Commandlet
       ->createCommandPipeline(TEXT("test_game"), Args,
-                              MakeExecutor(TEXT("forbocai status")))
+                               MakeCommandletExecutor(TEXT("forbocai status")))
       .then([&bCompleted]() { bCompleted = true; })
       .catch_([&Error](std::string Message) {
         Error = UTF8_TO_TCHAR(Message.c_str());
