@@ -7,6 +7,7 @@
 #include "Core/functional_core.hpp"
 #include "Cortex/CortexSlice.h"
 #include "DirectiveSlice.h"
+#include "ForbocAILog.h"
 #include "Ghost/GhostSlice.h"
 #include "Memory/MemorySlice.h"
 #include "NPC/NPCSlice.h"
@@ -338,7 +339,7 @@ inline rtk::Middleware<FStoreState> createReduxLoggerMiddleware() {
         const FStoreState Before = Api.getState();
         const rtk::AnyAction Result = Next(Action);
         const FString Delta = StoreInternal::DescribeStateDelta(Before, Api.getState());
-        UE_LOG(LogTemp, Display,
+        UE_LOG(LogForbocAIRedux, Display,
                TEXT("[ForbocAI][Redux] action=%s payload=%s delta=%s"),
                *Action.Type, *Action.describePayload(), *Delta);
         return Result;
