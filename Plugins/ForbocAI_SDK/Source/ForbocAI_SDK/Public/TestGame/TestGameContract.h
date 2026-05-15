@@ -315,16 +315,16 @@ inline TArray<FScenarioStep> GetContractScenarioSteps(
     const FString &ApiUrl = TEXT("http://localhost:8080")) {
   const FContractResponse Contract = FetchContract(ApiUrl);
 
-  return Contract.bValid
-             ? (UE_LOG(LogTemp, Display,
-                       TEXT("TestGameContract: Using API contract v%s "
-                            "(%d scenarios)"),
-                       *Contract.Version, Contract.Scenarios.Num()),
-                ConvertScenariosRecursive(Contract.Scenarios, 0, {}))
-             : (UE_LOG(LogTemp, Error,
-                       TEXT("TestGameContract: API contract unavailable, "
-                            "no local fallback exists")),
-                TArray<FScenarioStep>());
+  if (Contract.bValid) {
+    UE_LOG(LogTemp, Display,
+           TEXT("TestGameContract: Using API contract v%s (%d scenarios)"),
+           *Contract.Version, Contract.Scenarios.Num());
+    return ConvertScenariosRecursive(Contract.Scenarios, 0, {});
+  }
+
+  UE_LOG(LogTemp, Error,
+         TEXT("TestGameContract: API contract unavailable, no local fallback exists"));
+  return TArray<FScenarioStep>();
 }
 
 /**

@@ -650,7 +650,7 @@ inline FString EncodeNpcProcessRequest(const FNPCProcessRequest &Request) {
                                EncodeProcessTapeObject(Request.Tape)),
           Request.bHasLastResult
               ? (JsonInterop::SetFieldFromJsonString(
-                     Root, TEXT("lastResult"), Request.LastResultJson, false),
+                     Root, TEXT("lastResult"), Request.LastResult, false),
                  void())
               : void(),
           ToJsonString(Root));

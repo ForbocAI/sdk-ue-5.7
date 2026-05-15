@@ -23,7 +23,7 @@ bool FSerializeIdentifyActorPayloadTest::RunTest(const FString &Parameters) {
   Actor.Persona = TEXT("Tester");
   Actor.Data.JsonData = TEXT("{\"health\": 100}");
   
-  FString Json = detail::SerializeIdentifyActorResult(Actor);
+  FString Json = rtk::detail::SerializeIdentifyActorResult(Actor);
   TestTrue("Contains type", Json.Contains(TEXT("\"type\":\"IdentifyActorResult\"")));
   TestTrue("Contains npcId", Json.Contains(TEXT("\"npcId\":\"npc_test_1\"")));
   TestTrue("Contains persona", Json.Contains(TEXT("\"persona\":\"Tester\"")));
@@ -38,7 +38,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     EAutomationTestFlags_ApplicationContextMask |
         EAutomationTestFlags::EngineFilter)
 bool FSerializeDecisionPayloadTest::RunTest(const FString &Parameters) {
-  FString Json = detail::SerializeDecisionResult(TEXT("Respond"), TEXT("SPEAK"), TEXT("Player"));
+  FString Json =
+      rtk::detail::SerializeDecisionResult(TEXT("Respond"), TEXT("SPEAK"),
+                                           TEXT("Player"));
   
   TestTrue("Contains type", Json.Contains(TEXT("\"type\":\"Decision\"")));
   TestTrue("Contains goal", Json.Contains(TEXT("\"goal\":\"Respond\"")));
@@ -54,7 +56,8 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     EAutomationTestFlags_ApplicationContextMask |
         EAutomationTestFlags::EngineFilter)
 bool FSerializeReasoningPayloadTest::RunTest(const FString &Parameters) {
-  FString Json = detail::SerializeReasoningResult(TEXT("Thinking..."), TEXT("Hello there"));
+  FString Json = rtk::detail::SerializeReasoningResult(
+      TEXT("Thinking..."), TEXT("Hello there"));
   
   TestTrue("Contains type", Json.Contains(TEXT("\"type\":\"Reasoning\"")));
   TestTrue("Contains reasoningText", Json.Contains(TEXT("\"reasoningText\":\"Thinking...\"")));

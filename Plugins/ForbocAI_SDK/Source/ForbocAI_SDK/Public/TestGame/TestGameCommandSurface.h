@@ -160,45 +160,36 @@ inline TArray<FString> Tokenize(const FString &Command) {
  * same canonical surface that Node and browser use.
  */
 inline FCommandOutput Execute(const FString &CommandText,
-                               FAliasState &Aliases) {
+                              FAliasState &Aliases) {
   const TArray<FString> Tokens = detail::Tokenize(CommandText);
 
-  return (Tokens.Num() < 1 || Tokens[0] != TEXT("forbocai"))
-             ? FCommandOutput{ETranscriptStatus::Error,
-                              TEXT("Not a forbocai command"), TEXT("")}
-             : [&]() -> FCommandOutput {
-    const FString CommandKey = detail::MapToCommandKey(Tokens);
-    TArray<FString> Args = detail::ExtractArgs(Tokens);
+  if (Tokens.Num() < 1 || Tokens[0] != TEXT("forbocai")) {
+    return FCommandOutput{ETranscriptStatus::Error,
+                          TEXT("Not a forbocai command"), TEXT("")};
+  }
 
-    // Apply NPC alias resolution to the first arg if it looks like an NPC ref
-    (Args.Num() > 0 &&
-     (CommandKey.Contains(TEXT("npc_")) ||
-      CommandKey.Contains(TEXT("memory_")) ||
-      CommandKey.Contains(TEXT("soul_"))))
-        ? (Args[0] = detail::ResolveNpcAlias(Aliases, Args[0]), void())
-        : void();
+  const FString CommandKey = detail::MapToCommandKey(Tokens);
+  TArray<FString> Args = detail::ExtractArgs(Tokens);
 
-    // Apply bridge validate macro expansion per contract rule
-    (CommandKey == TEXT("bridge_validate") &&
-     Aliases.BridgeValidateCommandRule == TEXT("expand_preset_macro"))
-        ? void() // Macro expansion handled by CLIOps
-        : void();
+  if (Args.Num() > 0 &&
+      (CommandKey.Contains(TEXT("npc_")) ||
+       CommandKey.Contains(TEXT("memory_")) ||
+       CommandKey.Contains(TEXT("soul_")))) {
+    Args[0] = detail::ResolveNpcAlias(Aliases, Args[0]);
+  }
 
-    // Dispatch through the canonical CLIOps surface
-    const func::TestResult<void> Result =
-        CLIOps::DispatchCommand(CommandKey, Args);
+  const func::TestResult<void> Result =
+      CLIOps::DispatchCommand(CommandKey, Args);
 
-    // Post-dispatch: capture NPC alias from create commands
-    (CommandKey == TEXT("npc_create") && Result.bSuccess && Args.Num() > 0 &&
-     Aliases.NpcCreateAliasRule == TEXT("substitute_generated_npc_id"))
-        ? (Aliases.NpcAliases.Add(Args[0], Result.message), void())
-        : void();
+  if (CommandKey == TEXT("npc_create") && Result.bSuccess && Args.Num() > 0 &&
+      Aliases.NpcCreateAliasRule == TEXT("substitute_generated_npc_id")) {
+    Aliases.NpcAliases.Add(Args[0], Result.message);
+  }
 
-    return FCommandOutput{
-        Result.bSuccess ? ETranscriptStatus::Ok : ETranscriptStatus::Error,
-        Result.message,
-        CommandKey};
-  }();
+  return FCommandOutput{
+      Result.bSuccess ? ETranscriptStatus::Ok : ETranscriptStatus::Error,
+      Result.message,
+      CommandKey};
 }
 
 /**

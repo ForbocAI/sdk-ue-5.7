@@ -91,7 +91,7 @@ FString ExtractPrefixed(const FString &Params, const TCHAR *ParamName,
  * User Story: As commandlet parsing, I need recursive param extraction so
  * multiple named params can be gathered without imperative loops.
  */
-namespace detail {
+namespace commandlet_detail {
 TArray<FString> buildParamsRecursive(const FString &Params,
                                      const TCHAR *const *Names, int32 Count,
                                      int32 Index, TArray<FString> Args) {
@@ -154,7 +154,7 @@ TArray<FString> mergeArraysRecursive(TArray<FString> Dest,
              : (Dest.Add(Src[Index]),
                 mergeArraysRecursive(MoveTemp(Dest), Src, Index + 1));
 }
-} // namespace detail
+} // namespace commandlet_detail
 
 /**
  * Extracts multiple named params and collects them into an args array.
@@ -163,9 +163,9 @@ TArray<FString> mergeArraysRecursive(TArray<FString> Dest,
  */
 TArray<FString> BuildParams(const FString &Params,
                             std::initializer_list<const TCHAR *> Names) {
-  return detail::buildParamsRecursive(Params, Names.begin(),
-                                     static_cast<int32>(Names.size()), 0,
-                                     TArray<FString>());
+  return commandlet_detail::buildParamsRecursive(
+      Params, Names.begin(), static_cast<int32>(Names.size()), 0,
+      TArray<FString>());
 }
 
 /**
@@ -176,10 +176,9 @@ TArray<FString> BuildParams(const FString &Params,
 TArray<FString> BuildFlags(const FString &Params,
                            std::initializer_list<const TCHAR *> ParamNames,
                            std::initializer_list<const TCHAR *> FlagValues) {
-  return detail::buildFlagsRecursive(Params, ParamNames.begin(),
-                                    FlagValues.begin(),
-                                    static_cast<int32>(ParamNames.size()), 0,
-                                    TArray<FString>());
+  return commandlet_detail::buildFlagsRecursive(
+      Params, ParamNames.begin(), FlagValues.begin(),
+      static_cast<int32>(ParamNames.size()), 0, TArray<FString>());
 }
 
 /**
@@ -190,10 +189,9 @@ TArray<FString> BuildFlags(const FString &Params,
 TArray<FString> BuildPrefixed(const FString &Params,
                               std::initializer_list<const TCHAR *> ParamNames,
                               std::initializer_list<const TCHAR *> Prefixes) {
-  return detail::buildPrefixedRecursive(Params, ParamNames.begin(),
-                                       Prefixes.begin(),
-                                       static_cast<int32>(ParamNames.size()),
-                                       0, TArray<FString>());
+  return commandlet_detail::buildPrefixedRecursive(
+      Params, ParamNames.begin(), Prefixes.begin(),
+      static_cast<int32>(ParamNames.size()), 0, TArray<FString>());
 }
 
 /**
@@ -202,7 +200,7 @@ TArray<FString> BuildPrefixed(const FString &Params,
  * param and flag lists can be combined into one args array declaratively.
  */
 TArray<FString> MergeArgs(TArray<FString> Base, const TArray<FString> &Extra) {
-  return detail::mergeArraysRecursive(MoveTemp(Base), Extra, 0);
+  return commandlet_detail::mergeArraysRecursive(MoveTemp(Base), Extra, 0);
 }
 
 /**
