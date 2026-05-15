@@ -4,145 +4,113 @@
 
   <br/>
 
-# ForbocAI SDK (UE 5.7)
+# ForbocAI SDK for Unreal Engine 5.7
 
-`Engine_Compat // UE5_Lumen`
-
-**ᚠ ᛫ ᛟ ᛫ ᚱ ᛫ ᛒ ᛫ ᛟ ᛫ ᚲ**
-
-Autonomous AI for Unreal Engine 5.7.
+Drop-in autonomous NPCs for Unreal Engine 5.7 — neuro-symbolic agents with persistent memory, identity, and ruleset-aware decision making, callable from C++ and Blueprints.
 
 [![Documentation](https://img.shields.io/badge/docs-docs.forboc.ai-blue)](https://docs.forboc.ai)
+[![Fab](https://img.shields.io/badge/Fab-ForbocAI-orange)](https://fab.com)
+
 </div>
 
-> *T̵h̶e̵ ̷f̵u̷t̶u̸r̸e̵ ̶i̷s̷ ̶n̷o̵w̷.̶ ̴T̷h̶e̸ ̸v̴o̵i̷d̸ ̷e̴x̵p̸a̷n̷d̵s̸.*
-
 ---
 
-## Overview
+## What you get
 
-`Córe_Módules // UE5_Plugin`
+- **Agents**: Persona-driven NPCs you can spawn, update, and delete from a single factory call.
+- **Memory**: Embedding-backed recall so agents remember past interactions across sessions.
+- **Bridge**: Validate agent-proposed actions against your game's ruleset before they fire.
+- **Souls**: Export and re-import an agent's identity (JSON) — portable across projects and saves.
+- **Speech & dialogue hooks**: Drop-in components for TTS, viseme blending, and chat UI.
+- **Blueprint surface**: All public operations exposed as `BlueprintCallable` nodes.
+- **CLI**: `doctor`, `npc_list`, `npc_create`, `npc_process`, `soul_export`, and friends, runnable through `UnrealEditor-Cmd` for smoke-testing in CI or after install.
 
-The **ForbocAI SDK for Unreal Engine 5.7** drives hyper-realistic NPC behavior through a neuro-symbolic AI architecture, written in strict **Functional C++11**.
-
-> **⚠️ Status**: NPC inference is now **API-hosted** via the proprietary ForbocAI-NPC-SLM model. The SDK handles local capabilities (vector memory, actor identification, web3/soul transport) while the API executes SLM reasoning server-side. See the UE TODO for remaining parity and contract alignment work.
-
-### Modules
-
-| Module | Purpose |
-|--------|---------|
-| **AgentModule** | Agent creation (factories), state management, AI processing |
-| **BridgeModule** | Neuro-symbolic action validation against game rules |
-| **MemoryModule** | Immutable memory store with embedding-based recall |
-| **SoulModule** | Portable identity serialization (JSON import/export) |
-| **CLIModule** | HTTP-based API operations for CLI commands |
-| **Commandlet** | UE command-line interface for verification and admin |
-| **functional_core.hpp** | Canonical C++11 FP core: Maybe, Either, Currying, Lazy, Pipeline, Composition, AsyncResult |
-
----
-
-## Development Setup
-
-`Dév_Sétup // Hóoks`
-
-After cloning, run the setup script to activate git hooks:
-
-```bash
-./scripts/setup-hooks.sh
-```
-
-The hooks are in `.githooks/` and tracked by git.
-
-**Demo repo sync** (`demo-ue-5.7`) is handled automatically by GitHub Actions — the submodule pin updates on every push to `main` with no local setup required. The optional `forboc.demoPath` config is for local hook-based sync if you prefer it:
-
-```bash
-git config forboc.demoPath /path/to/demo-ue-5.7
-```
+NPC reasoning is hosted on the ForbocAI API; the plugin handles local capabilities (memory, identification, soul transport, command surface) and talks to the API over HTTP.
 
 ---
 
 ## Installation
 
-`Instáll_Séquence // Fab_Dównload`
+### Option 1 — Fab (recommended)
 
-### Option 1: Fab (Recommended)
+1. Search for **ForbocAI** on [Fab](https://fab.com).
+2. Add to library and install to your engine.
+3. Enable the plugin in your project: `Edit → Plugins → ForbocAI`.
 
-Get the plugin directly from **Fab** (formerly Unreal Engine Marketplace).
+### Option 2 — Manual
 
-1.  Search for **ForbocAI** on Fab.
-2.  Add to your library and install to the engine.
-3.  Enable the plugin via `Edit > Plugins` in your project.
+1. Download a release archive from the [Releases](https://github.com/ForbocAI/sdk-ue-5.7/releases) page.
+2. Copy the `ForbocAI_SDK` folder into your project's `Plugins/` directory.
+3. Right-click your `.uproject` and **Generate Visual Studio project files**.
+4. Build in `Development Editor`.
 
-### Option 2: Manual
+### Prerequisites
 
-1.  Download the latest release.
-2.  Copy the `ForbocAI_SDK` folder to your project's `Plugins/` directory.
-3.  Regenerate project files and build.
+| Platform | Tools |
+|---|---|
+| Windows | UE 5.7, [VS Build Tools 2022](https://aka.ms/vs/17/release/vs_buildtools.exe) (C++ workload + Windows 11 SDK) |
+| macOS | UE 5.7, Xcode 15+ |
+| Linux | UE 5.7, Clang 16+ |
 
-## Release Versioning
-
-`Plugins/ForbocAI_SDK/ForbocAI_SDK.uplugin` is the UE release source of truth. `VersionName` follows the TypeScript SDK semver for releases that expose the same protocol surface, and should change whenever the protocol-facing SDK behavior changes. The integer `Version` remains the Unreal/Fab monotonically increasing package version.
-
-`build_plugin.sh` reads `VersionName` and packages to `dist_ForbocAI_SDK_v<VersionName>` by default. Set `OUTPUT_DIR=/path/to/package` when a release job needs a different destination.
+The plugin reaches an API endpoint at runtime. By default it tries `http://localhost:8080`, then falls back to `https://api.forboc.ai`. Override with `FAgentConfig::ApiUrl` or via the SDK config.
 
 ---
 
-## Quick Start
-
-`Fáctory_Init // Agent_Créate`
-
-**C++ — Using Factories and Free Functions (Strict FP):**
+## Quick start (C++)
 
 ```cpp
 #include "AgentModule.h"
 #include "MemoryModule.h"
 
-// 1. Create an agent via factory function (public domain values stay data-first)
+// 1. Create an agent
 FAgentConfig Config;
 Config.Persona = TEXT("Cyber-Merchant");
-// Config.ApiUrl is optional; SDKConfig defaults to http://localhost:8080,
-// and automatically falls back to https://api.forboc.ai if localhost is unreachable.
+// Config.ApiUrl is optional — defaults to localhost, falls back to api.forboc.ai.
 
 const FAgent Merchant = AgentFactory::Create(Config);
 
-// 2. Process input via free function
-// 2. Process input via async pipeline
+// 2. Process player input asynchronously
 AgentOps::Process(
     Merchant, TEXT("What wares do you have?"), {},
     [](FAgentResponse Response) {
-        // Handle response asynchronously
-        UE_LOG(LogTemp, Log, TEXT("Response: %s"), *Response.Dialogue);
+        UE_LOG(LogTemp, Log, TEXT("Reply: %s"), *Response.Dialogue);
     });
 
-// 3. Functional update — returns a NEW agent (original unchanged)
-const FAgentState NewState = TypeFactory::AgentState(TEXT("Suspicious"));
-const FAgent UpdatedMerchant = AgentOps::WithState(Merchant, NewState);
+// 3. Update agent state — returns a NEW agent (originals stay untouched)
+const FAgentState Suspicious = TypeFactory::AgentState(TEXT("Suspicious"));
+const FAgent Updated = AgentOps::WithState(Merchant, Suspicious);
 
-// 4. Memory — immutable store, returns new store on add
+// 4. Memory store — add an interaction
 const FMemoryStore Store = MemoryOps::CreateStore();
-const FMemoryStore Updated = MemoryOps::Store(
+const FMemoryStore After = MemoryOps::Store(
     Store, TEXT("Customer asked about wares"), TEXT("interaction"), 0.8f);
 ```
 
-**Pipeline chaining (from `functional_core.hpp`):**
+> All public types are immutable structs. Operations return new values rather than mutating in place — assign the result back if you want to keep it.
 
-```cpp
-#include "Core/functional_core.hpp"
+## Quick start (Blueprint)
 
-auto result = func::pipe(AgentFactory::Create(Config))
-    | [](const FAgent& a) { return AgentOps::WithState(a, NewState); }
-    | [](const FAgent& a) { return AgentOps::Export(a); };
+1. Create a new Blueprint Actor parented to `ASDKTestActor` (shipped with the demo project).
+2. In **Class Defaults**, set **Persona** (and optionally **Api Url**).
+3. Implement **Event On Agent Response** to consume dialogue.
+4. Call **Process Input** from any input or UI event.
 
-FSoul soul = result.val;  // direct data access
-```
+The full demo project lives at [`ForbocAI/demo-ue-5.7`](https://github.com/ForbocAI/demo-ue-5.7) and shows multi-bot orchestration, dialogue, speech, and ruleset-aware combat encounters.
 
 ---
 
-## Command Line Interface
+## CLI smoke tests
 
-`CLI // Verification`
+The plugin ships a Commandlet you can run via `UnrealEditor-Cmd` to verify the install and exercise the API path without launching the editor UI.
 
-The SDK includes a built-in Commandlet for verification and administration.
+### Windows
+
+```powershell
+& "C:\Program Files\Epic Games\UE_5.7\Engine\Binaries\Win64\UnrealEditor-Cmd.exe" `
+  "C:\Path\To\Your.uproject" `
+  -run=ForbocAI -Command=doctor `
+  -nosplash -nopause -unattended
+```
 
 ### macOS
 
@@ -150,17 +118,6 @@ The SDK includes a built-in Commandlet for verification and administration.
 "/Users/Shared/Epic Games/UE_5.7/Engine/Binaries/Mac/UnrealEditor-Cmd" \
   "/Path/To/Your.uproject" \
   -run=ForbocAI -Command=doctor \
-  -nosplash -nopause -unattended
-```
-
-### Windows
-
-> **Prerequisites:** [VS Build Tools 2022](https://aka.ms/vs/17/release/vs_buildtools.exe) with the **C++ Build Tools** workload and **Windows 11 SDK** must be installed before building the plugin.
-
-```powershell
-& "C:\Program Files\Epic Games\UE_5.7\Engine\Binaries\Win64\UnrealEditor-Cmd.exe" `
-  "C:\Path\To\Your.uproject" `
-  -run=ForbocAI -Command=doctor `
   -nosplash -nopause -unattended
 ```
 
@@ -173,53 +130,35 @@ The SDK includes a built-in Commandlet for verification and administration.
   -nosplash -nopause -unattended
 ```
 
-> **Note:** The first run takes several minutes while the engine loads
-> (dylib linking, DDC initialization, shader compilation). Subsequent runs
-> are significantly faster (~30s engine startup).
+The first run may take a few minutes (DDC warm-up, shader compile). Subsequent runs are ~30 s.
 
-**Commands:**
-*   `doctor`: Check API connection status.
-*   `npc_list`: List active NPCs.
-*   `npc_create -Persona="..."`: Create a new NPC.
-*   `npc_process -Id="..." -Input="..."`: Interact with an NPC.
-*   `soul_export -Id="..."`: Export an NPC soul.
-*   `config_set -Key="..." -Value="..."`: Persist a CLI config value.
-*   `config_get -Key="..."`: Read a stored CLI config value.
+| Command | Purpose |
+|---|---|
+| `doctor` | Check API connectivity and report SDK version |
+| `npc_list` | List active agents |
+| `npc_create -Persona="..."` | Create a new agent |
+| `npc_process -Id="..." -Input="..."` | Send input to an agent |
+| `soul_export -Id="..."` | Export an agent's soul to JSON |
+| `config_set -Key="..." -Value="..."` | Persist a CLI config value |
+| `config_get -Key="..."` | Read a stored CLI config value |
 
-**Example `doctor` output:**
+Sample `doctor` output:
+
 ```
-ForbocAI CLI (UE5) - Command: doctor
+ForbocAI CLI (UE5) — Command: doctor
 API Status: online (v0.4.0)
 ```
 
 ---
 
-## Architecture & Concepts
+## Documentation & support
 
-`UE5_Arch // Fúnctional_C++11`
-
-ForbocAI enforces **strict Functional Programming** in C++11. The UE SDK treats [`functional_core.hpp`](./Plugins/ForbocAI_SDK/Source/ForbocAI_SDK/Public/Core/functional_core.hpp) as the canonical source of truth for its FP substrate. Public gameplay/domain code stays data-first, and the SDK reuses the core helper wrappers instead of inventing parallel abstractions. All code follows these rules:
-
-| Rule | Pattern |
-|------|---------|
-| **Data** | Public gameplay/domain state is `struct`-first, immutable where possible |
-| **Construction** | Prefer factory functions in namespaces (`AgentFactory::Create`, `TypeFactory::Soul`) |
-| **Operations** | Prefer free functions in namespaces (`AgentOps::Process`, `MemoryOps::Recall`) |
-| **Updates** | Copy-on-write — always return a new value (`AgentOps::WithState`) |
-| **Error handling** | `Maybe<T>` / `Either<E,T>` from `functional_core.hpp` |
-| **Chaining** | `func::pipe(x) \| f \| g`, `func::compose(f, g)`, or `func::AsyncChain::then(...)` |
-| **Deferred work** | `func::lazy(thunk)` with `func::eval(lz)` where one-shot memoization is actually the right tool |
-
-**Key references:**
-- **[Functional C++11 Guide](./C++11-FP-GUIDE.md)** — Patterns, rules, and examples
-- **[`functional_core.hpp`](./Plugins/ForbocAI_SDK/Source/ForbocAI_SDK/Public/Core/functional_core.hpp)** — Canonical FP core and source of truth
-- **[`style-guide.md`](./style-guide.md)** — Aesthetic protocols
+- Full reference, tutorials, and protocol docs: <https://docs.forboc.ai>
+- Demo project: <https://github.com/ForbocAI/demo-ue-5.7>
+- Issues and feature requests: <https://github.com/ForbocAI/sdk-ue-5.7/issues>
 
 ---
 
 ## License
 
-`Légal_Státus // Ríghts`
-
-All rights reserved. Proprietary and confidential. © 2026 ForbocAI, Inc. See [LICENSE](./LICENSE) for full details.
-<!-- T̸h̴e̶ ̶v̶o̶i̶d̴ ̷c̸o̶n̷s̶u̶m̸e̸s̶ ̸a̶l̷l̵. -->
+© 2026 ForbocAI, Inc. All rights reserved. See [LICENSE](./LICENSE) for full terms.
