@@ -5,13 +5,17 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SRC="$ROOT/Source/ForbocAI_SDK"
 STATUS=0
 
+normalize_crlf() {
+  tr -d '\r'
+}
+
 echo "[check] UE SDK conformance guardrails"
 
 # 1a) No C++17 features in first-party source (excluding ThirdParty).
 C17_HITS="$(rg -n 'if constexpr|std::is_same_v|std::decay_t|std::optional|std::variant|std::any' \
   "$SRC/Public" "$SRC/Private" \
   --glob '!**/Tests/**' \
-  2>/dev/null || true)"
+  2>/dev/null | normalize_crlf || true)"
 if [ -n "$C17_HITS" ]; then
   echo "[fail] C++17 features found in first-party source:"
   echo "$C17_HITS"
@@ -25,7 +29,7 @@ C14_AUTO="$(rg -n 'inline auto [A-Za-z]' \
   "$SRC/Public" "$SRC/Private" \
   --glob '!**/Tests/**' \
   --glob '!**/ThirdParty/**' \
-  2>/dev/null || true)"
+  2>/dev/null | normalize_crlf || true)"
 if [ -n "$C14_AUTO" ]; then
   echo "[fail] C++14 inline auto return deduction found in first-party source:"
   echo "$C14_AUTO"
@@ -39,7 +43,7 @@ RAW_NEW="$(rg -n '\bnew [A-Z]|\bdelete [A-Za-z]' \
   "$SRC/Private" \
   --glob '!**/Tests/**' \
   --glob '!**/Native/SqliteAmalgamation.c' \
-  2>/dev/null || true)"
+  2>/dev/null | normalize_crlf || true)"
 if [ -n "$RAW_NEW" ]; then
   echo "[warn] raw new/delete found in first-party runtime code (tracked for remediation):"
   echo "$RAW_NEW"
@@ -60,7 +64,7 @@ DIRECT_HTTP="$(rg -n 'FHttpModule::Get\(\)\.CreateRequest\(\)' \
   --glob '!**/Bridge/BridgeModule.cpp' \
   --glob '!**/NativeEngine.cpp' \
   --glob '!**/Tests/**' \
-  2>/dev/null || true)"
+  2>/dev/null | normalize_crlf || true)"
 if [ -n "$DIRECT_HTTP" ]; then
   echo "[fail] Direct HTTP request creation outside approved adapter layer:"
   echo "$DIRECT_HTTP"
@@ -73,7 +77,7 @@ fi
 CORE_CLASSES="$(rg -n '^\s*class [A-Z]' \
   "$SRC/Public/Core/functional_core.hpp" \
   "$SRC/Public/Core/rtk.hpp" \
-  2>/dev/null || true)"
+  2>/dev/null | normalize_crlf || true)"
 if [ -n "$CORE_CLASSES" ]; then
   echo "[warn] class declarations in core FP zone (documented exceptions expected):"
   echo "$CORE_CLASSES"
@@ -84,7 +88,7 @@ fi
 # 4b) AsyncHttp helper stays expression-style in the public FP helper surface.
 ASYNC_HTTP_IMPERATIVE="$(rg -n '\bif \(|\bfor \(|\bwhile \(' \
   "$SRC/Public/Core/AsyncHttp.h" \
-  2>/dev/null || true)"
+  2>/dev/null | normalize_crlf || true)"
 if [ -n "$ASYNC_HTTP_IMPERATIVE" ]; then
   echo "[warn] Imperative control flow remains in AsyncHttp.h (tracked for remediation):"
   echo "$ASYNC_HTTP_IMPERATIVE"
@@ -101,7 +105,7 @@ DIRECT_PROC="$(rg -n 'FPlatformProcess::CreateProc' \
   --glob '!**/CLI/**' \
   --glob '!**/TestGame/TestGameLib.h' \
   --glob '!**/Tests/**' \
-  2>/dev/null || true)"
+  2>/dev/null | normalize_crlf || true)"
 if [ -n "$DIRECT_PROC" ]; then
   echo "[fail] Direct process creation outside CLI/setup layer:"
   echo "$DIRECT_PROC"
@@ -113,7 +117,7 @@ fi
 # 6) ThirdParty isolation — no direct ThirdParty includes in public headers.
 THIRDPARTY_LEAK="$(rg -n '#include.*ThirdParty' \
   "$SRC/Public" \
-  2>/dev/null || true)"
+  2>/dev/null | normalize_crlf || true)"
 if [ -n "$THIRDPARTY_LEAK" ]; then
   echo "[fail] ThirdParty headers included directly in public headers:"
   echo "$THIRDPARTY_LEAK"
@@ -129,7 +133,7 @@ IMPERATIVE_HITS="$(rg -n '\b(if|for|while|switch)\s*\(' \
   --glob '!**/Tests/**' \
   --glob '!**/ThirdParty/**' \
   --glob '!**/Native/SqliteAmalgamation.c' \
-  2>/dev/null | grep -v '^\s*//' | grep -v '^\s*\*' | grep -v '^\s*//.*\b(if|for|while|switch)\s*(' || true)"
+  2>/dev/null | normalize_crlf | grep -v '^\s*//' | grep -v '^\s*\*' | grep -v '^\s*//.*\b(if|for|while|switch)\s*(' || true)"
 # Filter out comment-only matches (lines starting with // or * after filename:line:)
 IMPERATIVE_REAL=""
 while IFS= read -r line; do

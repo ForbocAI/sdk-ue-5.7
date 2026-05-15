@@ -30,6 +30,10 @@ SRC="$ROOT/Source/ForbocAI_SDK"
 STATUS=0
 DEMO_ROOT=""
 
+normalize_crlf() {
+  tr -d '\r'
+}
+
 while [[ $# -gt 0 ]]; do
   case $1 in
     --demo-root)
@@ -74,7 +78,7 @@ LOOP_HITS="$(rg -n '\b(for|while)\s*\(' \
   --glob '!**/ThirdParty/**' \
   --glob '!**/Native/SqliteAmalgamation.c' \
   --type-add 'cpp:*.{h,hpp,cpp}' --type cpp \
-  2>/dev/null || true)"
+  2>/dev/null | normalize_crlf || true)"
 
 # Filter comment-only lines
 LOOP_REAL=""
@@ -117,7 +121,7 @@ CLASS_HITS="$(rg -n '^\s*class [A-Z]' \
   --glob '!**/ThirdParty/**' \
   --glob '!**/Native/SqliteAmalgamation.c' \
   --type-add 'cpp:*.{h,hpp,cpp}' --type cpp \
-  2>/dev/null || true)"
+  2>/dev/null | normalize_crlf || true)"
 
 # Filter: UCLASS macros, forward declarations (class Foo;), and UE-generated
 CLASS_REAL=""
@@ -158,7 +162,7 @@ MUTABLE_HITS="$(rg -n '\bmutable\b' \
   --glob '!**/Tests/**' \
   --glob '!**/ThirdParty/**' \
   --type-add 'cpp:*.{h,hpp,cpp}' --type cpp \
-  2>/dev/null || true)"
+  2>/dev/null | normalize_crlf || true)"
 
 # Filter canonical FP memoization uses
 MUTABLE_REAL=""
@@ -237,13 +241,13 @@ HANDLER_HTTP=""
 if [ -d "$CLI_DIR" ]; then
   HANDLER_HTTP="$(rg -n 'FHttpModule::Get\(\)\.CreateRequest\(\)' \
     "$CLI_DIR" \
-    2>/dev/null || true)"
+    2>/dev/null | normalize_crlf || true)"
 fi
 
 if [ -f "$COMMANDLET" ]; then
   CMD_HTTP="$(rg -n 'FHttpModule::Get\(\)\.CreateRequest\(\)' \
     "$COMMANDLET" \
-    2>/dev/null || true)"
+    2>/dev/null | normalize_crlf || true)"
   HANDLER_HTTP="$HANDLER_HTTP$CMD_HTTP"
 fi
 
@@ -268,7 +272,7 @@ IF_HITS="$(rg -n '\bif\s*\(' \
   --glob '!**/ThirdParty/**' \
   --glob '!**/Native/SqliteAmalgamation.c' \
   --type-add 'cpp:*.{h,hpp,cpp}' --type cpp \
-  2>/dev/null || true)"
+  2>/dev/null | normalize_crlf || true)"
 
 IF_REAL=""
 while IFS= read -r line; do
@@ -310,7 +314,7 @@ SWITCH_HITS="$(rg -n '\bswitch\s*\(' \
   --glob '!**/ThirdParty/**' \
   --glob '!**/Native/SqliteAmalgamation.c' \
   --type-add 'cpp:*.{h,hpp,cpp}' --type cpp \
-  2>/dev/null || true)"
+  2>/dev/null | normalize_crlf || true)"
 
 SWITCH_REAL=""
 while IFS= read -r line; do
@@ -352,7 +356,7 @@ SDK_MOCK="$(rg -ni '\bmock\b' \
   "$SRC/Public" \
   --glob '!**/ThirdParty/**' \
   --type-add 'cpp:*.{h,hpp,cpp}' --type cpp \
-  2>/dev/null || true)"
+  2>/dev/null | normalize_crlf || true)"
 
 [ -n "$SDK_MOCK" ] && MOCK_VIOLATIONS="$MOCK_VIOLATIONS
 $SDK_MOCK"
@@ -362,7 +366,7 @@ if [ -d "$DEMO_SRC/Tests" ]; then
   DEMO_MOCK="$(rg -ni '\bmock\b' \
     "$DEMO_SRC/Tests" \
     --type-add 'cpp:*.{h,hpp,cpp}' --type cpp \
-    2>/dev/null || true)"
+    2>/dev/null | normalize_crlf || true)"
   [ -n "$DEMO_MOCK" ] && MOCK_VIOLATIONS="$MOCK_VIOLATIONS
 $DEMO_MOCK"
 fi
@@ -373,7 +377,7 @@ if [ -d "$DEMO_SRC" ]; then
     "$DEMO_SRC" \
     --glob '!**/Tests/**' \
     --type-add 'cpp:*.{h,hpp,cpp}' --type cpp \
-    2>/dev/null || true)"
+    2>/dev/null | normalize_crlf || true)"
   [ -n "$DEMO_SRC_MOCK" ] && MOCK_VIOLATIONS="$MOCK_VIOLATIONS
 $DEMO_SRC_MOCK"
 fi
