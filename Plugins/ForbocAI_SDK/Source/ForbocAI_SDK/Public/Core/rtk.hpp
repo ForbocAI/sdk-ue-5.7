@@ -65,7 +65,11 @@ template <typename K, typename V> FString DebugPayloadString(const TMap<K, V> &M
 }
 
 template <typename T>
-typename std::enable_if<!HasToString<T>::value, FString>::type
+typename std::enable_if<!HasToString<T>::value &&
+                            !std::is_integral<T>::value &&
+                            !std::is_floating_point<T>::value &&
+                            !std::is_same<T, bool>::value,
+                        FString>::type
 DebugPayloadString(const T &) {
   return TEXT("<opaque>");
 }

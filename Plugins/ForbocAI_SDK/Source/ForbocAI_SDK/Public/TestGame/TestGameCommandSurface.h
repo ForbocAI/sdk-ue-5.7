@@ -180,15 +180,18 @@ inline FCommandOutput Execute(const FString &CommandText,
 
   const func::TestResult<void> Result =
       CLIOps::DispatchCommand(CommandKey, Args);
+  const FString ResultMessage = Result.message.empty()
+                                    ? FString()
+                                    : FString(UTF8_TO_TCHAR(Result.message.c_str()));
 
   if (CommandKey == TEXT("npc_create") && Result.bSuccess && Args.Num() > 0 &&
       Aliases.NpcCreateAliasRule == TEXT("substitute_generated_npc_id")) {
-    Aliases.NpcAliases.Add(Args[0], Result.message);
+    Aliases.NpcAliases.Add(Args[0], ResultMessage);
   }
 
   return FCommandOutput{
       Result.bSuccess ? ETranscriptStatus::Ok : ETranscriptStatus::Error,
-      Result.message,
+      ResultMessage,
       CommandKey};
 }
 
