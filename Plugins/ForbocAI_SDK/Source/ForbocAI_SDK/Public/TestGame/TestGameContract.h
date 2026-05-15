@@ -1,17 +1,21 @@
 #pragma once
 /**
- * TestGameContract — Consumes the mirrored test-game contract from the API.
+ * TestGameContract — Consumes the authoritative test-game contract
+ * from the API.
  *
- * Replaces local scenario authority (TestGameScenarios.h) with API consumption:
+ * Retired: the legacy in-tree TestGameScenarios.h mirror, which used
+ * to define scenario steps locally and silently drift from the API.
+ * This module is now the only source of scenarios for the UE test-game
+ * harness:
  *   test game -> cli -> sdk -> api -> contract -> api -> sdk -> cli -> test game
  *
  * The API publishes the authoritative contract at GET /test-game/contract.
- * This module fetches, parses, and converts it into the same FScenarioStep
- * structures that TestGameScenarios.h provides locally.
+ * This module fetches, parses, and converts it into FScenarioStep
+ * structures the UE harness already knows how to drive.
  *
- * User Story: As the UE test-game harness, I need to consume the API-owned
- * contract so UE proves real cross-host parity rather than maintaining a
- * local replica that drifts.
+ * User Story: As the UE test-game harness, I need to consume the
+ * API-owned contract so UE proves real cross-host parity rather than
+ * maintaining a local replica that drifts.
  */
 
 #include "Core/AsyncHttp.h"
@@ -303,14 +307,17 @@ inline FContractResponse FetchContract(
 }
 
 /**
- * Get scenario steps from the API contract, falling back to local
- * TestGameScenarios.h if the API is unavailable.
+ * Get scenario steps from the API contract.
  *
- * This is the migration bridge: once the API contract is stable,
- * the local fallback can be removed entirely.
+ * The legacy local mirror (TestGameScenarios.h) was retired once the
+ * API contract at GET /test-game/contract became authoritative — there
+ * is no offline fallback. If the API is unreachable the harness logs
+ * an error and returns an empty list, and the caller is expected to
+ * treat that as a hard failure (not as a "use cached scenarios" path).
  *
- * User Story: As the test-game harness, I need a graceful migration path
- * so UE can start consuming the API contract while still working offline.
+ * User Story: As the test-game harness, I need to consume the API
+ * contract directly so UE proves real cross-host parity rather than
+ * silently drifting on a local copy.
  */
 inline TArray<FScenarioStep> GetContractScenarioSteps(
     const FString &ApiUrl = TEXT("http://localhost:8080")) {
@@ -329,13 +336,18 @@ inline TArray<FScenarioStep> GetContractScenarioSteps(
 }
 
 /**
- * Validate that the local TestGameScenarios.h matches the API contract.
+ * Validate the in-process contract handshake against the published API
+ * contract.
  *
- * Returns a list of parity violations. Empty list = full parity.
+ * Returns a list of parity violations. Empty list = full parity. After
+ * the local TestGameScenarios.h mirror was retired, this check guards
+ * the contract types defined in this header (FContractResponse, the
+ * required-command-groups list, the alias-rules table) against drift
+ * from the API source of truth.
  *
- * User Story: As the parity verification loop, I need an automated check
- * so drift between the local scenario copy and the API contract is caught
- * immediately rather than during manual audits.
+ * User Story: As the parity verification loop, I need an automated
+ * check so drift between the UE consumer's contract types and the API
+ * contract is caught immediately rather than during manual audits.
  */
 inline TArray<FString> ValidateContractParity(
     const FString &ApiUrl = TEXT("http://localhost:8080")) {
