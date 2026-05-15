@@ -89,20 +89,35 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
 bool FTestGameRuntimeUrlResolutionTest::RunTest(const FString &Parameters) {
   (void)Parameters;
 
-  const FString LocalPreferred = ResolveRuntimeUrl(
+  const FString ExplicitRuntime = ResolveConfiguredRuntimeUrl(
+      TEXT("https://runtime.example"), TEXT("https://api.forboc.ai"));
+  TestEqual("ResolveConfiguredRuntimeUrl prefers FORBOC_RUNTIME_URL",
+            ExplicitRuntime, FString(TEXT("https://runtime.example")));
+
+  const FString ApiUrlConfigured = ResolveConfiguredRuntimeUrl(
+      FString(), TEXT("https://api.forboc.ai"));
+  TestEqual("ResolveConfiguredRuntimeUrl falls back to FORBOCAI_API_URL",
+            ApiUrlConfigured, FString(TEXT("https://api.forboc.ai")));
+
+  const FString MissingConfiguredRuntime =
+      ResolveConfiguredRuntimeUrl(FString(), FString());
+  TestTrue("ResolveConfiguredRuntimeUrl returns empty when unset",
+           MissingConfiguredRuntime.IsEmpty());
+
+  const FString LocalPreferred = ResolveVerificationRuntimeUrl(
       [](const FString &Url) { return Url.Contains(TEXT("localhost:8080")); });
-  TestEqual("ResolveRuntimeUrl prefers localhost when available",
+  TestEqual("ResolveVerificationRuntimeUrl prefers localhost when available",
             LocalPreferred, FString(TEXT("http://localhost:8080")));
 
-  const FString RemoteFallback = ResolveRuntimeUrl([](const FString &Url) {
+  const FString RemoteFallback = ResolveVerificationRuntimeUrl([](const FString &Url) {
     return Url.Contains(TEXT("api.forboc.ai"));
   });
-  TestEqual("ResolveRuntimeUrl falls back to remote API when localhost fails",
+  TestEqual("ResolveVerificationRuntimeUrl falls back to remote API when localhost fails",
             RemoteFallback, FString(TEXT("https://api.forboc.ai")));
 
   const FString MissingRuntime =
-      ResolveRuntimeUrl([](const FString &) { return false; });
-  TestTrue("ResolveRuntimeUrl returns empty when no runtime is reachable",
+      ResolveVerificationRuntimeUrl([](const FString &) { return false; });
+  TestTrue("ResolveVerificationRuntimeUrl returns empty when no runtime is reachable",
            MissingRuntime.IsEmpty());
   return true;
 }

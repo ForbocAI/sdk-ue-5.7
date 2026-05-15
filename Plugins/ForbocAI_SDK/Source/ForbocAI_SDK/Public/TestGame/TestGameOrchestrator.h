@@ -418,6 +418,15 @@ inline FGameRunResult RunGame(
   UE_LOG(LogTemp, Display, TEXT("%s"), *RenderLegend());
 
   const FString ApiUrl = ResolveRuntimeUrl();
+  if (ApiUrl.IsEmpty()) {
+    UE_LOG(LogTemp, Error,
+           TEXT("TestGameContract: explicit runtime URL required. Set "
+                "FORBOC_RUNTIME_URL or FORBOCAI_API_URL before running."));
+    FGameRunResult Result;
+    Result.bComplete = false;
+    Result.Summary = TEXT("Runtime URL not configured");
+    return Result;
+  }
   const Contract::FContractResponse ContractResp = Contract::FetchContract(ApiUrl);
   if (!ContractResp.bValid) {
     UE_LOG(LogTemp, Error, TEXT("TestGameContract: API contract unavailable. Aborting RunGame."));

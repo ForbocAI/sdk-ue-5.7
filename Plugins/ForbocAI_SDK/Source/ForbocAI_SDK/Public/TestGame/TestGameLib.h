@@ -696,14 +696,21 @@ inline bool CheckRuntimeConnectivity(
 }
 
 /**
- * Reads the explicit runtime URL from FORBOC_RUNTIME_URL. Returns an empty
- * string if the env var is unset.
+ * Resolves the explicitly configured runtime URL without probing.
+ * Prefers FORBOC_RUNTIME_URL, then falls back to FORBOCAI_API_URL.
  * User Story: As the no-fallback runtime policy, I need consumers to set the
  * runtime URL explicitly so production hosts never silently downgrade to
  * localhost or an unintended remote.
  */
+inline FString ResolveConfiguredRuntimeUrl(const FString &RuntimeUrlOverride,
+                                           const FString &ApiUrlOverride) {
+  return !RuntimeUrlOverride.IsEmpty() ? RuntimeUrlOverride : ApiUrlOverride;
+}
+
 inline FString ResolveRuntimeUrlFromEnv() {
-  return FPlatformMisc::GetEnvironmentVariable(TEXT("FORBOC_RUNTIME_URL"));
+  return ResolveConfiguredRuntimeUrl(
+      FPlatformMisc::GetEnvironmentVariable(TEXT("FORBOC_RUNTIME_URL")),
+      FPlatformMisc::GetEnvironmentVariable(TEXT("FORBOCAI_API_URL")));
 }
 
 /**
@@ -712,10 +719,12 @@ inline FString ResolveRuntimeUrlFromEnv() {
  * localhost first and a published API second so verification runs locally
  * during development and remotely in CI without per-developer config.
  *
- * Production code paths must NOT call this. Use ResolveRuntimeUrlFromEnv
- * (or set FORBOC_RUNTIME_URL explicitly) so the no-fallback policy holds.
+ * Production code paths must NOT call this. Use ResolveRuntimeUrl
+ * (or set FORBOC_RUNTIME_URL / FORBOCAI_API_URL explicitly) so the
+ * no-fallback policy holds.
  */
-inline FString ResolveRuntimeUrl(const FRuntimeConnectivityProbe &Probe) {
+inline FString ResolveVerificationRuntimeUrl(
+    const FRuntimeConnectivityProbe &Probe) {
   return Probe(TEXT("http://localhost:8080/status"))
              ? FString(TEXT("http://localhost:8080"))
              : (Probe(TEXT("https://api.forboc.ai/status"))
@@ -724,19 +733,27 @@ inline FString ResolveRuntimeUrl(const FRuntimeConnectivityProbe &Probe) {
 }
 
 /**
- * Default test-harness resolver. Prefers FORBOC_RUNTIME_URL when set; falls
+ * Default test-harness resolver. Prefers explicit runtime configuration; falls
  * back to the probe-based path only if no env var is configured.
  * User Story: As a test runner, I need explicit env-var configuration to take
  * precedence so CI can pin the runtime without relying on probe order.
  */
-inline FString ResolveRuntimeUrl() {
+inline FString ResolveVerificationRuntimeUrl() {
   const FString FromEnv = ResolveRuntimeUrlFromEnv();
   return !FromEnv.IsEmpty()
              ? FromEnv
-             : ResolveRuntimeUrl(
-                   [](const FString &Url) {
-                     return CheckRuntimeConnectivity(Url);
-                   });
+             : ResolveVerificationRuntimeUrl(
+                    [](const FString &Url) {
+                      return CheckRuntimeConnectivity(Url);
+                    });
 }
+
+/**
+ * Production/runtime resolver. Explicit configuration only.
+ * User Story: As a production runtime caller, I need hard-fail behavior when
+ * the runtime URL is unset so verification-only probe fallback never leaks
+ * into shipped entrypoints.
+ */
+inline FString ResolveRuntimeUrl() { return ResolveRuntimeUrlFromEnv(); }
 
 } // namespace TestGame

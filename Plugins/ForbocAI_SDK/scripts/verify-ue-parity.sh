@@ -176,14 +176,3 @@ echo "  [ ] Runtime-readiness verification (requires API connectivity)"
 echo ""
 
 exit $FAILURES
-ess verification (requires API connectivity)"
-echo ""
-
-exit $FAILURES
-""
-
-exit $FAILURES
-ess verification (requires API connectivity)"
-echo ""
-
-exit $FAILURES
