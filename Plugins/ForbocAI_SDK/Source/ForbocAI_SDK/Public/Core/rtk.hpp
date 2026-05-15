@@ -14,7 +14,7 @@ namespace rtk {
 
 struct FEmptyPayload;
 
-namespace detail {
+namespace payload_debug {
 
 inline FString DebugPayloadString(const FEmptyPayload &) { return TEXT("<none>"); }
 
@@ -70,7 +70,7 @@ DebugPayloadString(const T &) {
   return TEXT("<opaque>");
 }
 
-} // namespace detail
+} // namespace payload_debug
 
 /**
  * 1.1 Action<Payload>
@@ -377,7 +377,7 @@ template <typename Payload> struct ActionCreator {
 
   AnyAction operator()(const Payload &payload) const {
     return AnyAction(Type, std::make_shared<Payload>(payload),
-                     detail::DebugPayloadString(payload));
+                     payload_debug::DebugPayloadString(payload));
   }
 
   /**
@@ -413,7 +413,7 @@ struct EmptyActionCreator {
 
   AnyAction operator()() const {
     return AnyAction(Type, std::make_shared<FEmptyPayload>(),
-                     detail::DebugPayloadString(FEmptyPayload{}));
+                     payload_debug::DebugPayloadString(FEmptyPayload{}));
   }
 
   /**
