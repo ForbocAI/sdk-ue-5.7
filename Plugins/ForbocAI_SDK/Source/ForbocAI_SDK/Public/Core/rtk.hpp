@@ -6,10 +6,71 @@
 #include "functional_core.hpp"
 #include <functional>
 #include <memory>
+#include <type_traits>
 #include <utility>
 #include <vector>
 
 namespace rtk {
+
+struct FEmptyPayload;
+
+namespace detail {
+
+inline FString DebugPayloadString(const FEmptyPayload &) { return TEXT("<none>"); }
+
+inline FString DebugPayloadString(const FString &Value) { return Value; }
+
+inline FString DebugPayloadString(const bool &Value) {
+  return Value ? TEXT("true") : TEXT("false");
+}
+
+template <typename T>
+typename std::enable_if<std::is_integral<T>::value &&
+                            !std::is_same<T, bool>::value,
+                        FString>::type
+DebugPayloadString(const T &Value) {
+  return FString::Printf(TEXT("%lld"), static_cast<long long>(Value));
+}
+
+template <typename T>
+typename std::enable_if<std::is_floating_point<T>::value, FString>::type
+DebugPayloadString(const T &Value) {
+  return FString::SanitizeFloat(static_cast<double>(Value));
+}
+
+template <typename T> class HasToString {
+  template <typename U>
+  static auto Test(int) -> decltype(std::declval<const U &>().ToString(),
+                                    std::true_type());
+
+  template <typename> static std::false_type Test(...);
+
+public:
+  static const bool value = decltype(Test<T>(0))::value;
+};
+
+template <typename T>
+typename std::enable_if<HasToString<T>::value, FString>::type
+DebugPayloadString(const T &Value) {
+  return Value.ToString();
+}
+
+template <typename T>
+FString DebugPayloadString(const TArray<T> &Values) {
+  return FString::Printf(TEXT("TArray(len=%d)"), Values.Num());
+}
+
+template <typename K, typename V> FString DebugPayloadString(const TMap<K, V> &Map) {
+  return FString::Printf(TEXT("TMap(len=%d)"), Map.Num());
+}
+
+template <typename T>
+typename std::enable_if<!HasToString<T>::value, FString>::type
+DebugPayloadString(const T &) {
+  return TEXT("<opaque>");
+}
+
+} // namespace detail
 
 /**
  * 1.1 Action<Payload>
@@ -48,22 +109,25 @@ inline Action<FEmptyPayload> makeAction(const FString &Type) {
 struct AnyAction {
   FString Type;
   std::shared_ptr<void> PayloadWrapper;
+  FString PayloadDebugText;
 
   /**
    * Constructs an empty type-erased action envelope.
    * User Story: As root dispatch infrastructure, I need a default AnyAction so
    * containers and return paths can be initialized before payload assignment.
    */
-  AnyAction() {}
+  AnyAction() : PayloadDebugText(TEXT("<none>")) {}
 
   /**
    * Constructs a type-erased action envelope from a type tag and payload wrapper.
    * User Story: As root dispatch infrastructure, I need a type-erased action
    * constructor so heterogeneous payloads can move through one dispatch channel.
    */
-  AnyAction(const FString &InType, std::shared_ptr<void> InPayloadWrapper)
+  AnyAction(const FString &InType, std::shared_ptr<void> InPayloadWrapper,
+            const FString &InPayloadDebugText = TEXT("<opaque>"))
       : Type(InType),
-        PayloadWrapper(std::move(InPayloadWrapper)) {}
+        PayloadWrapper(std::move(InPayloadWrapper)),
+        PayloadDebugText(InPayloadDebugText) {}
 
   /**
    * Extracts a typed payload from the type-erased storage.
@@ -76,6 +140,10 @@ struct AnyAction {
     return PayloadWrapper
                ? func::just(*static_cast<Payload *>(PayloadWrapper.get()))
                : func::nothing<Payload>();
+  }
+
+  FString describePayload() const {
+    return PayloadDebugText.IsEmpty() ? TEXT("<none>") : PayloadDebugText;
   }
 };
 
@@ -308,7 +376,8 @@ template <typename Payload> struct ActionCreator {
   FString Type;
 
   AnyAction operator()(const Payload &payload) const {
-    return AnyAction(Type, std::make_shared<Payload>(payload));
+    return AnyAction(Type, std::make_shared<Payload>(payload),
+                     detail::DebugPayloadString(payload));
   }
 
   /**
@@ -343,7 +412,8 @@ struct EmptyActionCreator {
   FString Type;
 
   AnyAction operator()() const {
-    return AnyAction(Type, std::make_shared<FEmptyPayload>());
+    return AnyAction(Type, std::make_shared<FEmptyPayload>(),
+                     detail::DebugPayloadString(FEmptyPayload{}));
   }
 
   /**

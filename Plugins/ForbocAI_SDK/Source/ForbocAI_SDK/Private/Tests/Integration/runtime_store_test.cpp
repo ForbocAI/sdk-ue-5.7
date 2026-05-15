@@ -215,3 +215,34 @@ bool FStoreRemoveNonActiveTest::RunTest(const FString &Parameters) {
 
   return true;
 }
+
+/**
+ * Test: Logger helpers summarize action payloads and slice deltas
+ * User Story: As a maintainer, I need this note so the surrounding code intent stays clear during maintenance and debugging.
+ */
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+    FStoreReduxLoggerSummaryTest,
+    "ForbocAI.Integration.Store.ReduxLoggerSummary",
+    EAutomationTestFlags_ApplicationContextMask |
+        EAutomationTestFlags::EngineFilter)
+bool FStoreReduxLoggerSummaryTest::RunTest(const FString &Parameters) {
+  (void)Parameters;
+
+  const rtk::AnyAction SetActiveAction =
+      NPCSlice::Actions::SetActiveNPC(TEXT("logger_npc"));
+  TestEqual("String payloads are preserved for logger output",
+            SetActiveAction.describePayload(), FString(TEXT("logger_npc")));
+
+  FStoreState Before;
+  FStoreState After = StoreReducer(Before, SetActiveAction);
+  const FString Delta = StoreInternal::DescribeStateDelta(Before, After);
+
+  TestTrue("Delta includes NPC slice summary", Delta.Contains(TEXT("NPCs{")));
+  TestTrue("Delta includes active npc id",
+           Delta.Contains(TEXT("logger_npc")));
+  TestEqual("No-change deltas collapse to <none>",
+            StoreInternal::DescribeStateDelta(After, After),
+            FString(TEXT("<none>")));
+
+  return true;
+}

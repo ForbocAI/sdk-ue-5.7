@@ -148,6 +148,106 @@ inline std::vector<ExtraReducerFn> &ExtraReducers() {
   return Reducers;
 }
 
+inline FString SummarizeNPCState(const NPCSlice::FNPCSliceState &State) {
+  return FString::Printf(TEXT("ids=%d active=%s"), State.Entities.ids.Num(),
+                         *State.ActiveNpcId);
+}
+
+inline FString SummarizeMemoryState(const MemorySlice::FMemorySliceState &State) {
+  return FString::Printf(TEXT("ids=%d store=%s recall=%s recalled=%d error=%s"),
+                         State.Entities.ids.Num(), *State.StorageStatus,
+                         *State.RecallStatus, State.LastRecalledIds.Num(),
+                         *State.Error);
+}
+
+inline FString
+SummarizeDirectiveState(const DirectiveSlice::FDirectiveSliceState &State) {
+  return FString::Printf(TEXT("ids=%d active=%s"), State.Entities.ids.Num(),
+                         *State.ActiveDirectiveId);
+}
+
+inline FString SummarizeBridgeState(const BridgeSlice::FBridgeSliceState &State) {
+  return FString::Printf(
+      TEXT("status=%s presets=%d rulesets=%d presetIds=%d validated=%s error=%s"),
+      *State.Status, State.ActivePresets.Num(), State.AvailableRulesets.Num(),
+      State.AvailablePresetIds.Num(),
+      State.bHasLastValidation ? TEXT("true") : TEXT("false"), *State.Error);
+}
+
+inline FString SummarizeCortexState(const CortexSlice::FCortexSliceState &State) {
+  return FString::Printf(
+      TEXT("status=%d promptLen=%d responseLen=%d downloading=%s streaming=%s error=%s"),
+      static_cast<int32>(State.Status), State.LastPrompt.Len(),
+      State.LastResponseText.Len(),
+      State.bIsDownloading ? TEXT("true") : TEXT("false"),
+      State.bIsStreaming ? TEXT("true") : TEXT("false"), *State.Error);
+}
+
+inline FString SummarizeSoulState(const SoulSlice::FSoulSliceState &State) {
+  return FString::Printf(
+      TEXT("export=%s import=%s hasExport=%s hasImport=%s available=%d error=%s"),
+      *State.ExportStatus, *State.ImportStatus,
+      State.bHasLastExport ? TEXT("true") : TEXT("false"),
+      State.bHasLastImport ? TEXT("true") : TEXT("false"),
+      State.AvailableSouls.Num(), *State.Error);
+}
+
+inline FString SummarizeGhostState(const GhostSlice::FGhostSliceState &State) {
+  return FString::Printf(
+      TEXT("session=%s status=%s progress=%.2f hasResults=%s history=%d loading=%s error=%s"),
+      *State.ActiveSessionId, *State.Status, State.Progress,
+      State.bHasResults ? TEXT("true") : TEXT("false"), State.History.Num(),
+      State.bLoading ? TEXT("true") : TEXT("false"), *State.Error);
+}
+
+inline FString SummarizeAPIState(const APISlice::FAPIState &State) {
+  return FString::Printf(TEXT("endpoint=%s status=%s error=%s"),
+                         *State.LastEndpoint, *State.Status, *State.Error);
+}
+
+inline FString SummarizeExtraState(const TMap<FString, FString> &Extra) {
+  return FString::Printf(TEXT("entries=%d"), Extra.Num());
+}
+
+inline void AppendDeltaIfChanged(TArray<FString> &Changes, const FString &Label,
+                                 const FString &Before, const FString &After) {
+  Before == After
+      ? void()
+      : (Changes.Add(FString::Printf(TEXT("%s{%s -> %s}"), *Label, *Before,
+                                     *After)),
+         void());
+}
+
+inline FString DescribeStateDelta(const FStoreState &Before,
+                                  const FStoreState &After) {
+  TArray<FString> Changes;
+  AppendDeltaIfChanged(Changes, TEXT("NPCs"), SummarizeNPCState(Before.NPCs),
+                       SummarizeNPCState(After.NPCs));
+  AppendDeltaIfChanged(Changes, TEXT("Memory"),
+                       SummarizeMemoryState(Before.Memory),
+                       SummarizeMemoryState(After.Memory));
+  AppendDeltaIfChanged(Changes, TEXT("Directives"),
+                       SummarizeDirectiveState(Before.Directives),
+                       SummarizeDirectiveState(After.Directives));
+  AppendDeltaIfChanged(Changes, TEXT("Bridge"),
+                       SummarizeBridgeState(Before.Bridge),
+                       SummarizeBridgeState(After.Bridge));
+  AppendDeltaIfChanged(Changes, TEXT("Cortex"),
+                       SummarizeCortexState(Before.Cortex),
+                       SummarizeCortexState(After.Cortex));
+  AppendDeltaIfChanged(Changes, TEXT("Soul"), SummarizeSoulState(Before.Soul),
+                       SummarizeSoulState(After.Soul));
+  AppendDeltaIfChanged(Changes, TEXT("Ghost"),
+                       SummarizeGhostState(Before.Ghost),
+                       SummarizeGhostState(After.Ghost));
+  AppendDeltaIfChanged(Changes, TEXT("API"), SummarizeAPIState(Before.API),
+                       SummarizeAPIState(After.API));
+  AppendDeltaIfChanged(Changes, TEXT("Extra"),
+                       SummarizeExtraState(Before.Extra),
+                       SummarizeExtraState(After.Extra));
+  return Changes.Num() == 0 ? TEXT("<none>") : FString::Join(Changes, TEXT("; "));
+}
+
 } // namespace StoreInternal (extension)
 
 /**
@@ -230,6 +330,23 @@ inline rtk::Middleware<FStoreState> createNpcRemovalListener() {
   };
 }
 
+inline rtk::Middleware<FStoreState> createReduxLoggerMiddleware() {
+  return [](const rtk::MiddlewareApi<FStoreState> &Api)
+             -> std::function<rtk::Dispatcher(rtk::Dispatcher)> {
+    return [Api](rtk::Dispatcher Next) -> rtk::Dispatcher {
+      return [Api, Next](const rtk::AnyAction &Action) -> rtk::AnyAction {
+        const FStoreState Before = Api.getState();
+        const rtk::AnyAction Result = Next(Action);
+        const FString Delta = StoreInternal::DescribeStateDelta(Before, Api.getState());
+        UE_LOG(LogTemp, Display,
+               TEXT("[ForbocAI][Redux] action=%s payload=%s delta=%s"),
+               *Action.Type, *Action.describePayload(), *Delta);
+        return Result;
+      };
+    };
+  };
+}
+
 /**
  * G8: Register an extra reducer before store creation.
  * User Story: As game integration, I need a registration hook so custom game
@@ -259,6 +376,7 @@ createStore(func::Maybe<FStoreState> PreloadedState =
                 func::nothing<FStoreState>(),
             std::vector<rtk::Middleware<FStoreState>> ExtraMiddlewares = {}) {
   std::vector<rtk::Middleware<FStoreState>> Middlewares;
+  Middlewares.push_back(createReduxLoggerMiddleware());
   Middlewares.push_back(createNpcRemovalListener());
 
   /**
