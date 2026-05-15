@@ -18,7 +18,7 @@
 #
 # Usage:
 #   bash scripts/verify-ue-parity.sh          # Run all checks
-#   bash scripts/verify-ue-parity.sh --quick  # Skip slow checks (conformance only)
+#   bash scripts/verify-ue-parity.sh --quick  # Skip slow network-backed parity only
 #
 # Run from the SDK plugin root:
 #   cd Plugins/ForbocAI_SDK && bash scripts/verify-ue-parity.sh
@@ -113,14 +113,8 @@ run_check "Thin-Wrapper Guardrails (command surface rules)" \
   "$SCRIPT_DIR/check-thin-wrapper-guardrails.sh"
 
 # ── Phase 4: Product Boundary ──
-if [ "$QUICK_MODE" -eq 1 ]; then
-  echo -e "\n${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-  echo -e "${CYAN}[SKIPPED] Product Boundary (game-agnostic audit)${NC}"
-  echo -e "${YELLOW}Skipped in --quick mode${NC}"
-else
-  run_check "Product Boundary (game-agnostic audit)" \
-    "$SCRIPT_DIR/check-product-boundary.sh"
-fi
+run_check "Product Boundary (game-agnostic audit)" \
+  "$SCRIPT_DIR/check-product-boundary.sh"
 
 # ── Phase 5: API Contract Parity ──
 if [ "$QUICK_MODE" -eq 1 ]; then
