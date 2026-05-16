@@ -64,8 +64,8 @@ namespace detail {
 /**
  * Maps a tokenized command to its CLIOps command key.
  *
- * e.g. ["forbocai", "npc", "create", "doomguard"] -> "npc_create"
- *      ["forbocai", "bridge", "validate", "doomguard-jump"] -> "bridge_validate"
+ * e.g. ["forbocai", "npc", "create", "npc_name"] -> "npc_create"
+ *      ["forbocai", "bridge", "validate", "npc_name-jump"] -> "bridge_validate"
  *
  * This is the ONLY place where test-game command text is translated
  * to CLIOps keys. No other module should perform this mapping.
@@ -108,7 +108,7 @@ inline TArray<FString> ExtractArgs(const TArray<FString> &Tokens) {
  * Resolve NPC alias based on contract alias rules.
  *
  * When NpcCreateAliasRule == "substitute_generated_npc_id":
- *   After `npc create doomguard`, the alias "doomguard" maps to the
+ *   After `npc create npc_name`, the alias "npc_name" maps to the
  *   API-generated NPC ID for all subsequent commands.
  */
 inline FString ResolveNpcAlias(const FAliasState &Aliases,

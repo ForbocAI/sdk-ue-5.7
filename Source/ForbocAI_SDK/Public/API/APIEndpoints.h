@@ -369,7 +369,7 @@ inline Thunk<FGhostResultsResponse> getGhostResults(const FString &SessionId) {
 
 /**
  * Builds the endpoint thunk that stops a running ghost session.
- * User Story: As ghost cancellation flows, I need a reusable endpoint thunk so
+ * User Story: As ghost abort flows, I need a reusable endpoint thunk so
  * an active ghost session can be stopped from the runtime.
  */
 inline Thunk<FGhostStopResponse> postGhostStop(const FString &SessionId) {

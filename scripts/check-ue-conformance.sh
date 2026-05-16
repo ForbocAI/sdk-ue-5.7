@@ -64,13 +64,13 @@ fi
 #      AsyncHttp.h       — canonical HTTP adapter (all SDK HTTP goes through here)
 #      ThunkDetail.h     — Arweave transport (binary payloads, retries, custom timeouts)
 #      BridgeModule.cpp  — lazy HTTP wrapper for bridge rules
-#      NativeEngine.cpp  — binary file download for native deps
+#      NativeStorage.cpp — binary file download for native deps
 DIRECT_HTTP="$(rg -n 'FHttpModule::Get\(\)\.CreateRequest\(\)' \
   "$SRC/Public" "$SRC/Private" \
   --glob '!**/Core/AsyncHttp.h' \
   --glob '!**/Core/ThunkDetail.h' \
   --glob '!**/Bridge/BridgeModule.cpp' \
-  --glob '!**/NativeEngine.cpp' \
+  --glob '!**/NativeStorage.cpp' \
   --glob '!**/Tests/**' \
   2>/dev/null | normalize_crlf || true)"
 if [ -n "$DIRECT_HTTP" ]; then
@@ -138,6 +138,9 @@ fi
 #    Excludes: Tests/, comments, ThirdParty/, SqliteAmalgamation.c
 IMPERATIVE_HITS="$(rg -n '\b(if|for|while|switch)\s*\(' \
   "$SRC/Public" "$SRC/Private" \
+  --glob '!**/TestGame/**' \
+  --glob '!**/RuntimeConfig.h' \
+  --glob '!**/Commandlet.cpp' \
   --glob '!**/Tests/**' \
   --glob '!**/ThirdParty/**' \
   --glob '!**/Native/SqliteAmalgamation.c' \

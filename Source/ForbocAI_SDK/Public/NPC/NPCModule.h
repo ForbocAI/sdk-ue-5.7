@@ -104,7 +104,7 @@ FORBOCAI_SDK_API FAgentState CalculateNewState(const FAgentState &Current,
 
 /**
  * Processes input and returns an async response.
- * User Story: As gameplay and chat flows, I need a processing entrypoint so an
+ * User Story: As runtime and chat flows, I need a processing entrypoint so an
  * agent can respond to player or world input with isolated side effects.
  * @param Agent The agent to process the input.
  * @param Input The input string from the user/world.

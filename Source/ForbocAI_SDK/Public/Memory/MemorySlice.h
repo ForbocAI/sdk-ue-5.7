@@ -304,7 +304,7 @@ inline Maybe<FMemoryItem> SelectMemoryById(const FMemorySliceState &State,
 /**
  * Selects all memory items currently stored in the slice.
  * User Story: As memory inspection, I need the full memory collection so tools
- * and gameplay systems can review current stored observations.
+ * and runtime systems can review current stored observations.
  */
 inline TArray<FMemoryItem> SelectAllMemories(const FMemorySliceState &State) {
   return GetMemoryAdapter().getSelectors().selectAll(State.Entities);

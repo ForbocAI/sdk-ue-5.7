@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Core/ThunkDetail.h"
-#include "Cortex/CortexSlice.h"
 #include "Memory/MemorySlice.h"
 
 namespace rtk {
@@ -77,8 +76,7 @@ nodeMemoryStoreThunk(const FMemoryItem &Item) {
                   }()
                 : [&]() {
                     FMemoryItem Stored = Item;
-                    Stored.Embedding = Native::Llama::Embed(
-                        detail::NodeEmbeddingHandle(), Stored.Text);
+                    // Embedding generation moved to opt-in plugin; node memory requires pre-embedded items or API embedding.
                     const bool bStored =
                         Native::Sqlite::Upsert(Db, Stored, Stored.Embedding);
 
@@ -128,9 +126,8 @@ nodeMemoryRecallThunk(const FMemoryRecallRequest &Request) {
                               });
                   }()
                 : [&]() {
-                    const TArray<float> QueryEmbedding =
-                        Native::Llama::Embed(detail::NodeEmbeddingHandle(),
-                                             Request.Query);
+                    // Local embedding generation moved to opt-in plugin.
+                    const TArray<float> QueryEmbedding;
                     TArray<FMemoryItem> Results =
                         Native::Sqlite::Search(Db, QueryEmbedding,
                                                Request.Limit);
@@ -203,79 +200,6 @@ inline ThunkAction<rtk::FEmptyPayload, FStoreState> clearNodeMemoryThunk() {
               Resolve(rtk::FEmptyPayload{});
             });
           });
-        });
-  };
-}
-
-inline ThunkAction<rtk::FEmptyPayload, FStoreState>
-initNodeVectorThunk(const FString &EmbeddingModelPath = TEXT("")) {
-  return [EmbeddingModelPath](std::function<AnyAction(const AnyAction &)> Dispatch,
-                              std::function<FStoreState()> GetState)
-             -> func::AsyncResult<rtk::FEmptyPayload> {
-    static const FString EmbeddingUrl =
-        TEXT("https://huggingface.co/second-state/All-MiniLM-L6-v2-Embedding-GGUF/"
-             "resolve/main/all-MiniLM-L6-v2-Q4_K_M.gguf");
-
-    return func::AsyncResult<rtk::FEmptyPayload>::create(
-        [EmbeddingModelPath, Dispatch](
-            std::function<void(rtk::FEmptyPayload)> Resolve,
-            std::function<void(std::string)> Reject) {
-#if WITH_FORBOC_NATIVE
-          const FString Path = EmbeddingModelPath.IsEmpty()
-                                   ? detail::DefaultEmbeddingModelPath()
-                                   : EmbeddingModelPath;
-
-          auto LoadOnWorker = [Path, Dispatch, Resolve, Reject]() {
-            Async(EAsyncExecution::Thread, [Path, Dispatch, Resolve, Reject]() {
-              Native::Llama::Context &Handle = detail::NodeEmbeddingHandle();
-              Handle
-                  ? (Native::Llama::FreeModel(Handle),
-                     (void)(Handle = nullptr))
-                  : (void)0;
-
-              Handle = Native::Llama::LoadEmbeddingModel(Path);
-
-              AsyncTask(ENamedThreads::GameThread,
-                        [Handle, Dispatch, Resolve, Reject]() {
-                          Handle
-                              ? (
-                                    /**
-                                     * G3: Dispatch embedder readiness
-                                     * User Story: As a maintainer, I need this step note so I can follow the scenario progression and reason about the expected state changes.
-                                     */
-                                    Dispatch(CortexSlice::Actions::
-                                                 SetEmbedderReady(true)),
-                                    Resolve(rtk::FEmptyPayload{}), void())
-                              : (Dispatch(CortexSlice::Actions::
-                                              SetEmbedderReady(false)),
-                                 Reject("Failed to load embedding model"),
-                                 void());
-                        });
-            });
-          };
-
-          !FPaths::FileExists(Path)
-              ? (Native::File::DownloadBinary(EmbeddingUrl, Path)
-                     .then([LoadOnWorker](const FString &) mutable {
-                       LoadOnWorker();
-                     })
-                     .catch_([Reject](std::string Error) mutable {
-                       Reject(Error.empty()
-                                  ? std::string("Embedding download failed")
-                                  : Error);
-                     })
-                     .execute(),
-                 void())
-              : (LoadOnWorker(), void());
-#else
-          static_cast<void>(EmbeddingModelPath);
-          /**
-           * G3: Stub mode — embedder is "ready" immediately
-           * User Story: As a maintainer, I need this implementation note so I can understand which milestone behavior the surrounding code is preserving.
-           */
-          Dispatch(CortexSlice::Actions::SetEmbedderReady(true));
-          Resolve(rtk::FEmptyPayload{});
-#endif
         });
   };
 }

@@ -251,65 +251,6 @@ ClearNodeMemory(rtk::EnhancedStore<FStoreState> &Store) {
   return WaitForResult(Store.dispatch(rtk::clearNodeMemoryThunk()));
 }
 
-/**
- * Initializes the local cortex runtime with the requested model path or id.
- * User Story: As local-cortex setup flows, I need one helper to initialize the
- * model so CLI commands can prepare inference without extra wiring.
- */
-inline FCortexStatus InitCortex(rtk::EnhancedStore<FStoreState> &Store,
-                                const FString &Model,
-                                double TimeoutSeconds = 60.0) {
-  return WaitForResult(Store.dispatch(rtk::initNodeCortexThunk(Model)),
-                       TimeoutSeconds);
-}
-
-/**
- * Runs a local cortex completion against the initialized node runtime.
- * User Story: As local-cortex CLI flows, I need one helper to execute a
- * completion so terminal prompts exercise the same thunk path as gameplay.
- */
-inline FCortexResponse CompleteCortex(rtk::EnhancedStore<FStoreState> &Store,
-                                      const FString &Prompt,
-                                      double TimeoutSeconds = 60.0) {
-  return WaitForResult(Store.dispatch(rtk::completeNodeCortexThunk(Prompt)),
-                       TimeoutSeconds);
-}
-
-/**
- * Initializes a remote cortex session, optionally using an explicit auth key.
- * User Story: As remote-cortex CLI flows, I need one helper to bootstrap a
- * session so later commands can target a live remote model.
- */
-inline FCortexStatus InitRemoteCortex(rtk::EnhancedStore<FStoreState> &Store,
-                                      const FString &Model,
-                                      const FString &AuthKey = TEXT("")) {
-  return WaitForResult(
-      Store.dispatch(rtk::initRemoteCortexThunk(Model, AuthKey)));
-}
-
-/**
- * Lists available remote cortex models from the API.
- * User Story: As remote-cortex selection flows, I need the available model
- * list so operators can choose a supported remote runtime.
- */
-inline TArray<FCortexModelInfo>
-ListCortexModels(rtk::EnhancedStore<FStoreState> &Store) {
-  return WaitForResult(Store.dispatch(rtk::listCortexModelsThunk()));
-}
-
-/**
- * Sends a completion request to an existing remote cortex session.
- * User Story: As remote-cortex CLI flows, I need one helper to execute a
- * completion so shell prompts reuse the same remote thunk contract.
- */
-inline FCortexResponse
-CompleteRemoteCortex(rtk::EnhancedStore<FStoreState> &Store,
-                     const FString &CortexId, const FString &Prompt) {
-  return WaitForResult(
-      Store.dispatch(rtk::completeRemoteThunk(CortexId, Prompt)));
-}
-
-/**
  * Starts a ghost run for the requested test suite and duration.
  * User Story: As ghost-test CLI flows, I need one helper to launch a run so
  * automated test sessions can be started from the terminal.
@@ -344,7 +285,7 @@ GhostResults(rtk::EnhancedStore<FStoreState> &Store, const FString &SessionId) {
 }
 
 /**
- * Requests cancellation of a running ghost session.
+ * Requests abort of a running ghost session.
  * User Story: As ghost-test CLI flows, I need one helper to stop a run so long
  * sessions can be cancelled without bespoke HTTP handling.
  */

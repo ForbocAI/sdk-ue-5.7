@@ -532,7 +532,7 @@ EncodeProcessTapeObject(const FNPCProcessTape &Tape) {
       (!Tape.Prompt.IsEmpty() || !Tape.GeneratedOutput.IsEmpty())
           ? (Root->SetObjectField(
                  TEXT("constraints"),
-                 JsonInterop::CortexConfigToObject(Tape.Constraints)),
+                 JsonInterop::PromptConstraintsToObject(Tape.Constraints)),
              void())
           : void(),
       !Tape.GeneratedOutput.IsEmpty()
@@ -549,9 +549,9 @@ EncodeProcessTapeObject(const FNPCProcessTape &Tape) {
               const TSharedRef<FJsonObject> Intent = MakeShared<FJsonObject>();
               Intent->SetStringField(TEXT("goal"), Tape.DecisionIntent.Goal);
               Intent->SetStringField(TEXT("actionType"), Tape.DecisionIntent.ActionType);
-              if (!Tape.DecisionIntent.Target.IsEmpty()) {
-                Intent->SetStringField(TEXT("target"), Tape.DecisionIntent.Target);
-              }
+              !Tape.DecisionIntent.Target.IsEmpty()
+                  ? (Intent->SetStringField(TEXT("target"), Tape.DecisionIntent.Target), void())
+                  : void();
               Root->SetObjectField(TEXT("decisionIntent"), Intent);
             }()
           : void(),
@@ -609,7 +609,7 @@ inline bool DecodeProcessTapeObject(const TSharedPtr<FJsonObject> &Object,
                 Tape.Prompt = JsonInterop::OptionalStringFromField(
                     Object, TEXT("prompt")),
                 Object->HasTypedField<EJson::Object>(TEXT("constraints"))
-                    ? (Tape.Constraints = JsonInterop::CortexConfigFromObject(
+                    ? (Tape.Constraints = JsonInterop::PromptConstraintsFromObject(
                            Object->GetObjectField(TEXT("constraints"))),
                        void())
                     : void(),
@@ -707,7 +707,7 @@ inline bool DecodeInstructionObject(const TSharedPtr<FJsonObject> &Object,
                                         TEXT("constraints"))
                                         ? (Instruction.Constraints =
                                                JsonInterop::
-                                                   CortexConfigFromObject(
+                                                   PromptConstraintsFromObject(
                                                        Object->GetObjectField(
                                                            TEXT(
                                                                "constraints"))),
@@ -860,7 +860,7 @@ inline bool DecodeContextResponse(const FString &Json,
              : (Response.Prompt = Root->GetStringField(TEXT("prompt")),
                 Root->HasTypedField<EJson::Object>(TEXT("constraints"))
                     ? (Response.Constraints =
-                           JsonInterop::CortexConfigFromObject(
+                           JsonInterop::PromptConstraintsFromObject(
                                Root->GetObjectField(TEXT("constraints"))),
                        void())
                     : void(),
@@ -885,7 +885,7 @@ inline FString EncodeVerdictRequest(const FVerdictRequest &Request) {
 /**
  * Decodes a verdict response into a typed verdict result.
  * User Story: As verdict endpoint callers, I need response decoding so
- * validity, dialogue, actions, and memory updates return to gameplay code.
+ * validity, dialogue, actions, and memory updates return to runtime code.
  */
 inline bool DecodeVerdictResponse(const FString &Json,
                                   FVerdictResponse &Response) {
@@ -1271,7 +1271,7 @@ EncodeSoulImportConfirmRequest(const FSoulImportConfirmRequest &Request) {
 
 /**
  * Decodes an imported NPC payload into a typed NPC value.
- * User Story: As soul import flows, I need imported NPC decoding so gameplay
+ * User Story: As soul import flows, I need imported NPC decoding so runtime
  * systems can consume the restored character data directly.
  */
 inline bool DecodeImportedNpc(const FString &Json, FImportedNpc &Npc) {

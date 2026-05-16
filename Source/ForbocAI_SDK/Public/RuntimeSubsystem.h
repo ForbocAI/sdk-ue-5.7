@@ -23,7 +23,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSoulExportComplete, FString,
  * High-level Blueprint-friendly interface to the underlying RTK store and
  * thunks. Provides a bridge between Unreal's object-oriented visual scripting
  * and the functional Redux-style core.
- * User Story: As a Blueprint integrator, I need this API note so I can call the SDK surface correctly from Unreal gameplay code.
+ * User Story: As a Blueprint integrator, I need this API note so I can call the SDK surface correctly from Unreal runtime code.
  */
 UCLASS(BlueprintType, Blueprintable)
 class FORBOCAI_SDK_API UForbocAISubsystem : public UGameInstanceSubsystem {
@@ -33,7 +33,7 @@ public:
   /**
    * Initializes the subsystem and wires the runtime store.
    * User Story: As Unreal runtime startup, I need subsystem initialization so
-   * the SDK store and listeners are ready before gameplay begins.
+   * the SDK store and listeners are ready before runtime begins.
    */
   virtual void Initialize(FSubsystemCollectionBase &Collection) override;
   /**
@@ -54,7 +54,7 @@ public:
   /**
    * Triggers the recursive protocol loop for an NPC.
    * This is an asynchronous operation.
-   * User Story: As Blueprint gameplay flows, I need one NPC processing entry
+   * User Story: As Blueprint runtime flows, I need one NPC processing entry
    * point so input can drive the full protocol loop.
    */
   UFUNCTION(BlueprintCallable, Category = "Forboc AI|NPC")
@@ -63,7 +63,7 @@ public:
   /**
    * Exports an NPC's Soul to Arweave.
    * User Story: As Blueprint soul export flows, I need a callable export entry
-   * point so gameplay code can publish an NPC soul.
+   * point so runtime code can publish an NPC soul.
    */
   UFUNCTION(BlueprintCallable, Category = "Forboc AI|Soul")
   void ExportSoul(FString AgentId);
@@ -71,7 +71,7 @@ public:
   /**
    * Gets the current state of an NPC.
    * User Story: As Blueprint state inspection, I need direct NPC state access
-   * so gameplay systems can read the latest agent state.
+   * so runtime systems can read the latest agent state.
    */
   UFUNCTION(BlueprintPure, Category = "Forboc AI|NPC")
   FAgentState GetNPCState(FString NpcId) const;
@@ -86,7 +86,7 @@ public:
 
   /**
    * Gets the active NPC internal state, if any.
-   * User Story: As Blueprint gameplay systems, I need the active NPC payload so
+   * User Story: As Blueprint runtime systems, I need the active NPC payload so
    * I can read its full runtime state in one call.
    */
   UFUNCTION(BlueprintPure, Category = "Forboc AI|NPC")
@@ -96,7 +96,7 @@ public:
    * Gets the last recalled memories for the active NPC turn.
    * Wrapper over the memory slice selector for Blueprint consumers.
    * User Story: As Blueprint memory views, I need the last recalled memories so
-   * gameplay or UI can show what influenced the latest turn.
+   * runtime or UI can show what influenced the latest turn.
    */
   UFUNCTION(BlueprintPure, Category = "Forboc AI|Memory")
   TArray<FMemoryItem> GetLastRecalledMemories() const;
@@ -104,7 +104,7 @@ public:
   /**
    * Gets the last bridge validation result, if present.
    * User Story: As Blueprint validation feedback, I need the last bridge result
-   * so gameplay can inspect whether an action was accepted.
+   * so runtime can inspect whether an action was accepted.
    */
   UFUNCTION(BlueprintPure, Category = "Forboc AI|Bridge")
   bool GetLastBridgeValidation(FValidationResult &OutResult) const;
@@ -112,49 +112,49 @@ public:
   /**
    * Gets the last imported Soul, if present.
    * User Story: As Blueprint import flows, I need access to the last imported
-   * soul so gameplay can inspect or present the imported data.
+   * soul so runtime can inspect or present the imported data.
    */
   UFUNCTION(BlueprintPure, Category = "Forboc AI|Soul")
   bool GetLastImportedSoul(FSoul &OutSoul) const;
 
   /**
    * Delegate triggered when a new action is received from the NPC.
-   * User Story: As a runtime subscriber, I need this event contract so gameplay and UI systems know when to react to SDK state changes.
+   * User Story: As a runtime subscriber, I need this event contract so runtime and UI systems know when to react to SDK state changes.
    */
   UPROPERTY(BlueprintAssignable, Category = "Forboc AI|Events")
   FOnNPCActionReceived OnNPCActionReceived;
 
   /**
    * Delegate triggered when finalized dialogue is produced for an NPC turn.
-   * User Story: As a runtime subscriber, I need this event contract so gameplay and UI systems know when to react to SDK state changes.
+   * User Story: As a runtime subscriber, I need this event contract so runtime and UI systems know when to react to SDK state changes.
    */
   UPROPERTY(BlueprintAssignable, Category = "Forboc AI|Events")
   FOnMessageReceived OnMessageReceived;
 
   /**
    * Delegate triggered when finalized dialogue is ready for TTS consumers.
-   * User Story: As a runtime subscriber, I need this event contract so gameplay and UI systems know when to react to SDK state changes.
+   * User Story: As a runtime subscriber, I need this event contract so runtime and UI systems know when to react to SDK state changes.
    */
   UPROPERTY(BlueprintAssignable, Category = "Forboc AI|Events")
   FOnTTSRequested OnTTSRequested;
 
   /**
    * Delegate triggered when an NPC turn begins asynchronous processing.
-   * User Story: As a runtime subscriber, I need this event contract so gameplay and UI systems know when to react to SDK state changes.
+   * User Story: As a runtime subscriber, I need this event contract so runtime and UI systems know when to react to SDK state changes.
    */
   UPROPERTY(BlueprintAssignable, Category = "Forboc AI|Events")
   FOnTypingStart OnTypingStart;
 
   /**
    * Delegate triggered when an NPC turn finishes asynchronous processing.
-   * User Story: As a runtime subscriber, I need this event contract so gameplay and UI systems know when to react to SDK state changes.
+   * User Story: As a runtime subscriber, I need this event contract so runtime and UI systems know when to react to SDK state changes.
    */
   UPROPERTY(BlueprintAssignable, Category = "Forboc AI|Events")
   FOnTypingEnd OnTypingEnd;
 
   /**
    * Delegate triggered when soul export is complete.
-   * User Story: As a runtime subscriber, I need this event contract so gameplay and UI systems know when to react to SDK state changes.
+   * User Story: As a runtime subscriber, I need this event contract so runtime and UI systems know when to react to SDK state changes.
    */
   UPROPERTY(BlueprintAssignable, Category = "Forboc AI|Events")
   FOnSoulExportComplete OnSoulExportComplete;

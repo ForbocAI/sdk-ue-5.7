@@ -153,7 +153,7 @@ FORBOCAI_SDK_API TArray<FValidationRule> CreateDefaultRules();
 
 /**
  * Creates a preset of RPG-specific validation rules.
- * User Story: As RPG gameplay validation, I need genre-specific rules so
+ * User Story: As RPG runtime validation, I need genre-specific rules so
  * bridge checks can enforce movement and combat conventions.
  * @return An array of RPG validation rules.
  */

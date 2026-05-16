@@ -83,7 +83,6 @@ inline ECommandGroup ParseCommandGroup(const FString &GroupStr) {
        : GroupStr == TEXT("soul_list")      ? ECommandGroup::SoulList
        : GroupStr == TEXT("soul_chat")      ? ECommandGroup::SoulChat
        : GroupStr == TEXT("ghost_lifecycle") ? ECommandGroup::GhostLifecycle
-       : GroupStr == TEXT("cortex_init")    ? ECommandGroup::CortexInit
        : ECommandGroup::Status; // fallback
 }
 

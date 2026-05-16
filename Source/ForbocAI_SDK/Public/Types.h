@@ -9,7 +9,6 @@
  */
 #include "Bridge/BridgeTypes.h"
 #include "Core/SystemTypes.h"
-#include "Cortex/CortexTypes.h"
 #include "Ghost/GhostTypes.h"
 #include "Memory/MemoryTypes.h"
 #include "NPC/NPCBaseTypes.h"
@@ -41,7 +40,6 @@ using AgentValidationResult = Either<FString, FAgentState>;
 using AgentProcessResult = Either<FString, FAgentResponse>;
 using AgentExportResult = Either<FString, FSoul>;
 using MemoryStoreResult = Either<FString, FMemoryStore>;
-using CortexCreationResult = Either<FString, FCortex>;
 using GhostTestResult = TestResult<FGhostTestResult>;
 using BridgeValidationResult = Either<FString, FValidationResult>;
 } // namespace SDKTypes

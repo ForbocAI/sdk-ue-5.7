@@ -160,7 +160,7 @@ inline FAgentState AgentState(FString JsonData) {
 
 /**
  * Builds an agent action value from type, target, and reason.
- * User Story: As action construction, I need a factory so gameplay and protocol
+ * User Story: As action construction, I need a factory so runtime and protocol
  * code can create normalized action payloads without manual field wiring.
  */
 inline FAgentAction Action(FString Type, FString Target,

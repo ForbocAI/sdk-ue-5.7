@@ -16,7 +16,6 @@
 // | Finalize           | Local          | UE persists memory, applies state delta, dispatches verdict     |
 
 #include "Core/ThunkDetail.h"
-#include "Cortex/CortexThunks.h"
 #include "DirectiveSlice.h"
 #include "Memory/MemoryThunks.h"
 #include "Protocol/ProtocolRequestTypes.h"
@@ -63,10 +62,7 @@ inline FProtocolRuntime LocalProtocolRuntime() {
   Runtime.RecallMemory = [](const FMemoryRecallRequest &Request) {
     return nodeMemoryRecallThunk(Request);
   };
-  Runtime.CompleteInference = [](const FString &Prompt,
-                                 const FCortexConfig &Config) {
-    return completeNodeCortexThunk(Prompt, Config);
-  };
+  Runtime.CompleteInference = nullptr;
   return Runtime;
 }
 

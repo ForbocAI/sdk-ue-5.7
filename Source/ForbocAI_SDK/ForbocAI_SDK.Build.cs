@@ -68,11 +68,6 @@ public class ForbocAI_SDK : ModuleRules
 		}
 
 		/**
-		 * WITH_FORBOC_NATIVE is always 0 now that SLM inference is API-hosted.
-		 * Retained for compile-time guards in source that still reference it.
-		 */
-		PublicDefinitions.Add("WITH_FORBOC_NATIVE=0");
-		/**
 		 * sqlite-vec auto-enabled when sqlite3.h header and amalgamation source are present
 		 * User Story: As a maintainer, I need this note so the surrounding code intent stays clear during maintenance and debugging.
 		 */

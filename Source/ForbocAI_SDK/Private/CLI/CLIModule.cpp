@@ -30,7 +30,7 @@ func::TestResult<void> DispatchCommand(const FString &CommandKey,
    * User Story: As a maintainer, I need this implementation note so I can understand which milestone behavior the surrounding code is preserving.
    */
   static const std::vector<Handler> Handlers = {
-      HandleSystem, HandleNpc,    HandleMemory, HandleCortex, HandleGhost,
+      HandleSystem, HandleNpc,    HandleMemory, HandleGhost,
       HandleBridge, HandleSoul,   HandleConfig, HandleVector, HandleSetup,
   };
 

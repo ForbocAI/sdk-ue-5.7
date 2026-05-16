@@ -5,7 +5,6 @@
 #include "Core/rtk.hpp"
 #include "CoreMinimal.h"
 #include "Core/functional_core.hpp"
-#include "Cortex/CortexSlice.h"
 #include "DirectiveSlice.h"
 #include "ForbocAILog.h"
 #include "Ghost/GhostSlice.h"
@@ -18,7 +17,6 @@ struct FStoreState {
   MemorySlice::FMemorySliceState Memory;
   DirectiveSlice::FDirectiveSliceState Directives;
   BridgeSlice::FBridgeSliceState Bridge;
-  CortexSlice::FCortexSliceState Cortex;
   SoulSlice::FSoulSliceState Soul;
   GhostSlice::FGhostSliceState Ghost;
   APISlice::FAPIState API;
@@ -77,17 +75,6 @@ GetDirectiveSlice() {
 inline const rtk::Slice<BridgeSlice::FBridgeSliceState> &GetBridgeSlice() {
   static const rtk::Slice<BridgeSlice::FBridgeSliceState> Slice =
       BridgeSlice::CreateBridgeSlice();
-  return Slice;
-}
-
-/**
- * Returns the singleton cortex slice definition.
- * User Story: As store assembly, I need one shared cortex slice instance so
- * engine state is reduced consistently in every store.
- */
-inline const rtk::Slice<CortexSlice::FCortexSliceState> &GetCortexSlice() {
-  static const rtk::Slice<CortexSlice::FCortexSliceState> Slice =
-      CortexSlice::CreateCortexSlice();
   return Slice;
 }
 
@@ -175,15 +162,6 @@ inline FString SummarizeBridgeState(const BridgeSlice::FBridgeSliceState &State)
       State.bHasLastValidation ? TEXT("true") : TEXT("false"), *State.Error);
 }
 
-inline FString SummarizeCortexState(const CortexSlice::FCortexSliceState &State) {
-  return FString::Printf(
-      TEXT("status=%d promptLen=%d responseLen=%d downloading=%s streaming=%s error=%s"),
-      static_cast<int32>(State.Status), State.LastPrompt.Len(),
-      State.LastResponseText.Len(),
-      State.bIsDownloading ? TEXT("true") : TEXT("false"),
-      State.bIsStreaming ? TEXT("true") : TEXT("false"), *State.Error);
-}
-
 inline FString SummarizeSoulState(const SoulSlice::FSoulSliceState &State) {
   return FString::Printf(
       TEXT("export=%s import=%s hasExport=%s hasImport=%s available=%d error=%s"),
@@ -233,9 +211,6 @@ inline FString DescribeStateDelta(const FStoreState &Before,
   AppendDeltaIfChanged(Changes, TEXT("Bridge"),
                        SummarizeBridgeState(Before.Bridge),
                        SummarizeBridgeState(After.Bridge));
-  AppendDeltaIfChanged(Changes, TEXT("Cortex"),
-                       SummarizeCortexState(Before.Cortex),
-                       SummarizeCortexState(After.Cortex));
   AppendDeltaIfChanged(Changes, TEXT("Soul"), SummarizeSoulState(Before.Soul),
                        SummarizeSoulState(After.Soul));
   AppendDeltaIfChanged(Changes, TEXT("Ghost"),
@@ -264,7 +239,6 @@ inline FStoreState StoreReducer(const FStoreState &State,
   Next.Directives =
       StoreInternal::GetDirectiveSlice().Reducer(State.Directives, Action);
   Next.Bridge = StoreInternal::GetBridgeSlice().Reducer(State.Bridge, Action);
-  Next.Cortex = StoreInternal::GetCortexSlice().Reducer(State.Cortex, Action);
   Next.Soul = StoreInternal::GetSoulSlice().Reducer(State.Soul, Action);
   Next.Ghost = StoreInternal::GetGhostSlice().Reducer(State.Ghost, Action);
   Next.API = StoreInternal::GetAPISlice().Reducer(State.API, Action);

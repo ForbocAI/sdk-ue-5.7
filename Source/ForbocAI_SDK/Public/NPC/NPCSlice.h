@@ -184,7 +184,7 @@ inline func::Maybe<FNPCInternalState> SelectNPCById(const FNPCSliceState &State,
 /**
  * Selects every NPC currently held in slice state.
  * User Story: As NPC inspection flows, I need the full entity list so tools
- * and gameplay systems can review current NPC state.
+ * and runtime systems can review current NPC state.
  */
 inline TArray<FNPCInternalState> SelectAllNPCs(const FNPCSliceState &State) {
   return GetNPCAdapter().getSelectors().selectAll(State.Entities);

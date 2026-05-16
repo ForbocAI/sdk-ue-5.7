@@ -2,11 +2,39 @@
 
 // clang-format off
 #include "CoreMinimal.h"
-#include "Cortex/CortexTypes.h"
 #include "Memory/MemoryTypes.h"
 #include "NPC/NPCBaseTypes.h"
 #include "ProtocolTypes.generated.h"
 // clang-format on
+
+/**
+ * Prompt Constraints — Immutable inference limits.
+ * User Story: As an SDK integrator, I need this type so I can understand the
+ * generation constraints returned by the API for a directive.
+ */
+USTRUCT(BlueprintType)
+struct FPromptConstraints {
+  GENERATED_BODY()
+
+  UPROPERTY(BlueprintReadOnly, Category = "Protocol")
+  int32 MaxTokens;
+
+  UPROPERTY(BlueprintReadOnly, Category = "Protocol")
+  float Temperature;
+
+  UPROPERTY(BlueprintReadOnly, Category = "Protocol")
+  TArray<FString> Stop;
+
+  /**
+   * JSON-encoded schema payload used when a caller needs schema-constrained
+   * output.
+   */
+  UPROPERTY(BlueprintReadOnly, Category = "Protocol")
+  FString JsonSchemaJson;
+
+  FPromptConstraints()
+      : MaxTokens(512), Temperature(0.7f) {}
+};
 
 UENUM(BlueprintType)
 enum class EDirectiveStatus : uint8 { Running, Completed, Failed };
@@ -49,7 +77,7 @@ struct FDirectiveRun {
   FString ContextPrompt;
 
   UPROPERTY(BlueprintReadOnly, Category = "Protocol")
-  FCortexConfig ContextConstraints;
+  FPromptConstraints ContextConstraints;
 
   UPROPERTY(BlueprintReadOnly, Category = "Protocol")
   bool bVerdictValid;
@@ -147,7 +175,7 @@ struct FNPCInstruction {
   FString Prompt;
 
   UPROPERTY(BlueprintReadOnly, Category = "Protocol")
-  FCortexConfig Constraints;
+  FPromptConstraints Constraints;
 
   UPROPERTY(BlueprintReadOnly, Category = "Protocol")
   bool bValid;

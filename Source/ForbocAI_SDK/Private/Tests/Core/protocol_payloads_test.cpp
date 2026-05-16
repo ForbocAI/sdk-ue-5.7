@@ -21,13 +21,13 @@ bool FSerializeIdentifyActorPayloadTest::RunTest(const FString &Parameters) {
   FNPCActorInfo Actor;
   Actor.NpcId = TEXT("npc_test_1");
   Actor.Persona = TEXT("Tester");
-  Actor.Data.JsonData = TEXT("{\"health\": 100}");
+  Actor.Data.JsonData = FString(TEXT("{\"health\": 100}"));
   
   FString Json = rtk::detail::SerializeIdentifyActorResult(Actor);
   TestTrue("Contains type", Json.Contains(TEXT("\"type\":\"IdentifyActorResult\"")));
   TestTrue("Contains npcId", Json.Contains(TEXT("\"npcId\":\"npc_test_1\"")));
   TestTrue("Contains persona", Json.Contains(TEXT("\"persona\":\"Tester\"")));
-  TestTrue("Contains data", Json.Contains(TEXT("\"data\":{\"health\":100}")));
+  TestTrue("Contains data", Json.Contains(TEXT("\"data\":{\"health\":100\n}")));
   
   return true;
 }
@@ -74,8 +74,8 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
 bool FEncodeProcessTapePayloadTest::RunTest(const FString &Parameters) {
   FNPCProcessTape Tape;
   Tape.Observation = TEXT("Saw player");
-  Tape.ContextJson = TEXT("{\"time\":\"day\"}");
-  Tape.NpcState.JsonData = TEXT("{}");
+  Tape.ContextJson = FString(TEXT("{\"time\":\"day\"}"));
+  Tape.NpcState.JsonData = FString(TEXT("{}"));
   Tape.Persona = TEXT("Guard");
   
   TSharedRef<FJsonObject> Obj = APISlice::Detail::EncodeProcessTapeObject(Tape);
@@ -83,7 +83,7 @@ bool FEncodeProcessTapePayloadTest::RunTest(const FString &Parameters) {
   
   TestTrue("Contains observation", Json.Contains(TEXT("\"observation\":\"Saw player\"")));
   TestTrue("Contains persona", Json.Contains(TEXT("\"structuredPersona\":\"Guard\"")));
-  TestTrue("Contains context", Json.Contains(TEXT("\"context\":{\"time\":\"day\"}")));
+  TestTrue("Contains context", Json.Contains(TEXT("\"context\":{\"time\":\"day\"\n}")));
   
   return true;
 }

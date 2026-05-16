@@ -8,7 +8,7 @@
 /**
  * Blueprint-callable wrappers around Ops.
  * Exposes the core ForbocAI operations to Blueprints.
- * User Story: As a Blueprint integrator, I need this API note so I can call the SDK surface correctly from Unreal gameplay code.
+ * User Story: As a Blueprint integrator, I need this API note so I can call the SDK surface correctly from Unreal runtime code.
  */
 UCLASS()
 class FORBOCAI_SDK_API UForbocAIBlueprintLibrary

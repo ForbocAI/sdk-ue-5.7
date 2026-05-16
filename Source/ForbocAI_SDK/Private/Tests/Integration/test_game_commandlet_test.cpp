@@ -17,11 +17,11 @@ CommandSurface::FCommandExecutor MakeCommandletExecutor(
     (void)Aliases;
     return !FailCommand.IsEmpty() && Command.Command == FailCommand
                ? CommandSurface::FCommandOutput{
-                     ETranscriptStatus::Error, TEXT("stub failure"),
-                     TEXT("stub")}
+                     ETranscriptStatus::Error, TEXT("synthetic failure"),
+                     TEXT("synthetic")}
                : CommandSurface::FCommandOutput{ETranscriptStatus::Ok,
-                                                TEXT("stub success"),
-                                                TEXT("stub")};
+                                                TEXT("synthetic success"),
+                                                TEXT("synthetic")};
   };
 }
 
@@ -65,7 +65,7 @@ bool FTestGameCommandletPipelineFailureTest::RunTest(
   (void)Parameters;
   AddExpectedError(TEXT("LOG_ERR_CRITICAL // BIT_ROT_DETECTED"),
                    EAutomationExpectedErrorFlags::Contains, 1);
-  AddExpectedError(TEXT("stub failure"),
+  AddExpectedError(TEXT("synthetic failure"),
                    EAutomationExpectedErrorFlags::Contains, 1);
 
   UForbocAICommandlet *Commandlet = NewObject<UForbocAICommandlet>();

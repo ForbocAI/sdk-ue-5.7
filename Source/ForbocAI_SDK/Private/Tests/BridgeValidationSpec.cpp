@@ -11,7 +11,7 @@ void FForbocAIBridgeSpec::Define() {
       FAgentAction Action;
       Action.Type = TEXT("MOVE");
       Action.Target = TEXT("player");
-      Action.PayloadJson = TEXT("{\"x\":10,\"y\":20}");
+      Action.PayloadJson = FString(TEXT("{\"x\":10,\"y\":20}"));
 
       const TArray<FValidationRule> Rules = BridgeOps::CreateRPGRules();
       const FValidationResult Result =
@@ -23,7 +23,7 @@ void FForbocAIBridgeSpec::Define() {
     It("rejects ATTACK without a target", [this]() {
       FAgentAction Action;
       Action.Type = TEXT("ATTACK");
-      Action.PayloadJson = TEXT("{}");
+      Action.PayloadJson = FString(TEXT("{}"));
 
       const TArray<FValidationRule> Rules = BridgeOps::CreateRPGRules();
       const FValidationResult Result =

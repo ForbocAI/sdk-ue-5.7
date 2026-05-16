@@ -275,24 +275,6 @@ TArray<FString> BuildCommandArgs(const FString &Command,
                   }),
 
               /**
-               * ---- Cortex ----
-               * User Story: As a maintainer, I need this note so the surrounding code intent stays clear during maintenance and debugging.
-               */
-              func::when<FString, TArray<FString>>(
-                  func::equals<FString>(TEXT("cortex_init")),
-                  [&Params](const FString &) {
-                    return BuildParams(Params, {TEXT("Model=")});
-                  }),
-              func::when<FString, TArray<FString>>(
-                  func::equals<FString>(TEXT("cortex_init_remote")),
-                  [&Params](const FString &) {
-                    return BuildParams(Params,
-                                      {TEXT("Model="), TEXT("Key=")});
-                  }),
-              func::when<FString, TArray<FString>>(
-                  func::equals<FString>(TEXT("cortex_complete")),
-                  [&Params](const FString &) {
-                    return BuildParams(Params,
                                       {TEXT("Id="), TEXT("Prompt=")});
                   }),
 
@@ -608,8 +590,8 @@ UForbocAICommandlet::commandValidationPipeline() {
             TEXT("memory_list"),      TEXT("memory_recall"),
             TEXT("memory_store"),     TEXT("memory_clear"),
             TEXT("memory_export"),
-            TEXT("cortex_init"),      TEXT("cortex_init_remote"),
-            TEXT("cortex_models"),    TEXT("cortex_complete"),
+            
+            
             TEXT("ghost_run"),        TEXT("ghost_status"),
             TEXT("ghost_results"),    TEXT("ghost_stop"),
             TEXT("ghost_history"),

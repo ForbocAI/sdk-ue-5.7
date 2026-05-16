@@ -474,7 +474,7 @@ inline FMemoryItem MemoryItemFromObject(const TSharedPtr<FJsonObject> &Object) {
  * remote and local completion requests share the same config shape.
  */
 inline TSharedRef<FJsonObject>
-CortexConfigToObject(const FCortexConfig &Config) {
+PromptConstraintsToObject(const FPromptConstraints &Config) {
   const TSharedRef<FJsonObject> Object = MakeShared<FJsonObject>();
   return (detail::SetIfNonEmpty(Object, TEXT("model"), Config.Model),
           Object->SetBoolField(TEXT("useGPU"), Config.UseGPU),
@@ -500,9 +500,9 @@ CortexConfigToObject(const FCortexConfig &Config) {
  * User Story: As cortex response readers, I need generation config decoded so
  * returned settings can be reapplied or inspected in runtime state.
  */
-inline FCortexConfig
-CortexConfigFromObject(const TSharedPtr<FJsonObject> &Object) {
-  FCortexConfig Config;
+inline FPromptConstraints
+PromptConstraintsFromObject(const TSharedPtr<FJsonObject> &Object) {
+  FPromptConstraints Config;
   return !Object.IsValid()
              ? Config
              : (Config.Model =

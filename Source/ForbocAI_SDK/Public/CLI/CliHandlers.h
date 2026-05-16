@@ -49,15 +49,6 @@ HandlerResult HandleMemory(rtk::EnhancedStore<FStoreState> &Store,
                           const TArray<FString> &Args);
 
 /**
- * Handles cortex initialization and completion CLI commands.
- * User Story: As CLI users, I need cortex commands grouped so model setup and
- * completion flows route through one handler.
- */
-HandlerResult HandleCortex(rtk::EnhancedStore<FStoreState> &Store,
-                          const FString &CommandKey,
-                          const TArray<FString> &Args);
-
-/**
  * Handles ghost QA CLI commands.
  * User Story: As CLI users, I need ghost commands grouped so run control and
  * history lookups share one command handler.

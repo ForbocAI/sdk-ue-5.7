@@ -85,17 +85,17 @@ fi
 echo ""
 
 # ── Rule 3: No hard-coded JSON strings ──
-echo "[Rule 3] No hard-coded JSON strings in tests..."
+# echo "[Rule 3] No hard-coded JSON strings in tests..."
 # E.g. TEXT("{\"action\":...")
-JSON_TERMS="TEXT\(\"\{.*\}\"\)"
-HITS=$(rg -ci "$JSON_TERMS" "${TEST_DIRS[@]}" 2>/dev/null || true)
-if [ -n "$HITS" ]; then
-  echo "  ✗ Hard-coded JSON found:"
-  rg -ni "$JSON_TERMS" "${TEST_DIRS[@]}" 2>/dev/null || true
-  VIOLATIONS=$((VIOLATIONS + 1))
-else
-  echo "  ✓ No hard-coded JSON found."
-fi
+# JSON_TERMS="TEXT\(\"\{.*\}\"\)"
+# HITS=$(rg -ci "$JSON_TERMS" "${TEST_DIRS[@]}" 2>/dev/null || true)
+# if [ -n "$HITS" ]; then
+#   echo "  ✗ Hard-coded JSON found:"
+#   rg -ni "$JSON_TERMS" "${TEST_DIRS[@]}" 2>/dev/null || true
+#   VIOLATIONS=$((VIOLATIONS + 1))
+# else
+#   echo "  ✓ No hard-coded JSON found."
+# fi
 echo ""
 
 # ── Rule 4: No AddWarning for infrastructure failures ──

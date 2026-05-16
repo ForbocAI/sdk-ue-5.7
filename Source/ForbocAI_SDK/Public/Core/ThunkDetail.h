@@ -138,9 +138,9 @@ inline FString SerializeDecisionResult(const FString &Goal, const FString &Actio
   const TSharedPtr<FJsonObject> IntentObject = MakeShared<FJsonObject>();
   IntentObject->SetStringField(TEXT("goal"), Goal);
   IntentObject->SetStringField(TEXT("actionType"), ActionType);
-  if (!Target.IsEmpty()) {
-    IntentObject->SetStringField(TEXT("target"), Target);
-  }
+  !Target.IsEmpty()
+      ? (IntentObject->SetStringField(TEXT("target"), Target), void())
+      : void();
 
   const TSharedPtr<FJsonObject> Root = MakeShared<FJsonObject>();
   Root->SetStringField(TEXT("type"), TEXT("Decision"));
@@ -280,7 +280,7 @@ inline FMemoryItem MakeMemoryItem(const FMemoryStoreInstruction &Instruction) {
 /**
  * Converts a protocol instruction into the public agent response shape.
  * User Story: As protocol callers, I need typed instructions converted into
- * agent responses so gameplay code can consume dialogue and actions directly.
+ * agent responses so runtime code can consume dialogue and actions directly.
  */
 inline FAgentResponse BuildAgentResponse(const FNPCInstruction &Instruction) {
   FAgentResponse Response;

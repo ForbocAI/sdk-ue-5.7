@@ -243,7 +243,7 @@ inline rtk::AnyAction ClearBlock(const FString &Id) {
 /**
  * Builds the action that removes an NPC from the slice.
  * User Story: As NPC teardown, I need an action factory so removal dispatches
- * stay consistent across gameplay, tests, and tools.
+ * stay consistent across runtime, tests, and tools.
  */
 inline rtk::AnyAction RemoveNPC(const FString &Id) {
   return RemoveNPCActionCreator()(Id);
