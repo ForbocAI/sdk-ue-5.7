@@ -36,6 +36,7 @@ PRODUCT_BOUNDARY_STATUS="skipped"
 CONTRACT_PARITY_STATUS="skipped"
 HANDLER_CLASSIFICATION_STATUS="skipped"
 TEST_QUALITY_STATUS="skipped"
+RUNTIME_READINESS_STATUS="skipped"
 while [[ $# -gt 0 ]]; do
   case $1 in
     --quick)
@@ -192,6 +193,19 @@ run_check "Handler Classification Drift (UE/TS parity and contract adherence)" \
 run_check "Test Quality Audit (no simulated tests or no-op assertions)" \
   "$SCRIPT_DIR/check-test-quality.sh" TEST_QUALITY_STATUS
 
+# ── Phase 8: Runtime-Readiness ──
+if [ "$QUICK_MODE" -eq 1 ]; then
+  TOTAL=$((TOTAL + 1))
+  SKIPPED=$((SKIPPED + 1))
+  echo -e "\n${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+  echo -e "${CYAN}[SKIPPED] Runtime-readiness verification (requires API connectivity)${NC}"
+  echo -e "${YELLOW}Skipped in --quick mode${NC}"
+  RUNTIME_READINESS_STATUS="skipped"
+else
+  run_check "Runtime-readiness verification (requires API connectivity)" \
+    "$SCRIPT_DIR/check-runtime-readiness.sh" RUNTIME_READINESS_STATUS
+fi
+
 # ── Summary ──
 echo ""
 echo "╔═══════════════════════════════════════════════════════════════╗"
@@ -240,6 +254,13 @@ echo "  [$(mark_for_status "$TEST_QUALITY_STATUS")] Test quality (real coverage)
 echo "  [ ] Protocol codec parity"
 echo "  [ ] Focused RunGame automation (requires editor build)"
 echo "  [ ] Runtime-readiness verification (requires API connectivity)"
+echo ""
+
+exit $FAILURES
+RL not set)"
+else
+  echo "  [$(mark_for_status "$RUNTIME_READINESS_STATUS")] Runtime-readiness verification (requires API connectivity)"
+fi
 echo ""
 
 exit $FAILURES

@@ -7,8 +7,8 @@ import json
 import os
 import re
 import sys
+import urllib.request
 from pathlib import Path
-
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 PLUGIN_ROOT = SCRIPT_DIR.parent
@@ -20,7 +20,18 @@ def read_text(relative: str) -> str:
     return (PLUGIN_ROOT / relative).read_text(encoding="utf-8")
 
 
-def resolve_contract_path() -> Path:
+def get_contract_data() -> dict:
+    runtime_url = os.environ.get("FORBOC_RUNTIME_URL")
+    if runtime_url:
+        try:
+            url = runtime_url.rstrip("/") + "/test-game/contract"
+            with urllib.request.urlopen(url) as response:
+                if response.status == 200:
+                    print(f"Fetched contract from {url}")
+                    return json.loads(response.read().decode("utf-8"))
+        except Exception as e:
+            print(f"Failed to fetch contract from {runtime_url}: {e}", file=sys.stderr)
+
     candidates: list[Path] = []
     for env_name in ("API_TEST_GAME_CONTRACT", "TEST_GAME_CONTRACT", "UE_API_CONTRACT"):
         value = os.environ.get(env_name)
@@ -38,11 +49,12 @@ def resolve_contract_path() -> Path:
 
     for candidate in candidates:
         if candidate.exists():
-            return candidate.resolve()
+            print(f"API contract: {candidate.resolve()}")
+            return json.loads(candidate.read_text(encoding="utf-8"))
 
     print("API test-game contract not found.", file=sys.stderr)
     print(
-        "Set API_TEST_GAME_CONTRACT to ForbocAI/api/api/contract/test-game-contract.json.",
+        "Set API_TEST_GAME_CONTRACT to ForbocAI/api/api/contract/test-game-contract.json or FORBOC_RUNTIME_URL.",
         file=sys.stderr,
     )
     sys.exit(2)
@@ -176,8 +188,7 @@ def validate_ue_sources(contract: dict) -> list[str]:
 
 
 def main() -> int:
-    contract_path = resolve_contract_path()
-    contract = json.loads(contract_path.read_text(encoding="utf-8"))
+    contract = get_contract_data()
 
     failures = [
         *validate_contract_shape(contract),
@@ -204,7 +215,6 @@ def main() -> int:
         f"UE API contract parity OK - {scenario_count} scenarios, "
         f"{group_count} groups, {route_count} API routes."
     )
-    print(f"API contract: {contract_path}")
     return 0
 
 

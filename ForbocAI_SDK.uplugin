@@ -16,11 +16,6 @@
             "Name": "ForbocAI_SDK",
             "Type": "Runtime",
             "LoadingPhase": "Default"
-        },
-        {
-            "Name": "ForbocAI_SDK_LocalCortex",
-            "Type": "Runtime",
-            "LoadingPhase": "Default"
         }
     ]
 }
