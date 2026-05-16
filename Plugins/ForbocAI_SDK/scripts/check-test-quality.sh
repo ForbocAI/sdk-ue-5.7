@@ -16,6 +16,14 @@
 
 set -euo pipefail
 
+# Hard dependency: without ripgrep every rule below silently produces no
+# hits and the script reports a false "PASS". Fail loudly instead.
+if ! command -v rg >/dev/null 2>&1; then
+  echo "[FAIL] ripgrep (rg) is required but not found on PATH." >&2
+  echo "       Install ripgrep before running the test quality audit." >&2
+  exit 2
+fi
+
 PLUGIN_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 SDK_TESTS="$PLUGIN_ROOT/Source/ForbocAI_SDK/Private/Tests"
 

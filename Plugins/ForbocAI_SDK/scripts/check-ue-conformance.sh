@@ -5,6 +5,14 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SRC="$ROOT/Source/ForbocAI_SDK"
 STATUS=0
 
+# Hard dependency: without ripgrep every rule below silently produces no
+# hits and the script reports a false "PASS". Fail loudly instead.
+if ! command -v rg >/dev/null 2>&1; then
+  echo "[fail] ripgrep (rg) is required but not found on PATH." >&2
+  echo "       Install ripgrep before running the UE conformance check." >&2
+  exit 2
+fi
+
 normalize_crlf() {
   tr -d '\r'
 }

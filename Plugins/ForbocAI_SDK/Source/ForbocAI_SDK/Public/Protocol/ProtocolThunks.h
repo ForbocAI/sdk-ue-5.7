@@ -225,30 +225,41 @@ HandleDecision(const FNPCProcessResponse &Response,
   };
   
   NextTape.DecisionIntent.ActionType = ContainsActionVerb(0) ? TEXT("INTERACT") : TEXT("SPEAK");
-  
-  // Hardening: try to extract a target if it's an INTERACT action
-  if (NextTape.DecisionIntent.ActionType == TEXT("INTERACT")) {
-      const TArray<FString> Tokens = {TEXT("to"), TEXT("at"), TEXT("on"), TEXT("with")};
-      const auto ExtractTarget = [&](const FString& Obs) -> FString {
-          for (const FString& Token : Tokens) {
-              int32 Pos = Obs.Find(TEXT(" ") + Token + TEXT(" "));
-              if (Pos != INDEX_NONE) {
-                  return Obs.RightChop(Pos + Token.Len() + 2).TrimStartAndEnd();
-              }
-          }
-          return TEXT("");
-      };
-      NextTape.DecisionIntent.Target = ExtractTarget(ObsLower);
-  } else {
-      NextTape.DecisionIntent.Target = TEXT("");
-  }
-  
-  if (Response.Tape.Memories.Num() > 0) {
-    NextTape.DecisionIntent.Goal = FString::Printf(TEXT("Respond to: %s (with %d recalled memories)"), *Response.Tape.Observation, Response.Tape.Memories.Num());
-  } else {
-    NextTape.DecisionIntent.Goal = FString::Printf(TEXT("Respond to: %s"), *Response.Tape.Observation);
-  }
-  
+
+  const TArray<FString> TargetTokens = {TEXT("to"), TEXT("at"), TEXT("on"), TEXT("with")};
+
+  /**
+   * Recursive target extractor — walks the preposition list without an
+   * imperative loop. Returns the trimmed substring after the first matching
+   * " <token> " separator, or empty when no token matches.
+   */
+  const std::function<FString(const FString &, int32)> ExtractTargetRecursive =
+      [&](const FString &Obs, int32 Index) -> FString {
+    return Index >= TargetTokens.Num()
+               ? FString(TEXT(""))
+               : [&]() -> FString {
+                   const FString &Token = TargetTokens[Index];
+                   const int32 Pos = Obs.Find(TEXT(" ") + Token + TEXT(" "));
+                   return Pos != INDEX_NONE
+                              ? Obs.RightChop(Pos + Token.Len() + 2)
+                                    .TrimStartAndEnd()
+                              : ExtractTargetRecursive(Obs, Index + 1);
+                 }();
+  };
+
+  NextTape.DecisionIntent.Target =
+      NextTape.DecisionIntent.ActionType == TEXT("INTERACT")
+          ? ExtractTargetRecursive(ObsLower, 0)
+          : FString(TEXT(""));
+
+  NextTape.DecisionIntent.Goal =
+      Response.Tape.Memories.Num() > 0
+          ? FString::Printf(
+                TEXT("Respond to: %s (with %d recalled memories)"),
+                *Response.Tape.Observation, Response.Tape.Memories.Num())
+          : FString::Printf(TEXT("Respond to: %s"),
+                            *Response.Tape.Observation);
+
   NextTape.bDecisionCompleted = true;
 
   return RunProtocolTurn(
