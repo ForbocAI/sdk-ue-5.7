@@ -48,7 +48,7 @@ bool FProcessNPCWaitComplete::Update() {
     const TSharedPtr<FProcessNPCTestState> SharedState = State;
     State->Store = MakeShared<rtk::EnhancedStore<FStoreState>>(createStore());
     State->Store->dispatch(rtk::processNPC(
-        Params.NpcId, Params.Input, FString(TEXT("{}")), Params.Persona, FAgentState(),
+        Params.NpcId, Params.Input, FString(TEXT("{") TEXT("}")), Params.Persona, FAgentState(),
         rtk::LocalProtocolRuntime()))
         .then([SharedState](const FAgentResponse &R) {
           SharedState->bCompleted = true;

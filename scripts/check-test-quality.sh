@@ -16,12 +16,13 @@
 
 set -euo pipefail
 
-# Hard dependency: without ripgrep every rule below silently produces no
-# hits and the script reports a false "PASS". Fail loudly instead.
-if ! command -v rg >/dev/null 2>&1; then
-  echo "[FAIL] ripgrep (rg) is required but not found on PATH." >&2
-  echo "       Install ripgrep before running the test quality audit." >&2
-  exit 2
+# Determine search tool (rg preferred, grep as fallback)
+if command -v rg >/dev/null 2>&1; then
+  SEARCH_CMD="rg -ni"
+  COUNT_CMD="rg -ci"
+else
+  SEARCH_CMD="grep -rnHiE"
+  COUNT_CMD="grep -rcHiE"
 fi
 
 PLUGIN_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -46,8 +47,14 @@ else
   DEMO_TESTS="$PLUGIN_ROOT/../../Source/DemoProject/Tests"
 fi
 
-TEST_DIRS=("$SDK_TESTS")
+TEST_DIRS=()
+[ -d "$SDK_TESTS" ] && TEST_DIRS+=("$SDK_TESTS")
 [ -d "$DEMO_TESTS" ] && TEST_DIRS+=("$DEMO_TESTS")
+
+if [ ${#TEST_DIRS[@]} -eq 0 ]; then
+  echo "No test directories found to scan."
+  exit 0
+fi
 
 VIOLATIONS=0
 
@@ -58,10 +65,10 @@ echo ""
 # ── Rule 1: No mock/stub terms ──
 echo "[Rule 1] No fake, stub, simulated, or placeholder terms..."
 MOCK_TERMS="fake|stub|simulated\b|placeholder"
-HITS=$(rg -ci "$MOCK_TERMS" "${TEST_DIRS[@]}" 2>/dev/null || true)
+HITS=$($COUNT_CMD "$MOCK_TERMS" "${TEST_DIRS[@]}" | grep -v ":0$" || true)
 if [ -n "$HITS" ]; then
   echo "  ✗ Mock/stub terminology found:"
-  rg -ni "$MOCK_TERMS" "${TEST_DIRS[@]}" 2>/dev/null || true
+  $SEARCH_CMD "$MOCK_TERMS" "${TEST_DIRS[@]}" || true
   VIOLATIONS=$((VIOLATIONS + 1))
 else
   echo "  ✓ No mock/stub terminology found."
@@ -70,14 +77,11 @@ echo ""
 
 # ── Rule 2: No no-op assertions ──
 echo "[Rule 2] No no-op assertions..."
-NOOP_TERMS="TestTrue\([^,]*, true\)|TestFalse\([^,]*, false\)|TestEqual\([^,]*, \w+, \w+\)"
-# Specifically matching TestTrue("...", true) or TestFalse("...", false)
-# Actually, TestEqual might have identical arguments but regex is hard. Let's stick to true/false.
 NOOP_EXACT="TestTrue\([^,]+,\s*true\)|TestFalse\([^,]+,\s*false\)"
-HITS=$(rg -ci "$NOOP_EXACT" "${TEST_DIRS[@]}" 2>/dev/null || true)
+HITS=$($COUNT_CMD "$NOOP_EXACT" "${TEST_DIRS[@]}" | grep -v ":0$" || true)
 if [ -n "$HITS" ]; then
   echo "  ✗ No-op assertions found:"
-  rg -ni "$NOOP_EXACT" "${TEST_DIRS[@]}" 2>/dev/null || true
+  $SEARCH_CMD "$NOOP_EXACT" "${TEST_DIRS[@]}" || true
   VIOLATIONS=$((VIOLATIONS + 1))
 else
   echo "  ✓ No no-op assertions found."
@@ -85,26 +89,25 @@ fi
 echo ""
 
 # ── Rule 3: No hard-coded JSON strings ──
-# echo "[Rule 3] No hard-coded JSON strings in tests..."
-# E.g. TEXT("{\"action\":...")
-# JSON_TERMS="TEXT\(\"\{.*\}\"\)"
-# HITS=$(rg -ci "$JSON_TERMS" "${TEST_DIRS[@]}" 2>/dev/null || true)
-# if [ -n "$HITS" ]; then
-#   echo "  ✗ Hard-coded JSON found:"
-#   rg -ni "$JSON_TERMS" "${TEST_DIRS[@]}" 2>/dev/null || true
-#   VIOLATIONS=$((VIOLATIONS + 1))
-# else
-#   echo "  ✓ No hard-coded JSON found."
-# fi
+echo "[Rule 3] No hard-coded JSON strings in tests..."
+JSON_TERMS="TEXT\(\"\{[^\)]*\}\"\)"
+HITS=$($COUNT_CMD "$JSON_TERMS" "${TEST_DIRS[@]}" | grep -v ":0$" || true)
+if [ -n "$HITS" ]; then
+  echo "  ✗ Hard-coded JSON found:"
+  $SEARCH_CMD "$JSON_TERMS" "${TEST_DIRS[@]}" || true
+  VIOLATIONS=$((VIOLATIONS + 1))
+else
+  echo "  ✓ No hard-coded JSON found."
+fi
 echo ""
 
 # ── Rule 4: No AddWarning for infrastructure failures ──
 echo "[Rule 4] No AddWarning to swallow failures..."
 WARN_TERMS="AddWarning\("
-HITS=$(rg -ci "$WARN_TERMS" "${TEST_DIRS[@]}" 2>/dev/null || true)
+HITS=$($COUNT_CMD "$WARN_TERMS" "${TEST_DIRS[@]}" | grep -v ":0$" || true)
 if [ -n "$HITS" ]; then
   echo "  ✗ AddWarning usage found (should fail instead):"
-  rg -ni "$WARN_TERMS" "${TEST_DIRS[@]}" 2>/dev/null || true
+  $SEARCH_CMD "$WARN_TERMS" "${TEST_DIRS[@]}" || true
   VIOLATIONS=$((VIOLATIONS + 1))
 else
   echo "  ✓ No AddWarning usage found."

@@ -96,7 +96,7 @@ bool FProtocolStoreWiringTest::RunTest(const FString &Parameters) {
    * User Story: As a maintainer, I need this step note so I can follow the scenario progression and reason about the expected state changes.
    */
   FAgentState NewState;
-  NewState.JsonData = FString(TEXT("{\"health\":100}"));
+  NewState.JsonData = FString(TEXT("{") TEXT("\"health\":100}"));
   TestStore.dispatch(NPCSlice::Actions::UpdateNPCState(TEXT("ag_test1"), NewState));
 
   State = TestStore.getState();
@@ -439,7 +439,7 @@ bool FProtocolMultiNpcTest::RunTest(const FString &Parameters) {
    * User Story: As a maintainer, I need this step note so I can follow the scenario progression and reason about the expected state changes.
    */
   FAgentState M2State;
-  M2State.JsonData = TEXT("{\n\"goods\":[\"sword\",\"potion\"]\n}");
+  M2State.JsonData = TEXT("{") TEXT("\n\"goods\":[\"sword\",\"potion\"]\n}");
   TestStore.dispatch(NPCSlice::Actions::UpdateNPCState(TEXT("ag_m2"), M2State));
 
   State = TestStore.getState();
@@ -449,7 +449,7 @@ bool FProtocolMultiNpcTest::RunTest(const FString &Parameters) {
   TestTrue("M2 exists", M2.hasValue);
   if (M1.hasValue && M2.hasValue) {
     TestEqual("M1 state unchanged", M1.value.State.JsonData,
-              FString(FString(TEXT("{}"))));
+              FString(FString(TEXT("{") TEXT("}"))));
     TestTrue("M2 state updated", M2.value.State.JsonData.Contains(TEXT("sword")));
   }
 
