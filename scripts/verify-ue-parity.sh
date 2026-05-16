@@ -21,7 +21,7 @@
 #   bash scripts/verify-ue-parity.sh --quick  # Skip slow network-backed parity only
 #
 # Run from the SDK plugin root:
-#   cd Plugins/ForbocAI_SDK && bash scripts/verify-ue-parity.sh
+#   bash scripts/verify-ue-parity.sh
 
 set -euo pipefail
 

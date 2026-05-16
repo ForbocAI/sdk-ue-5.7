@@ -39,7 +39,7 @@ void FBddCoverageSpec::Define() {
       FString PluginDir = FPaths::Combine(FPaths::ProjectDir(), TEXT("Plugins/ForbocAI_SDK"));
       if (!IFileManager::Get().DirectoryExists(*PluginDir)) { 
         // fallback mapping depending on UE directory structuring
-        PluginDir = FPaths::Combine(FPaths::ProjectDir(), TEXT("../../Plugins/ForbocAI_SDK"));
+        PluginDir = FPaths::Combine(FPaths::ProjectDir(), TEXT(".."));
       }
       
       FString SourceDir = FPaths::Combine(PluginDir, TEXT("Source/ForbocAI_SDK"));

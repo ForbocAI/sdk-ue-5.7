@@ -39,8 +39,8 @@ NPC reasoning is hosted on the ForbocAI API; the plugin handles local capabiliti
 
 ### Option 2 — Manual
 
-1. Download a release archive from the [Releases](https://github.com/ForbocAI/sdk-ue-5.7/releases) page.
-2. Copy the `ForbocAI_SDK` folder into your project's `Plugins/` directory.
+1. Download a release archive from the [Releases](https://github.com/ForbocAI/sdk-ue-5.7/releases) page or clone this repository.
+2. Place the repository contents into your project's `Plugins/ForbocAI_SDK/` directory.
 3. Right-click your `.uproject` and **Generate Visual Studio project files**.
 4. Build in `Development Editor`.
 

@@ -3,6 +3,7 @@
 	"EngineAssociation": "5.7",
 	"Category": "",
 	"Description": "",
+	"AdditionalPluginDirectories": [".."],
 	"Plugins": [
 		{
 			"Name": "ForbocAI_SDK",

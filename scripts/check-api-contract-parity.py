@@ -12,7 +12,7 @@ from pathlib import Path
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 PLUGIN_ROOT = SCRIPT_DIR.parent
-REPO_ROOT = PLUGIN_ROOT.parent.parent
+REPO_ROOT = PLUGIN_ROOT
 WORKSPACE_ROOT = REPO_ROOT.parent
 
 

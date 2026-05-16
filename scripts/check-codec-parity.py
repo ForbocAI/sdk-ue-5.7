@@ -19,7 +19,7 @@ except ImportError:
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 PLUGIN_ROOT = SCRIPT_DIR.parent
-SDK_UE_DIR = PLUGIN_ROOT.parent.parent
+SDK_UE_DIR = PLUGIN_ROOT
 WORKSPACE_ROOT = SDK_UE_DIR.parent
 
 # Paths to UE source files

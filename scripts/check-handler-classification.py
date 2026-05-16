@@ -14,7 +14,7 @@ import re
 from pathlib import Path
 
 SCRIPT_DIR = Path(__file__).resolve().parent
-ROOT_DIR = SCRIPT_DIR.parent.parent.parent
+ROOT_DIR = SCRIPT_DIR.parent
 PROTOCOL_THUNKS = SCRIPT_DIR.parent / "Source" / "ForbocAI_SDK" / "Public" / "Protocol" / "ProtocolThunks.h"
 TS_SDK_HANDLERS = ROOT_DIR.parent / "sdk" / "packages" / "core" / "src" / "protocolHandlers" / "index.ts"
 

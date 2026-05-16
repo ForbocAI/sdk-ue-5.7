@@ -19,7 +19,7 @@ else
     UAT_PATH="$UE_ROOT/Engine/Build/BatchFiles/RunUAT.sh"
 fi
 
-PLUGIN_PATH="$PROJECT_ROOT/Plugins/ForbocAI_SDK/ForbocAI_SDK.uplugin"
+PLUGIN_PATH="$PROJECT_ROOT/ForbocAI_SDK.uplugin"
 
 if [[ ! -f "$PLUGIN_PATH" ]]; then
     echo "Plugin descriptor not found at: $PLUGIN_PATH" >&2
