@@ -193,7 +193,11 @@ run_check "Handler Classification Drift (UE/TS parity and contract adherence)" \
 run_check "Test Quality Audit (no simulated tests or no-op assertions)" \
   "$SCRIPT_DIR/check-test-quality.sh" TEST_QUALITY_STATUS
 
-# ── Phase 8: Runtime-Readiness ──
+# ── Phase 8: Protocol Codec Parity ──
+run_check "Protocol Codec Parity" \
+  "$SCRIPT_DIR/check-codec-parity.sh" CODEC_PARITY_STATUS
+
+# ── Phase 9: Runtime-Readiness ──
 if [ "$QUICK_MODE" -eq 1 ]; then
   TOTAL=$((TOTAL + 1))
   SKIPPED=$((SKIPPED + 1))
