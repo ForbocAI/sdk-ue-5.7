@@ -17,6 +17,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     "ForbocAI.Integration.Setup.CommandletValidation",
     EAutomationTestFlags_ApplicationContextMask |
         EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FSetupCommandletValidationTest::RunTest(const FString &Parameters) {
   UForbocAICommandlet *Commandlet = NewObject<UForbocAICommandlet>();
   bool bCompleted = false;
@@ -44,6 +47,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     "ForbocAI.Integration.Setup.RuntimeSmokeDatabase",
     EAutomationTestFlags_ApplicationContextMask |
         EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FSetupRuntimeSmokeDatabaseTest::RunTest(const FString &Parameters) {
   rtk::EnhancedStore<FStoreState> Store = createStore();
   const FString DatabasePath = FPaths::Combine(

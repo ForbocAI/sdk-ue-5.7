@@ -14,6 +14,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FGhostSliceSessionStartedTest,
                                  "ForbocAI.Slices.Ghost.SessionStarted",
                                  EAutomationTestFlags_ApplicationContextMask |
                                      EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FGhostSliceSessionStartedTest::RunTest(const FString &Parameters) {
   Slice<FGhostSliceState> GSlice = CreateGhostSlice();
   FGhostSliceState State;
@@ -41,6 +44,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FGhostSliceProgressTest,
                                  "ForbocAI.Slices.Ghost.Progress",
                                  EAutomationTestFlags_ApplicationContextMask |
                                      EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FGhostSliceProgressTest::RunTest(const FString &Parameters) {
   Slice<FGhostSliceState> GSlice = CreateGhostSlice();
   FGhostSliceState State;
@@ -67,6 +73,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FGhostSliceCompletedTest,
                                  "ForbocAI.Slices.Ghost.SessionCompleted",
                                  EAutomationTestFlags_ApplicationContextMask |
                                      EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FGhostSliceCompletedTest::RunTest(const FString &Parameters) {
   Slice<FGhostSliceState> GSlice = CreateGhostSlice();
   FGhostSliceState State;
@@ -99,6 +108,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FGhostSliceFailedTest,
                                  "ForbocAI.Slices.Ghost.SessionFailed",
                                  EAutomationTestFlags_ApplicationContextMask |
                                      EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FGhostSliceFailedTest::RunTest(const FString &Parameters) {
   Slice<FGhostSliceState> GSlice = CreateGhostSlice();
   FGhostSliceState State;
@@ -126,6 +138,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FGhostSliceHistoryTest,
                                  "ForbocAI.Slices.Ghost.HistoryLoaded",
                                  EAutomationTestFlags_ApplicationContextMask |
                                      EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FGhostSliceHistoryTest::RunTest(const FString &Parameters) {
   Slice<FGhostSliceState> GSlice = CreateGhostSlice();
   FGhostSliceState State;

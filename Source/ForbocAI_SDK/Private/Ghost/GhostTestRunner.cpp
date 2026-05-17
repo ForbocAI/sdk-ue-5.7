@@ -27,6 +27,9 @@ RunScenarioTest(const FAgent &Agent, const FString &Scenario) {
       });
 }
 
+/**
+ * User Story: As a developer, I need RunTestsSequentially to fulfill its role in the module.
+ */
 void RunTestsSequentially(const FGhost &Ghost,
                           TSharedPtr<FGhostTestReport> Report, int32 Index,
                           std::function<void(FGhostTestReport)> OnComplete,

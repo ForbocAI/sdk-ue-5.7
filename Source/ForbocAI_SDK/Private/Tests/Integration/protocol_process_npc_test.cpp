@@ -41,6 +41,9 @@ struct FProcessNPCParams {
 DEFINE_LATENT_AUTOMATION_COMMAND_THREE_PARAMETER(
     FProcessNPCWaitComplete, TSharedPtr<FProcessNPCTestState>, State,
     FProcessNPCParams, Params, int32, PollCount);
+/**
+ * User Story: As a developer, I need Update to fulfill its role in the module.
+ */
 bool FProcessNPCWaitComplete::Update() {
   const int32 MaxPolls = 300;  // ~15s at 50ms
 
@@ -84,6 +87,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     "ForbocAI.Integration.Protocol.ProcessNPCMockFinalizeValid",
     EAutomationTestFlags_ApplicationContextMask |
         EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FProcessNPCMockFinalizeValidTest::RunTest(const FString &Parameters) {
   SDKConfig::SetApiConfig(SDKConfig::GetApiUrl(),
                           FPlatformMisc::GetEnvironmentVariable(
@@ -141,6 +147,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     "ForbocAI.Integration.Protocol.ProcessNPCMockFinalizeInvalid",
     EAutomationTestFlags_ApplicationContextMask |
         EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FProcessNPCMockFinalizeInvalidTest::RunTest(const FString &Parameters) {
   SDKConfig::SetApiConfig(SDKConfig::GetApiUrl(),
                           FPlatformMisc::GetEnvironmentVariable(
@@ -186,6 +195,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     "ForbocAI.Integration.Protocol.ProcessNPCDirectiveLifecycle",
     EAutomationTestFlags_ApplicationContextMask |
         EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FProcessNPCDirectiveLifecycleTest::RunTest(const FString &Parameters) {
   SDKConfig::SetApiConfig(SDKConfig::GetApiUrl(),
                           FPlatformMisc::GetEnvironmentVariable(

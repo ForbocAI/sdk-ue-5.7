@@ -15,6 +15,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FDirectiveHappyPathTest,
                                  "ForbocAI.Slices.Directive.HappyPath",
                                  EAutomationTestFlags_ApplicationContextMask |
                                      EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FDirectiveHappyPathTest::RunTest(const FString &Parameters) {
   Slice<FDirectiveSliceState> DirSlice = CreateDirectiveSlice();
   FDirectiveSliceState State;
@@ -122,6 +125,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FDirectiveMultipleTest,
                                  "ForbocAI.Slices.Directive.MultipleConcurrent",
                                  EAutomationTestFlags_ApplicationContextMask |
                                      EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FDirectiveMultipleTest::RunTest(const FString &Parameters) {
   Slice<FDirectiveSliceState> DirSlice = CreateDirectiveSlice();
   FDirectiveSliceState State;
@@ -176,6 +182,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FDirectiveClearForNpcTest,
                                  "ForbocAI.Slices.Directive.ClearForNpcSelective",
                                  EAutomationTestFlags_ApplicationContextMask |
                                      EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FDirectiveClearForNpcTest::RunTest(const FString &Parameters) {
   Slice<FDirectiveSliceState> DirSlice = CreateDirectiveSlice();
   FDirectiveSliceState State;

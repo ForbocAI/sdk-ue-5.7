@@ -16,6 +16,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     "ForbocAI.Core.FunctionalCore.Dispatcher.KeyLookup",
     EAutomationTestFlags_ApplicationContextMask |
         EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FDispatcherKeyLookupTest::RunTest(const FString &Parameters) {
   std::vector<std::pair<std::string, std::function<int()>>> entries;
   entries.push_back(std::make_pair(std::string("a"), []() { return 1; }));
@@ -48,6 +51,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     "ForbocAI.Core.FunctionalCore.Dispatcher.MissingKey",
     EAutomationTestFlags_ApplicationContextMask |
         EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FDispatcherMissingKeyTest::RunTest(const FString &Parameters) {
   std::vector<std::pair<std::string, std::function<int()>>> entries;
   entries.push_back(std::make_pair(std::string("a"), []() { return 1; }));
@@ -69,6 +75,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     "ForbocAI.Core.FunctionalCore.Dispatcher.HasAndKeys",
     EAutomationTestFlags_ApplicationContextMask |
         EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FDispatcherHasAndKeysTest::RunTest(const FString &Parameters) {
   std::vector<std::pair<std::string, std::function<int()>>> entries;
   entries.push_back(std::make_pair(std::string("x"), []() { return 10; }));
@@ -95,6 +104,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     "ForbocAI.Core.FunctionalCore.MultiMatch.Predicate",
     EAutomationTestFlags_ApplicationContextMask |
         EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FMultiMatchPredicateTest::RunTest(const FString &Parameters) {
   std::vector<func::MatchCase<int, std::string>> cases;
   cases.push_back(func::when<int, std::string>(
@@ -131,6 +143,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     "ForbocAI.Core.FunctionalCore.MultiMatch.Wildcard",
     EAutomationTestFlags_ApplicationContextMask |
         EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FMultiMatchWildcardTest::RunTest(const FString &Parameters) {
   std::vector<func::MatchCase<int, std::string>> cases;
   cases.push_back(func::when<int, std::string>(
@@ -160,6 +175,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     "ForbocAI.Core.FunctionalCore.MultiMatch.NoMatch",
     EAutomationTestFlags_ApplicationContextMask |
         EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FMultiMatchNoMatchTest::RunTest(const FString &Parameters) {
   std::vector<func::MatchCase<int, std::string>> cases;
   cases.push_back(func::when<int, std::string>(
@@ -181,6 +199,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     "ForbocAI.Core.FunctionalCore.MultiMatch.Equals",
     EAutomationTestFlags_ApplicationContextMask |
         EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FMultiMatchEqualsTest::RunTest(const FString &Parameters) {
   std::vector<func::MatchCase<std::string, int>> cases;
   cases.push_back(func::when<std::string, int>(
@@ -216,6 +237,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     "ForbocAI.Core.FunctionalCore.FromNullable.Pointer",
     EAutomationTestFlags_ApplicationContextMask |
         EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FFromNullablePtrTest::RunTest(const FString &Parameters) {
   int val = 42;
   int *p = &val;
@@ -239,6 +263,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     "ForbocAI.Core.FunctionalCore.FromNullable.Value",
     EAutomationTestFlags_ApplicationContextMask |
         EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FFromNullableValueTest::RunTest(const FString &Parameters) {
   auto valid = func::from_nullable_value(std::string("hello"), true);
   TestTrue("Valid value is just", valid.hasValue);
@@ -259,6 +286,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     "ForbocAI.Core.FunctionalCore.RequireJust",
     EAutomationTestFlags_ApplicationContextMask |
         EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FRequireJustTest::RunTest(const FString &Parameters) {
   auto j = func::just(42);
   int extracted = func::require_just(j, "should not throw");

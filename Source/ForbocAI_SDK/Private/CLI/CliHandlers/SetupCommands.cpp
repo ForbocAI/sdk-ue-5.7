@@ -38,6 +38,9 @@ struct FRuntimeCheckOptions {
   FString Prompt;
 };
 
+/**
+ * User Story: As a developer, I need HasFlagRecursive to fulfill its role in the module.
+ */
 bool HasFlagRecursive(const TArray<FString> &Args, const FString &Flag,
                       int32 Index = 0) {
   return Index == Args.Num()
@@ -46,6 +49,9 @@ bool HasFlagRecursive(const TArray<FString> &Args, const FString &Flag,
                                    : HasFlagRecursive(Args, Flag, Index + 1);
 }
 
+/**
+ * User Story: As a developer, I need FindOptionRecursive to fulfill its role in the module.
+ */
 FString FindOptionRecursive(const TArray<FString> &Args, const FString &Prefix,
                             int32 Index = 0) {
   return Index == Args.Num()
@@ -70,11 +76,17 @@ FRuntimeCheckOptions RuntimeCheckOptions(const TArray<FString> &Args) {
   return Options;
 }
 
+/**
+ * User Story: As a developer, I need DefaultCortexModelPath to fulfill its role in the module.
+ */
 FString DefaultCortexModelPath() {
   return rtk::detail::GetLocalInfrastructureDir() + TEXT("models/") +
          DEFAULT_CORTEX_MODEL_FILE;
 }
 
+/**
+ * User Story: As a developer, I need RuntimeSmokeDatabasePath to fulfill its role in the module.
+ */
 FString RuntimeSmokeDatabasePath() {
   return FPaths::Combine(FPaths::ProjectSavedDir(), TEXT("ForbocAI"),
                          TEXT("runtime-smoke"),
@@ -83,6 +95,9 @@ FString RuntimeSmokeDatabasePath() {
                                              EGuidFormats::Digits)));
 }
 
+/**
+ * User Story: As a developer, I need ResolveEmbeddingModelPath to fulfill its role in the module.
+ */
 FString ResolveEmbeddingModelPath(const FRuntimeCheckOptions &Options,
                                   IPlatformFile &PF) {
   const FString DefaultPath = rtk::detail::DefaultEmbeddingModelPath();
@@ -94,6 +109,9 @@ FString ResolveEmbeddingModelPath(const FRuntimeCheckOptions &Options,
                                                  : TEXT("");
 }
 
+/**
+ * User Story: As a developer, I need ResolveCortexModelArg to fulfill its role in the module.
+ */
 FString ResolveCortexModelArg(const FRuntimeCheckOptions &Options,
                               IPlatformFile &PF) {
   const FString DefaultPath = DefaultCortexModelPath();
@@ -105,6 +123,9 @@ FString ResolveCortexModelArg(const FRuntimeCheckOptions &Options,
                                                  : TEXT("");
 }
 
+/**
+ * User Story: As a developer, I need ContainsRecalledTextRecursive to fulfill its role in the module.
+ */
 bool ContainsRecalledTextRecursive(const TArray<FMemoryItem> &Items,
                                    const FString &ExpectedText, int32 Index) {
   return Index == Items.Num()
@@ -115,11 +136,17 @@ bool ContainsRecalledTextRecursive(const TArray<FMemoryItem> &Items,
                                                    Index + 1);
 }
 
+/**
+ * User Story: As a developer, I need EnsureParentDirectory to fulfill its role in the module.
+ */
 void EnsureParentDirectory(const FString &Path) {
   FPlatformFileManager::Get().GetPlatformFile().CreateDirectoryTree(
       *FPaths::GetPath(Path));
 }
 
+/**
+ * User Story: As a developer, I need CleanupSmokeDatabase to fulfill its role in the module.
+ */
 void CleanupSmokeDatabase(rtk::EnhancedStore<FStoreState> &Store,
                           const FString &DatabasePath) {
   try {
@@ -129,6 +156,9 @@ void CleanupSmokeDatabase(rtk::EnhancedStore<FStoreState> &Store,
   IFileManager::Get().Delete(*DatabasePath, false, true, true);
 }
 
+/**
+ * User Story: As a developer, I need CleanupSmokeDatabaseIfNeeded to fulfill its role in the module.
+ */
 void CleanupSmokeDatabaseIfNeeded(rtk::EnhancedStore<FStoreState> &Store,
                                   const FString &DatabasePath,
                                   bool bShouldCleanup) {

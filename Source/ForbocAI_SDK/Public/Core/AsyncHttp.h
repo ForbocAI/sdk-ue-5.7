@@ -18,6 +18,9 @@ namespace detail {
 template <typename T, typename Enable = void> struct JsonDeserializer;
 
 template <typename JsonValueT>
+/**
+ * User Story: As a developer, I need DeserializeStringArrayRecursive to fulfill its role in the module.
+ */
 bool DeserializeStringArrayRecursive(
     const TArray<TSharedPtr<JsonValueT>> &JsonValues, int32 Index,
     TArray<FString> &OutValue) {
@@ -31,6 +34,9 @@ bool DeserializeStringArrayRecursive(
 }
 
 template <typename T, typename JsonValueT>
+/**
+ * User Story: As a developer, I need DeserializeStructArrayRecursive to fulfill its role in the module.
+ */
 bool DeserializeStructArrayRecursive(
     const TArray<TSharedPtr<JsonValueT>> &JsonValues, int32 Index,
     TArray<T> &OutValue) {
@@ -56,6 +62,9 @@ bool DeserializeStructArrayRecursive(
 }
 
 template <typename CallbackT>
+/**
+ * User Story: As a developer, I need NotifyCallbacksRecursive to fulfill its role in the module.
+ */
 void NotifyCallbacksRecursive(const std::vector<CallbackT> &Callbacks,
                               size_t Index, const FString &Body,
                               HttpStatusCode Code) {
@@ -99,6 +108,9 @@ func::HttpResult<T> DecodeContentResult(const FString &Content,
 }
 
 template <typename T>
+/**
+ * User Story: As a developer, I need ResolveRequestCompletion to fulfill its role in the module.
+ */
 void ResolveRequestCompletion(
     const std::function<void(func::HttpResult<T>)> &Resolve,
     FHttpResponsePtr Res, bool bWasSuccessful) {

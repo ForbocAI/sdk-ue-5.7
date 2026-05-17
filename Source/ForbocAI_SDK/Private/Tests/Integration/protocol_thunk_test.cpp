@@ -63,6 +63,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FProtocolStoreWiringTest,
                                  "ForbocAI.Integration.Protocol.StoreWiring",
                                  EAutomationTestFlags_ApplicationContextMask |
                                      EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FProtocolStoreWiringTest::RunTest(const FString &Parameters) {
   EnhancedStore<FStoreState> TestStore = createStore();
 
@@ -186,6 +189,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FProtocolDirectiveLifecycleTest,
                                  "ForbocAI.Integration.Protocol.DirectiveLifecycle",
                                  EAutomationTestFlags_ApplicationContextMask |
                                      EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FProtocolDirectiveLifecycleTest::RunTest(const FString &Parameters) {
   EnhancedStore<FStoreState> TestStore = createStore();
 
@@ -266,6 +272,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FProtocolMemoryLifecycleTest,
                                  "ForbocAI.Integration.Protocol.MemoryLifecycle",
                                  EAutomationTestFlags_ApplicationContextMask |
                                      EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FProtocolMemoryLifecycleTest::RunTest(const FString &Parameters) {
   EnhancedStore<FStoreState> TestStore = createStore();
 
@@ -366,6 +375,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FProtocolNpcRemovalCascadeTest,
                                  "ForbocAI.Integration.Protocol.NpcRemovalCascade",
                                  EAutomationTestFlags_ApplicationContextMask |
                                      EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FProtocolNpcRemovalCascadeTest::RunTest(const FString &Parameters) {
   EnhancedStore<FStoreState> TestStore = createStore();
 
@@ -415,6 +427,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FProtocolMultiNpcTest,
                                  "ForbocAI.Integration.Protocol.MultiNpc",
                                  EAutomationTestFlags_ApplicationContextMask |
                                      EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FProtocolMultiNpcTest::RunTest(const FString &Parameters) {
   EnhancedStore<FStoreState> TestStore = createStore();
 

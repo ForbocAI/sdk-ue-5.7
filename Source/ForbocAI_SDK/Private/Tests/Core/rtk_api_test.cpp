@@ -8,6 +8,9 @@ using namespace rtk;
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRtkApiSliceTest, "ForbocAI.Core.RTK.ApiSlice",
                                  EAutomationTestFlags_ApplicationContextMask |
                                      EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FRtkApiSliceTest::RunTest(const FString &Parameters) {
   /**
    * 1. Define an API Endpoint

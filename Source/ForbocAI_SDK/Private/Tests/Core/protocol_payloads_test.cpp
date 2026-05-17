@@ -17,6 +17,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     "ForbocAI.Core.Protocol.SerializeIdentifyActorPayload",
     EAutomationTestFlags_ApplicationContextMask |
         EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FSerializeIdentifyActorPayloadTest::RunTest(const FString &Parameters) {
   FNPCActorInfo Actor;
   Actor.NpcId = TEXT("npc_test_1");
@@ -37,6 +40,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     "ForbocAI.Core.Protocol.SerializeDecisionPayload",
     EAutomationTestFlags_ApplicationContextMask |
         EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FSerializeDecisionPayloadTest::RunTest(const FString &Parameters) {
   FString Json =
       rtk::detail::SerializeDecisionResult(TEXT("Respond"), TEXT("SPEAK"),
@@ -55,6 +61,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     "ForbocAI.Core.Protocol.SerializeReasoningPayload",
     EAutomationTestFlags_ApplicationContextMask |
         EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FSerializeReasoningPayloadTest::RunTest(const FString &Parameters) {
   FString Json = rtk::detail::SerializeReasoningResult(
       TEXT("Thinking..."), TEXT("Hello there"));
@@ -71,6 +80,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     "ForbocAI.Core.Protocol.EncodeProcessTapePayload",
     EAutomationTestFlags_ApplicationContextMask |
         EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FEncodeProcessTapePayloadTest::RunTest(const FString &Parameters) {
   FNPCProcessTape Tape;
   Tape.Observation = TEXT("Saw player");

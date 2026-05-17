@@ -15,6 +15,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FSoulImportRecoveryTest,
                                  "ForbocAI.Slices.Soul.ImportFailureRecovery",
                                  EAutomationTestFlags_ApplicationContextMask |
                                      EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FSoulImportRecoveryTest::RunTest(const FString &Parameters) {
   Slice<FSoulSliceState> SSlice = CreateSoulSlice();
   FSoulSliceState State;
@@ -60,6 +63,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FSoulExportRecoveryTest,
                                  "ForbocAI.Slices.Soul.ExportFailureRecovery",
                                  EAutomationTestFlags_ApplicationContextMask |
                                      EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FSoulExportRecoveryTest::RunTest(const FString &Parameters) {
   Slice<FSoulSliceState> SSlice = CreateSoulSlice();
   FSoulSliceState State;
@@ -97,6 +103,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FSoulEmptyListTest,
                                  "ForbocAI.Slices.Soul.EmptyList",
                                  EAutomationTestFlags_ApplicationContextMask |
                                      EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FSoulEmptyListTest::RunTest(const FString &Parameters) {
   Slice<FSoulSliceState> SSlice = CreateSoulSlice();
   FSoulSliceState State;
@@ -134,6 +143,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FSoulListReplacementTest,
                                  "ForbocAI.Slices.Soul.ListReplacement",
                                  EAutomationTestFlags_ApplicationContextMask |
                                      EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FSoulListReplacementTest::RunTest(const FString &Parameters) {
   Slice<FSoulSliceState> SSlice = CreateSoulSlice();
   FSoulSliceState State;
@@ -168,6 +180,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FSoulClearThenSetTest,
                                  "ForbocAI.Slices.Soul.ClearThenSet",
                                  EAutomationTestFlags_ApplicationContextMask |
                                      EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FSoulClearThenSetTest::RunTest(const FString &Parameters) {
   Slice<FSoulSliceState> SSlice = CreateSoulSlice();
   FSoulSliceState State;

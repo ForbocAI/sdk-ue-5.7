@@ -15,6 +15,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     "ForbocAI.Slices.Bridge.ValidationLifecycle",
     EAutomationTestFlags_ApplicationContextMask |
         EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FBridgeSliceValidationLifecycleTest::RunTest(const FString &Parameters) {
   Slice<FBridgeSliceState> BSlice = CreateBridgeSlice();
   FBridgeSliceState State;
@@ -56,6 +59,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FBridgeSliceValidationFailTest,
                                  "ForbocAI.Slices.Bridge.ValidationFailure",
                                  EAutomationTestFlags_ApplicationContextMask |
                                      EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FBridgeSliceValidationFailTest::RunTest(const FString &Parameters) {
   Slice<FBridgeSliceState> BSlice = CreateBridgeSlice();
   FBridgeSliceState State;
@@ -79,6 +85,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FBridgeSlicePresetsTest,
                                  "ForbocAI.Slices.Bridge.Presets",
                                  EAutomationTestFlags_ApplicationContextMask |
                                      EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FBridgeSlicePresetsTest::RunTest(const FString &Parameters) {
   Slice<FBridgeSliceState> BSlice = CreateBridgeSlice();
   FBridgeSliceState State;
@@ -134,6 +143,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FBridgeSliceRulesetsTest,
                                  "ForbocAI.Slices.Bridge.Rulesets",
                                  EAutomationTestFlags_ApplicationContextMask |
                                      EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FBridgeSliceRulesetsTest::RunTest(const FString &Parameters) {
   Slice<FBridgeSliceState> BSlice = CreateBridgeSlice();
   FBridgeSliceState State;

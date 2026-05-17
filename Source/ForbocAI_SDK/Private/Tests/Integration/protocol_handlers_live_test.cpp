@@ -25,6 +25,9 @@ struct FProcessLiveTestState {
 
 DEFINE_LATENT_AUTOMATION_COMMAND_TWO_PARAMETER(
     FProcessLiveStepWait, TSharedPtr<FProcessLiveTestState>, State, int32, PollCount);
+/**
+ * User Story: As a developer, I need Update to fulfill its role in the module.
+ */
 bool FProcessLiveStepWait::Update() {
   const int32 MaxPolls = 300;  // ~15s at 50ms
 
@@ -234,6 +237,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     "ForbocAI.Integration.Protocol.HandlersLive",
     EAutomationTestFlags_ApplicationContextMask |
         EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FProtocolHandlersLiveTest::RunTest(const FString &Parameters) {
   FString RuntimeUrl = FPlatformMisc::GetEnvironmentVariable(TEXT("FORBOC_RUNTIME_URL"));
   if (RuntimeUrl.IsEmpty()) {

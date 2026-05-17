@@ -35,6 +35,9 @@ uint64 StableHashRecursive(const FString &Value, int32 Index, uint64 Hash) {
                        1099511628211ull);
 }
 
+/**
+ * User Story: As a developer, I need BuildJsonVectorRecursive to fulfill its role in the module.
+ */
 FString BuildJsonVectorRecursive(const TArray<float> &Vector, int32 Index,
                                  FString JsonVec) {
   return Index == Vector.Num()
@@ -45,6 +48,9 @@ FString BuildJsonVectorRecursive(const TArray<float> &Vector, int32 Index,
                        (Index + 1 < Vector.Num() ? TEXT(",") : TEXT("")));
 }
 
+/**
+ * User Story: As a developer, I need BuildJsonVector to fulfill its role in the module.
+ */
 FString BuildJsonVector(const TArray<float> &Vector) {
   return BuildJsonVectorRecursive(Vector, 0, TEXT("["));
 }
@@ -68,6 +74,9 @@ FMemoryItem ReadMemoryItem(sqlite3_stmt *Stmt) {
   return Item;
 }
 
+/**
+ * User Story: As a developer, I need CollectSearchRowsRecursive to fulfill its role in the module.
+ */
 void CollectSearchRowsRecursive(sqlite3_stmt *Stmt, TArray<FMemoryItem> &Results) {
   const int StepResult = sqlite3_step(Stmt);
   StepResult == SQLITE_ROW
@@ -77,14 +86,23 @@ void CollectSearchRowsRecursive(sqlite3_stmt *Stmt, TArray<FMemoryItem> &Results
 }
 #endif
 
+/**
+ * User Story: As a developer, I need IsRedirectCode to fulfill its role in the module.
+ */
 bool IsRedirectCode(const int32 Code) {
   return Code == 301 || Code == 302 || Code == 303 || Code == 307 ||
          Code == 308;
 }
 
+/**
+ * User Story: As a developer, I need ContinueBinaryDownload to fulfill its role in the module.
+ */
 void ContinueBinaryDownload(const FString &RequestUrl,
                             const TSharedPtr<FBinaryDownloadState> &State);
 
+/**
+ * User Story: As a developer, I need ResolveBinaryDownload to fulfill its role in the module.
+ */
 void ResolveBinaryDownload(const TSharedPtr<FBinaryDownloadState> &State,
                            const TArray<uint8> &Payload) {
   FFileHelper::SaveArrayToFile(Payload, *State->Destination)
@@ -92,6 +110,9 @@ void ResolveBinaryDownload(const TSharedPtr<FBinaryDownloadState> &State,
       : State->Reject("Failed to save downloaded file to disk");
 }
 
+/**
+ * User Story: As a developer, I need HandleBinaryDownloadResponse to fulfill its role in the module.
+ */
 void HandleBinaryDownloadResponse(FHttpResponsePtr Response,
                                   const bool bWasSuccessful,
                                   const TSharedPtr<FBinaryDownloadState> &State) {
@@ -108,6 +129,9 @@ void HandleBinaryDownloadResponse(FHttpResponsePtr Response,
                   : ResolveBinaryDownload(State, Response->GetContent());
 }
 
+/**
+ * User Story: As a developer, I need ContinueBinaryDownload to fulfill its role in the module.
+ */
 void ContinueBinaryDownload(const FString &RequestUrl,
                             const TSharedPtr<FBinaryDownloadState> &State) {
   TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request =

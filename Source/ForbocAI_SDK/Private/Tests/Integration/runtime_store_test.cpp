@@ -13,6 +13,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FStoreNPCCreationTest,
                                  "ForbocAI.Integration.Store.NPCCreation",
                                  EAutomationTestFlags_ApplicationContextMask |
                                      EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FStoreNPCCreationTest::RunTest(const FString &Parameters) {
   FStoreState State;
 
@@ -52,6 +55,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     "ForbocAI.Integration.Store.RemovalCascade",
     EAutomationTestFlags_ApplicationContextMask |
         EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FStoreRemovalCascadeTest::RunTest(const FString &Parameters) {
   EnhancedStore<FStoreState> Store = createStore();
 
@@ -165,6 +171,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     "ForbocAI.Integration.Store.RemoveNonActive",
     EAutomationTestFlags_ApplicationContextMask |
         EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FStoreRemoveNonActiveTest::RunTest(const FString &Parameters) {
   EnhancedStore<FStoreState> Store = createStore();
 
@@ -225,6 +234,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     "ForbocAI.Integration.Store.ReduxLoggerSummary",
     EAutomationTestFlags_ApplicationContextMask |
         EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FStoreReduxLoggerSummaryTest::RunTest(const FString &Parameters) {
   (void)Parameters;
 

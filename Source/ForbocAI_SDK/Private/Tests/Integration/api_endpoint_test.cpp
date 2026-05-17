@@ -62,6 +62,9 @@ struct FApiEndpointTestState {
 DEFINE_LATENT_AUTOMATION_COMMAND_THREE_PARAMETER(
     FHttpGetWaitComplete, FString, Url, FString, ApiKey,
     TSharedPtr<FApiEndpointTestState>, State);
+/**
+ * User Story: As a developer, I need Update to fulfill its role in the module.
+ */
 bool FHttpGetWaitComplete::Update() {
   if (!State->bStarted) {
     const TSharedPtr<FApiEndpointTestState> SharedState = State;
@@ -93,6 +96,9 @@ bool FHttpGetWaitComplete::Update() {
 DEFINE_LATENT_AUTOMATION_COMMAND_FOUR_PARAMETER(
     FHttpPostWaitComplete, FString, Url, FString, Payload, FString, ApiKey,
     TSharedPtr<FApiEndpointTestState>, State);
+/**
+ * User Story: As a developer, I need Update to fulfill its role in the module.
+ */
 bool FHttpPostWaitComplete::Update() {
   if (!State->bStarted) {
     const TSharedPtr<FApiEndpointTestState> SharedState = State;
@@ -129,6 +135,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     "ForbocAI.Integration.API.Endpoint.StatusNoAuth",
     EAutomationTestFlags_ApplicationContextMask |
         EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FApiEndpointStatusNoAuthTest::RunTest(const FString &Parameters) {
   SDKConfig::SetApiConfig(SDKConfig::GetApiUrl(), TEXT(""));
 
@@ -161,6 +170,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     "ForbocAI.Integration.API.Endpoint.SoulsValidKey",
     EAutomationTestFlags_ApplicationContextMask |
         EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FApiEndpointSoulsValidKeyTest::RunTest(const FString &Parameters) {
   const FString Key =
       FPlatformMisc::GetEnvironmentVariable(TEXT("FORBOCAI_API_KEY"));
@@ -202,6 +214,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     "ForbocAI.Integration.API.Endpoint.SoulsNoKey",
     EAutomationTestFlags_ApplicationContextMask |
         EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FApiEndpointSoulsNoKeyTest::RunTest(const FString &Parameters) {
   SDKConfig::SetApiConfig(SDKConfig::GetApiUrl(), TEXT(""));
 
@@ -232,6 +247,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     "ForbocAI.Integration.API.Endpoint.SoulsInvalidKey",
     EAutomationTestFlags_ApplicationContextMask |
         EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FApiEndpointSoulsInvalidKeyTest::RunTest(const FString &Parameters) {
   SDKConfig::SetApiConfig(SDKConfig::GetApiUrl(),
                           TEXT("invalid_key_12345"));
@@ -263,6 +281,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     "ForbocAI.Integration.API.Endpoint.NotFound",
     EAutomationTestFlags_ApplicationContextMask |
         EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FApiEndpointNotFoundTest::RunTest(const FString &Parameters) {
   SDKConfig::SetApiConfig(SDKConfig::GetApiUrl(), TEXT(""));
 
@@ -292,6 +313,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     "ForbocAI.Integration.API.Endpoint.PostDirective",
     EAutomationTestFlags_ApplicationContextMask |
         EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FApiEndpointPostDirectiveTest::RunTest(const FString &Parameters) {
   const FString Key =
       FPlatformMisc::GetEnvironmentVariable(TEXT("FORBOCAI_API_KEY"));

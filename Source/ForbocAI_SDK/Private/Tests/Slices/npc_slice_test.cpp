@@ -15,6 +15,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FNPCSliceSetInfoTest,
                                  "ForbocAI.Slices.NPC.SetNPCInfo",
                                  EAutomationTestFlags_ApplicationContextMask |
                                      EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FNPCSliceSetInfoTest::RunTest(const FString &Parameters) {
   Slice<FNPCSliceState> NpcSlice = CreateNPCSlice();
 
@@ -62,6 +65,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FNPCSliceRemoveTest,
                                  "ForbocAI.Slices.NPC.RemoveNPC",
                                  EAutomationTestFlags_ApplicationContextMask |
                                      EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FNPCSliceRemoveTest::RunTest(const FString &Parameters) {
   Slice<FNPCSliceState> NpcSlice = CreateNPCSlice();
   FNPCSliceState State;
@@ -96,6 +102,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FNPCSliceSelectorsTest,
                                  "ForbocAI.Slices.NPC.Selectors",
                                  EAutomationTestFlags_ApplicationContextMask |
                                      EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FNPCSliceSelectorsTest::RunTest(const FString &Parameters) {
   Slice<FNPCSliceState> NpcSlice = CreateNPCSlice();
   FNPCSliceState State;

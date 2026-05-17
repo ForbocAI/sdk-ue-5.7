@@ -15,6 +15,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FDirectiveSliceRunStartedTest,
                                  "ForbocAI.Slices.Directive.RunStarted",
                                  EAutomationTestFlags_ApplicationContextMask |
                                      EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FDirectiveSliceRunStartedTest::RunTest(const FString &Parameters) {
   Slice<FDirectiveSliceState> DirSlice = CreateDirectiveSlice();
   FDirectiveSliceState State;
@@ -57,6 +60,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FDirectiveSliceDirectiveReceivedTest,
                                  "ForbocAI.Slices.Directive.DirectiveReceived",
                                  EAutomationTestFlags_ApplicationContextMask |
                                      EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FDirectiveSliceDirectiveReceivedTest::RunTest(const FString &Parameters) {
   Slice<FDirectiveSliceState> DirSlice = CreateDirectiveSlice();
   FDirectiveSliceState State;
@@ -96,6 +102,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FDirectiveSliceVerdictValidatedTest,
                                  "ForbocAI.Slices.Directive.VerdictValidated",
                                  EAutomationTestFlags_ApplicationContextMask |
                                      EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FDirectiveSliceVerdictValidatedTest::RunTest(const FString &Parameters) {
   Slice<FDirectiveSliceState> DirSlice = CreateDirectiveSlice();
   FDirectiveSliceState State;
@@ -136,6 +145,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FDirectiveSliceRunFailedTest,
                                  "ForbocAI.Slices.Directive.RunFailed",
                                  EAutomationTestFlags_ApplicationContextMask |
                                      EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FDirectiveSliceRunFailedTest::RunTest(const FString &Parameters) {
   Slice<FDirectiveSliceState> DirSlice = CreateDirectiveSlice();
   FDirectiveSliceState State;
@@ -170,6 +182,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FDirectiveSliceClearForNpcTest,
                                  "ForbocAI.Slices.Directive.ClearForNpc",
                                  EAutomationTestFlags_ApplicationContextMask |
                                      EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FDirectiveSliceClearForNpcTest::RunTest(const FString &Parameters) {
   Slice<FDirectiveSliceState> DirSlice = CreateDirectiveSlice();
   FDirectiveSliceState State;
@@ -212,6 +227,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FDirectiveSliceSelectorsTest,
                                  "ForbocAI.Slices.Directive.Selectors",
                                  EAutomationTestFlags_ApplicationContextMask |
                                      EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FDirectiveSliceSelectorsTest::RunTest(const FString &Parameters) {
   Slice<FDirectiveSliceState> DirSlice = CreateDirectiveSlice();
   FDirectiveSliceState State;

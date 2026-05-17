@@ -22,6 +22,9 @@ int32 CountErrorEntries(const TArray<FTranscriptEntry> &Entries) {
   return Count;
 }
 
+/**
+ * User Story: As a developer, I need ContainsMissingGroup to fulfill its role in the module.
+ */
 bool ContainsMissingGroup(const TArray<ECommandGroup> &Groups,
                           ECommandGroup Target) {
   for (ECommandGroup Group : Groups) {
@@ -54,6 +57,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     FTestGameRunGameSuccessTest, "ForbocAI.Integration.TestGame.RunGame.Success",
     EAutomationTestFlags_ApplicationContextMask |
         EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FTestGameRunGameSuccessTest::RunTest(const FString &Parameters) {
   (void)Parameters;
 
@@ -77,6 +83,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     "ForbocAI.Integration.TestGame.RunGame.TranscriptErrorFails",
     EAutomationTestFlags_ApplicationContextMask |
         EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FTestGameRunGameTranscriptErrorFailsTest::RunTest(
     const FString &Parameters) {
   (void)Parameters;
@@ -104,6 +113,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     "ForbocAI.Integration.TestGame.RunGame.FailedCommandLeavesCoverageGap",
     EAutomationTestFlags_ApplicationContextMask |
         EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FTestGameRunGameFailedCommandLeavesCoverageGapTest::RunTest(
     const FString &Parameters) {
   (void)Parameters;

@@ -15,6 +15,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FSoulConcurrentExportImportTest,
                                  "ForbocAI.Slices.Soul.ConcurrentExportImport",
                                  EAutomationTestFlags_ApplicationContextMask |
                                      EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FSoulConcurrentExportImportTest::RunTest(const FString &Parameters) {
   Slice<FSoulSliceState> SSlice = CreateSoulSlice();
   FSoulSliceState State;
@@ -81,6 +84,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FSoulExportFailImportSucceedTest,
                                  "ForbocAI.Slices.Soul.ExportFailImportSucceed",
                                  EAutomationTestFlags_ApplicationContextMask |
                                      EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FSoulExportFailImportSucceedTest::RunTest(const FString &Parameters) {
   Slice<FSoulSliceState> SSlice = CreateSoulSlice();
   FSoulSliceState State;
@@ -128,6 +134,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FSoulImportFailExportSucceedTest,
                                  "ForbocAI.Slices.Soul.ImportFailExportSucceed",
                                  EAutomationTestFlags_ApplicationContextMask |
                                      EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FSoulImportFailExportSucceedTest::RunTest(const FString &Parameters) {
   Slice<FSoulSliceState> SSlice = CreateSoulSlice();
   FSoulSliceState State;
@@ -172,6 +181,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FSoulDoubleExportTest,
                                  "ForbocAI.Slices.Soul.DoubleExport",
                                  EAutomationTestFlags_ApplicationContextMask |
                                      EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FSoulDoubleExportTest::RunTest(const FString &Parameters) {
   Slice<FSoulSliceState> SSlice = CreateSoulSlice();
   FSoulSliceState State;
@@ -217,6 +229,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FSoulDoubleImportTest,
                                  "ForbocAI.Slices.Soul.DoubleImport",
                                  EAutomationTestFlags_ApplicationContextMask |
                                      EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FSoulDoubleImportTest::RunTest(const FString &Parameters) {
   Slice<FSoulSliceState> SSlice = CreateSoulSlice();
   FSoulSliceState State;

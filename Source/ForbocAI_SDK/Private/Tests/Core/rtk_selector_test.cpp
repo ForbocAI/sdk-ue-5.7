@@ -8,6 +8,9 @@ using namespace rtk;
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRtkSelectorTest, "ForbocAI.Core.RTK.Selector",
                                  EAutomationTestFlags_ApplicationContextMask |
                                      EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FRtkSelectorTest::RunTest(const FString &Parameters) {
   struct FTestState {
     int32 A;

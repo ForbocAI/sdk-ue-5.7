@@ -9,6 +9,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRtkEntityAdapterTest,
                                  "ForbocAI.Core.RTK.EntityAdapter",
                                  EAutomationTestFlags_ApplicationContextMask |
                                      EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FRtkEntityAdapterTest::RunTest(const FString &Parameters) {
   auto Adapter = createEntityAdapter<FNpcMockState>(
       [](const FNpcMockState &E) { return E.Id; });

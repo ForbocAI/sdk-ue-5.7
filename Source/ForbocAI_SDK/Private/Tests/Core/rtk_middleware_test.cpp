@@ -9,6 +9,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRtkMiddlewareTest,
                                  "ForbocAI.Core.RTK.Middleware",
                                  EAutomationTestFlags_ApplicationContextMask |
                                      EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FRtkMiddlewareTest::RunTest(const FString &Parameters) {
   TArray<FString> EventLog;
 

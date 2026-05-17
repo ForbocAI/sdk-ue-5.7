@@ -8,6 +8,9 @@ namespace Handlers {
 
 namespace {
 
+/**
+ * User Story: As a developer, I need DescribeCortexStatus to fulfill its role in the module.
+ */
 FString DescribeCortexStatus(const FCortexStatus &Status) {
   return Status.bReady             ? TEXT("ready")
          : !Status.Error.IsEmpty() ? Status.Error

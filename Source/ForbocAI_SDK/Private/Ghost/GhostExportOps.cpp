@@ -1,3 +1,4 @@
+// User Story: As a developer, I need this module to function.
 #include "Ghost/GhostModuleInternal.h"
 
 namespace GhostInternal {

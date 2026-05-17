@@ -9,6 +9,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRtkAsyncThunkTest,
                                  "ForbocAI.Core.RTK.AsyncThunk",
                                  EAutomationTestFlags_ApplicationContextMask |
                                      EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FRtkAsyncThunkTest::RunTest(const FString &Parameters) {
   /**
    * Build a mock async thunk

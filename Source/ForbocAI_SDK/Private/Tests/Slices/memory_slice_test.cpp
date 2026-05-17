@@ -14,6 +14,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMemorySliceStoreTest,
                                  "ForbocAI.Slices.Memory.StoreLifecycle",
                                  EAutomationTestFlags_ApplicationContextMask |
                                      EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FMemorySliceStoreTest::RunTest(const FString &Parameters) {
   Slice<FMemorySliceState> MemSlice = CreateMemorySlice();
   FMemorySliceState State;
@@ -63,6 +66,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMemorySliceStoreFailTest,
                                  "ForbocAI.Slices.Memory.StoreFailed",
                                  EAutomationTestFlags_ApplicationContextMask |
                                      EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FMemorySliceStoreFailTest::RunTest(const FString &Parameters) {
   Slice<FMemorySliceState> MemSlice = CreateMemorySlice();
   FMemorySliceState State;
@@ -86,6 +92,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMemorySliceRecallTest,
                                  "ForbocAI.Slices.Memory.RecallLifecycle",
                                  EAutomationTestFlags_ApplicationContextMask |
                                      EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FMemorySliceRecallTest::RunTest(const FString &Parameters) {
   Slice<FMemorySliceState> MemSlice = CreateMemorySlice();
   FMemorySliceState State;
@@ -135,6 +144,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMemorySliceRecallFailTest,
                                  "ForbocAI.Slices.Memory.RecallFailed",
                                  EAutomationTestFlags_ApplicationContextMask |
                                      EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FMemorySliceRecallFailTest::RunTest(const FString &Parameters) {
   Slice<FMemorySliceState> MemSlice = CreateMemorySlice();
   FMemorySliceState State;
@@ -157,6 +169,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMemorySliceClearTest,
                                  "ForbocAI.Slices.Memory.Clear",
                                  EAutomationTestFlags_ApplicationContextMask |
                                      EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FMemorySliceClearTest::RunTest(const FString &Parameters) {
   Slice<FMemorySliceState> MemSlice = CreateMemorySlice();
   FMemorySliceState State;

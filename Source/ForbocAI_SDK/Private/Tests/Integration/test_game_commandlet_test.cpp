@@ -32,6 +32,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     "ForbocAI.Integration.TestGame.Commandlet.PipelineSuccess",
     EAutomationTestFlags_ApplicationContextMask |
         EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FTestGameCommandletPipelineSuccessTest::RunTest(
     const FString &Parameters) {
   (void)Parameters;
@@ -60,6 +63,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     "ForbocAI.Integration.TestGame.Commandlet.PipelineFailure",
     EAutomationTestFlags_ApplicationContextMask |
         EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FTestGameCommandletPipelineFailureTest::RunTest(
     const FString &Parameters) {
   (void)Parameters;
@@ -94,6 +100,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     "ForbocAI.Integration.TestGame.RuntimeUrlResolution",
     EAutomationTestFlags_ApplicationContextMask |
         EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FTestGameRuntimeUrlResolutionTest::RunTest(const FString &Parameters) {
   (void)Parameters;
 

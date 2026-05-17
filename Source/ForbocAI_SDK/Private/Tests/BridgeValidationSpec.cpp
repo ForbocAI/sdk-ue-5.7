@@ -5,6 +5,9 @@ DEFINE_SPEC(FForbocAIBridgeSpec, "ForbocAI.Bridge.Validation",
             EAutomationTestFlags::ProductFilter |
                 EAutomationTestFlags_ApplicationContextMask)
 
+/**
+ * User Story: As a developer, I need Define to fulfill its role in the module.
+ */
 void FForbocAIBridgeSpec::Define() {
   Describe("BridgeOps::Validate", [this]() {
     It("accepts a MOVE action with payload coordinates", [this]() {

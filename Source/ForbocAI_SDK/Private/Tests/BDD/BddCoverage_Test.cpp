@@ -17,12 +17,18 @@ TArray<FString> FindFiles(const FString& Directory, const FString& Extension) {
     return Files;
 }
 
+/**
+ * User Story: As a developer, I need ReadFile to fulfill its role in the module.
+ */
 FString ReadFile(const FString& Path) {
     FString Content;
     FFileHelper::LoadFileToString(Content, *Path);
     return Content;
 }
 
+/**
+ * User Story: As a developer, I need ExtractRegexMatches to fulfill its role in the module.
+ */
 void ExtractRegexMatches(const FString& Content, const FString& PatternStr, int32 GroupIndex, TSet<FString>& OutMatches) {
     FRegexPattern Pattern(PatternStr);
     FRegexMatcher Matcher(Pattern, Content);
@@ -32,6 +38,9 @@ void ExtractRegexMatches(const FString& Content, const FString& PatternStr, int3
 }
 } // namespace
 
+/**
+ * User Story: As a developer, I need Define to fulfill its role in the module.
+ */
 void FBddCoverageSpec::Define() {
   Describe("BDD Coverage", [this]() {
     It("must pass with 0 missing tags across all tested areas", [this]() {

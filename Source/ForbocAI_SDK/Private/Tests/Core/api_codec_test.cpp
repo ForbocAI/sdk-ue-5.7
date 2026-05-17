@@ -7,6 +7,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     FApiCodecSoulVerifyAliasTest, "ForbocAI.Core.API.SoulVerifyAliases",
     EAutomationTestFlags_ApplicationContextMask |
         EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FApiCodecSoulVerifyAliasTest::RunTest(const FString &Parameters) {
   const FString Json = TEXT(
       R"({"verifyValid":true,"verifyReason":"signature_ok"})");
@@ -24,6 +27,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     FApiCodecBridgeRulesAliasTest, "ForbocAI.Core.API.BridgeRuleAliases",
     EAutomationTestFlags_ApplicationContextMask |
         EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FApiCodecBridgeRulesAliasTest::RunTest(const FString &Parameters) {
   const FString Json = TEXT(R"([
     {
@@ -51,6 +57,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     FApiCodecRulesetAliasTest, "ForbocAI.Core.API.RulesetAliases",
     EAutomationTestFlags_ApplicationContextMask |
         EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FApiCodecRulesetAliasTest::RunTest(const FString &Parameters) {
   const FString Json = TEXT(R"({
     "rulesetId": "preset_rpg",
@@ -91,6 +100,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     "ForbocAI.Core.API.NullableProtocolFields",
     EAutomationTestFlags_ApplicationContextMask |
         EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FApiCodecNullableProtocolFieldsTest::RunTest(const FString &Parameters) {
   const FString Json = TEXT(R"({
     "instruction": {
@@ -142,6 +154,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     "ForbocAI.Core.API.BridgeValidationWrapper",
     EAutomationTestFlags_ApplicationContextMask |
         EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FApiCodecBridgeValidationWrapperTest::RunTest(const FString &Parameters) {
   const FString Json = TEXT(
       R"({"brResult":{"valid":false,"reason":"blocked"}})");
@@ -164,6 +179,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     "ForbocAI.Core.API.ActionFromObjectGaTypeAliases",
     EAutomationTestFlags_ApplicationContextMask |
         EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FApiCodecActionFromObjectGaTypeTest::RunTest(const FString &Parameters) {
   TSharedPtr<FJsonObject> Obj = MakeShared<FJsonObject>();
   Obj->SetStringField(TEXT("gaType"), TEXT("speak"));

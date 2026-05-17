@@ -1,3 +1,4 @@
+// User Story: As a developer, I need this module to function.
 #include "Memory/MemoryModuleInternal.h"
 
 namespace MemoryInternal {

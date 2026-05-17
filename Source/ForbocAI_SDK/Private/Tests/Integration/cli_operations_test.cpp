@@ -105,6 +105,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FOpsCreateNpcTest,
                                  "ForbocAI.Integration.Ops.CreateNpc",
                                  EAutomationTestFlags_ApplicationContextMask |
                                      EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FOpsCreateNpcTest::RunTest(const FString &Parameters) {
   EnhancedStore<FStoreState> Store = createStore();
 
@@ -133,6 +136,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FOpsGetActiveEmptyTest,
                                  "ForbocAI.Integration.Ops.GetActiveEmpty",
                                  EAutomationTestFlags_ApplicationContextMask |
                                      EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FOpsGetActiveEmptyTest::RunTest(const FString &Parameters) {
   EnhancedStore<FStoreState> Store = createStore();
 
@@ -150,6 +156,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FOpsListNpcsTest,
                                  "ForbocAI.Integration.Ops.ListNpcs",
                                  EAutomationTestFlags_ApplicationContextMask |
                                      EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FOpsListNpcsTest::RunTest(const FString &Parameters) {
   EnhancedStore<FStoreState> Store = createStore();
 
@@ -174,6 +183,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FOpsConfigTest,
                                  "ForbocAI.Integration.Ops.Config",
                                  EAutomationTestFlags_ApplicationContextMask |
                                      EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FOpsConfigTest::RunTest(const FString &Parameters) {
   const FString TempConfigPath = FPaths::Combine(
       FPaths::ProjectSavedDir(),
@@ -232,6 +244,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     "ForbocAI.Integration.Ops.CreateAndRemove",
     EAutomationTestFlags_ApplicationContextMask |
         EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FOpsCreateAndRemoveTest::RunTest(const FString &Parameters) {
   EnhancedStore<FStoreState> Store = createStore();
 

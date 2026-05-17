@@ -9,6 +9,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRtkStoreAndSliceTest,
                                  "ForbocAI.Core.RTK.StoreAndSlice",
                                  EAutomationTestFlags_ApplicationContextMask |
                                      EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FRtkStoreAndSliceTest::RunTest(const FString &Parameters) {
   /**
    * Build Slice
@@ -76,6 +79,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRtkConfigureStoreTest,
                                  "ForbocAI.Core.RTK.ConfigureStore",
                                  EAutomationTestFlags_ApplicationContextMask |
                                      EAutomationTestFlags::EngineFilter)
+/**
+ * User Story: As a developer, I need RunTest to fulfill its role in the module.
+ */
 bool FRtkConfigureStoreTest::RunTest(const FString &Parameters) {
   /**
    * 1. Setup Reducer
