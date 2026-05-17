@@ -8,9 +8,10 @@
  * Architecture:
  *   test game -> CommandSurface -> CLIOps::DispatchCommand -> Ops::* -> API
  *
- * This replaces the previous pattern where TestGameLib.h::ExecuteForbocAICommand
- * was a shadow CLI that re-routed commands directly to Ops::* functions,
- * bypassing the canonical CLIOps command surface.
+ * This replaces the previous in-process executor pattern (the retired
+ * TestGameLib.h::ExecuteForbocAICommand entrypoint), which was a shadow CLI
+ * that re-routed commands directly to Ops::* functions, bypassing the
+ * canonical CLIOps command surface.
  *
  * The important point is NOT "UE must look like a Unix shell."
  * The important point IS "the UE harness validates a real host command boundary
@@ -119,7 +120,8 @@ inline FString ResolveNpcAlias(const FAliasState &Aliases,
 
 /**
  * Tokenize a command string, respecting quoted strings.
- * Reuses the same tokenizer from TestGameLib.
+ * Local to this command surface — the historical TestGameLib tokenizer is
+ * retired alongside the rest of the legacy in-process executor surface.
  */
 inline TArray<FString> Tokenize(const FString &Command) {
   TArray<FString> Tokens;

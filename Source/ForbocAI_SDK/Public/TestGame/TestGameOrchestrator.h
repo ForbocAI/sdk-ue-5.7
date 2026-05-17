@@ -6,10 +6,11 @@
  */
 
 #include "CoreMinimal.h"
-#include "TestGame/TestGameLib.h"
 #include "TestGame/TestGameCommandSurface.h"
 #include "TestGame/TestGameContract.h"
+#include "TestGame/TestGameGridRender.h"
 #include "TestGame/TestGameListeners.h"
+#include "TestGame/TestGameRuntime.h"
 #include "Core/functional_core.hpp"
 
 namespace TestGame {

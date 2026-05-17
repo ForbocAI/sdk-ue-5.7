@@ -63,15 +63,33 @@ echo "Checking tests for mock, stub, and no-op patterns..."
 echo ""
 
 # ── Rule 1: No mock/stub terms ──
+# Skips comment-only matches so tests can document *why* they intentionally
+# avoid mocks (e.g. "the test has no fake response object") without
+# tripping the rule. A meta-mention inside a `//` or `*` comment is not
+# the same as a fake assertion in the test body.
 echo "[Rule 1] No fake, stub, simulated, or placeholder terms..."
 MOCK_TERMS="fake|stub|simulated\b|placeholder"
-HITS=$($COUNT_CMD "$MOCK_TERMS" "${TEST_DIRS[@]}" | grep -v ":0$" || true)
-if [ -n "$HITS" ]; then
+RAW_HITS=$($SEARCH_CMD "$MOCK_TERMS" "${TEST_DIRS[@]}" 2>/dev/null || true)
+REAL_HITS=""
+while IFS= read -r line; do
+  [ -z "$line" ] && continue
+  code="${line#*:*:}"
+  trimmed="$(printf '%s' "$code" | sed 's/^[[:space:]]*//')"
+  case "$trimmed" in
+    //*|\**|/\**) continue ;;
+  esac
+  stripped="$(printf '%s' "$code" | sed 's|//.*||' | sed 's|/\*.*\*/||g')"
+  if printf '%s' "$stripped" | grep -iE "$MOCK_TERMS" >/dev/null 2>&1; then
+    REAL_HITS="$REAL_HITS"$'\n'"$line"
+  fi
+done <<< "$RAW_HITS"
+REAL_HITS="$(printf '%s\n' "$REAL_HITS" | sed '/^$/d')"
+if [ -n "$REAL_HITS" ]; then
   echo "  ✗ Mock/stub terminology found:"
-  $SEARCH_CMD "$MOCK_TERMS" "${TEST_DIRS[@]}" || true
+  printf '%s\n' "$REAL_HITS"
   VIOLATIONS=$((VIOLATIONS + 1))
 else
-  echo "  ✓ No mock/stub terminology found."
+  echo "  ✓ No mock/stub terminology found in non-comment test code."
 fi
 echo ""
 

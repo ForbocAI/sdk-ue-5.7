@@ -1,7 +1,7 @@
 #include "Misc/AutomationTest.h"
 #include "RuntimeCommandlet.h"
 #include "TestGame/TestGameCommandSurface.h"
-#include "TestGame/TestGameLib.h"
+#include "TestGame/TestGameRuntime.h"
 
 // @covers:cli:test_game
 

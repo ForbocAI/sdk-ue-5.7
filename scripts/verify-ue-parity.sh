@@ -9,8 +9,9 @@
 #   1. UE conformance (check-ue-conformance.sh)
 #   2. FP conformance (check-ue-fp-conformance.sh)
 #   3. Thin-wrapper guardrails (check-thin-wrapper-guardrails.sh)
-#   4. Product boundary audit (check-product-boundary.sh)
-#   5. API contract parity (check-api-contract-parity.py)
+#   4. Test-game executor-boundary guard (check-test-game-executor-boundary.sh)
+#   5. Product boundary audit (check-product-boundary.sh)
+#   6. API contract parity (check-api-contract-parity.py)
 #
 # Exit codes:
 #   0 = all checks passed
@@ -32,10 +33,12 @@ SKIPPED=0
 UE_CONFORMANCE_STATUS="skipped"
 FP_CONFORMANCE_STATUS="skipped"
 THIN_WRAPPER_STATUS="skipped"
+TEST_GAME_BOUNDARY_STATUS="skipped"
 PRODUCT_BOUNDARY_STATUS="skipped"
 CONTRACT_PARITY_STATUS="skipped"
 HANDLER_CLASSIFICATION_STATUS="skipped"
 TEST_QUALITY_STATUS="skipped"
+CODEC_PARITY_STATUS="skipped"
 RUNTIME_READINESS_STATUS="skipped"
 while [[ $# -gt 0 ]]; do
   case $1 in
@@ -162,6 +165,10 @@ run_check "FP Conformance (no loops, no classes, no mutation)" \
 run_check "Thin-Wrapper Guardrails (command surface rules)" \
   "$SCRIPT_DIR/check-thin-wrapper-guardrails.sh" THIN_WRAPPER_STATUS
 
+# ── Phase 3b: Test-game executor boundary ──
+run_check "Test-game executor boundary (no TestGameLib.h, no shadow executor)" \
+  "$SCRIPT_DIR/check-test-game-executor-boundary.sh" TEST_GAME_BOUNDARY_STATUS
+
 # ── Phase 4: Product Boundary ──
 run_check "Product Boundary (game-agnostic audit)" \
   "$SCRIPT_DIR/check-product-boundary.sh" PRODUCT_BOUNDARY_STATUS
@@ -247,6 +254,7 @@ echo "Parity Verification Checklist:"
 echo "  [$(mark_for_status "$UE_CONFORMANCE_STATUS")] UE conformance (structural)"
 echo "  [$(mark_for_status "$FP_CONFORMANCE_STATUS")] FP conformance (immutability)"
 echo "  [$(mark_for_status "$THIN_WRAPPER_STATUS")] Thin-wrapper guardrails"
+echo "  [$(mark_for_status "$TEST_GAME_BOUNDARY_STATUS")] Test-game executor boundary"
 echo "  [$(mark_for_status "$PRODUCT_BOUNDARY_STATUS")] Product boundary audit"
 if [ "$QUICK_MODE" -eq 1 ]; then
   echo "  [ ] Canonical-contract parity (skipped by --quick)"
@@ -255,13 +263,9 @@ else
 fi
 echo "  [$(mark_for_status "$HANDLER_CLASSIFICATION_STATUS")] Handler classification drift"
 echo "  [$(mark_for_status "$TEST_QUALITY_STATUS")] Test quality (real coverage)"
-echo "  [ ] Protocol codec parity"
-echo "  [ ] Focused RunGame automation (requires editor build)"
-echo "  [ ] Runtime-readiness verification (requires API connectivity)"
-echo ""
-
-exit $FAILURES
-RL not set)"
+echo "  [$(mark_for_status "${CODEC_PARITY_STATUS:-skipped}")] Protocol codec parity"
+if [ "$QUICK_MODE" -eq 1 ]; then
+  echo "  [ ] Runtime-readiness verification (skipped by --quick)"
 else
   echo "  [$(mark_for_status "$RUNTIME_READINESS_STATUS")] Runtime-readiness verification (requires API connectivity)"
 fi
