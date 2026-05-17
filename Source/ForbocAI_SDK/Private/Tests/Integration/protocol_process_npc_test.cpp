@@ -79,18 +79,21 @@ bool FProcessNPCWaitComplete::Update() {
 }
 
 /**
- * Test: processNPC with real API — full flow (valid verdict)
- * User Story: As a maintainer, I need this note so the surrounding code intent stays clear during maintenance and debugging.
+ * Test: processNPC with real API — full flow (valid verdict).
+ * Drives the live SDKConfig-resolved API; renamed from the original
+ * "Mock" prefix per ForbocAI/demo-ue-5.7#7 — the test has no fake
+ * response object and asserts the real wire payload returned by the
+ * API.
  */
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
-    FProcessNPCMockFinalizeValidTest,
-    "ForbocAI.Integration.Protocol.ProcessNPCMockFinalizeValid",
+    FProcessNPCLiveFinalizeValidTest,
+    "ForbocAI.Integration.Protocol.ProcessNPCLiveFinalizeValid",
     EAutomationTestFlags_ApplicationContextMask |
         EAutomationTestFlags::EngineFilter)
 /**
  * User Story: As a developer, I need RunTest to fulfill its role in the module.
  */
-bool FProcessNPCMockFinalizeValidTest::RunTest(const FString &Parameters) {
+bool FProcessNPCLiveFinalizeValidTest::RunTest(const FString &Parameters) {
   SDKConfig::SetApiConfig(SDKConfig::GetApiUrl(),
                           FPlatformMisc::GetEnvironmentVariable(
                               TEXT("FORBOCAI_API_KEY")));
@@ -131,6 +134,12 @@ bool FProcessNPCMockFinalizeValidTest::RunTest(const FString &Parameters) {
           TestTrue("History has entries", Npc.value.History.Num() >= 1);
           TestFalse("NPC not blocked", Npc.value.bIsBlocked);
         }
+
+        // Wire-payload assertions on the live FAgentResponse — the API
+        // must drive every field the test relies on (no fake response
+        // object short-circuits the loop).
+        TestTrue("Response has dialogue from the API",
+                 !State->Response.Dialogue.IsEmpty());
       },
       0.01f));
 
@@ -138,19 +147,22 @@ bool FProcessNPCMockFinalizeValidTest::RunTest(const FString &Parameters) {
 }
 
 /**
- * Test: processNPC with real API — block behavior (invalid verdict)
- * Uses observation that may be blocked by API rules.
- * User Story: As a maintainer, I need this note so the surrounding code intent stays clear during maintenance and debugging.
+ * Test: processNPC with real API — block behavior (invalid verdict).
+ * Uses observation that the API's bridge ruleset blocks. Renamed from
+ * the original "Mock" prefix per ForbocAI/demo-ue-5.7#7 — the test
+ * dispatches the real `rtk::processNPC` thunk against the live SDKConfig
+ * URL and asserts the actual `bIsBlocked` / `BlockReason` shape the API
+ * returns.
  */
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
-    FProcessNPCMockFinalizeInvalidTest,
-    "ForbocAI.Integration.Protocol.ProcessNPCMockFinalizeInvalid",
+    FProcessNPCLiveFinalizeInvalidTest,
+    "ForbocAI.Integration.Protocol.ProcessNPCLiveFinalizeInvalid",
     EAutomationTestFlags_ApplicationContextMask |
         EAutomationTestFlags::EngineFilter)
 /**
  * User Story: As a developer, I need RunTest to fulfill its role in the module.
  */
-bool FProcessNPCMockFinalizeInvalidTest::RunTest(const FString &Parameters) {
+bool FProcessNPCLiveFinalizeInvalidTest::RunTest(const FString &Parameters) {
   SDKConfig::SetApiConfig(SDKConfig::GetApiUrl(),
                           FPlatformMisc::GetEnvironmentVariable(
                               TEXT("FORBOCAI_API_KEY")));
