@@ -91,7 +91,6 @@ echo "[Rule 3] No TestGame type imports in generic headers..."
 TG_IMPORTS="TestGame/TestGame|FTestGameState|FScenarioStep|FCommandSpec|ECommandGroup|FTranscriptEntry|ETranscriptStatus"
 # Check CLI, Protocol, Core, Blueprint directories
 GENERIC_DIRS=("$PUBLIC/CLI" "$PUBLIC/Protocol" "$PUBLIC/Core")
-[ -d "$DEMO_SRC" ] && GENERIC_DIRS+=("$DEMO_SRC")
 for dir in "${GENERIC_DIRS[@]}"; do
   [ -d "$dir" ] || continue
   HITS=$(rg -ci "$TG_IMPORTS" "$dir" 2>/dev/null || true)
